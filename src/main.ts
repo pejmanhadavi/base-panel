@@ -12,6 +12,7 @@ async function bootstrap() {
     .setDescription('Base store APIs')
     .setVersion('1.0')
     .addTag('base-store')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
