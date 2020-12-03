@@ -20,10 +20,11 @@ async function bootstrap() {
   // Class Validator configurations
   app.useGlobalPipes(
     new ValidationPipe({
-      disableErrorMessages: true,
+      disableErrorMessages: true ? process.env.NODE_ENV == 'production' : false,
     }),
   );
 
   await app.listen(3000);
+  console.log(`connected to ${process.env.MONGO_URI}`);
 }
 bootstrap();

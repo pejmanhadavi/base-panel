@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 import * as bcrypt from 'bcryptjs';
+import { isEmail } from 'class-validator';
 
 // export enum Roles {
 //   User = 'user',
@@ -14,13 +15,19 @@ export type UserDocument = User & Document;
 export class User {
   @Prop({
     type: String,
-    unique: [true, 'THE_USERNAME_ALREADY_EXISTS'],
-    required: true,
-    minlength: 3,
+    unique: [true, 'THE_EMAIL_ALREADY_EXISTS'],
+    minlength: 5,
     maxlength: 256,
     trim: true,
   })
-  username: string;
+  email?: string;
+
+  @Prop({
+    type: String,
+    minlength: 11,
+    maxlength: 11,
+  })
+  phoneNumber?: string;
 
   @Prop({
     type: String,
@@ -30,21 +37,40 @@ export class User {
     select: false,
   })
   password: string;
-
   @Prop({ type: Boolean, default: false })
   isSuperAdmin: boolean;
 
   @Prop({ type: Boolean, default: false })
   isStaff: boolean;
 
+  @Prop({ type: Boolean, default: true, select: false })
+  isActive: boolean;
+
+  @Prop({
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role', index: true }],
+  })
+  roles: Array<mongoose.Schema.Types.ObjectId>;
+
   @Prop({ type: Boolean, default: false, select: false })
   verified: boolean;
 
-  @Prop({
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: 'Role',
-  })
-  roles: Array<mongoose.Schema.Types.ObjectId>;
+  @Prop({ type: String })
+  verificationCode: string;
+
+  @Prop({ type: Date })
+  verificationExpires: string;
+
+  @Prop({ type: Number })
+  confirmationAttemptsCount: number;
+
+  @Prop({ type: Date })
+  blockExpires: string;
+
+  // @Prop({
+  //   type: [mongoose.Schema.Types.ObjectId],
+  //   ref: 'AuthHistory',
+  // })
+  // authHistory: Array<mongoose.Schema.Types.ObjectId>;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

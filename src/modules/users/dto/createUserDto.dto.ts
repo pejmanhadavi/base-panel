@@ -1,5 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsArray,
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -8,8 +9,9 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class AuthSignUpDto {
+export class CreateUserDto {
   @ApiProperty({
     type: String,
     example: 'user@gmail.com',
@@ -18,7 +20,6 @@ export class AuthSignUpDto {
     minLength: 5,
     maxLength: 256,
   })
-  @IsOptional()
   @MinLength(5)
   @MaxLength(256)
   @IsEmail()
@@ -26,31 +27,55 @@ export class AuthSignUpDto {
 
   @ApiProperty({
     type: String,
-    required: true,
     example: '09123456789',
     description: 'User phone number',
     minLength: 11,
     maxLength: 11,
   })
-  @IsNotEmpty()
-  @IsOptional()
   @IsPhoneNumber('IR', { message: 'the phone number is wrong' })
-  @IsString()
   @MinLength(11)
   @MaxLength(11)
   readonly phoneNumber?: string;
 
   @ApiProperty({
     type: String,
-    example: 'myPassword',
+    required: true,
+    example: 'password!',
     description: 'the password of user',
     minLength: 8,
     maxLength: 1024,
-    required: true,
   })
   @IsNotEmpty()
   @IsString()
   @MinLength(8)
   @MaxLength(1024)
-  password: string;
+  readonly password: string;
+
+  @ApiProperty({
+    type: Boolean,
+    required: true,
+    default: true,
+    description: 'Defining being staff',
+  })
+  @IsNotEmpty()
+  @IsBoolean()
+  readonly isStaff: boolean;
+
+  @ApiProperty({
+    type: [String],
+    required: true,
+    default: false,
+    description: 'Defining being staff',
+  })
+  @IsNotEmpty()
+  @IsArray()
+  readonly roles: Array<string>;
+
+  @ApiProperty({
+    type: Boolean,
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  readonly verified?: boolean = false;
 }

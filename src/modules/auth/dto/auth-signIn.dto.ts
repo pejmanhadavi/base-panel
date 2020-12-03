@@ -1,20 +1,43 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class AuthSignInDto {
   @ApiProperty({
     type: String,
-    example: 'myUsername',
-    description: 'the unique username for each user',
-    minLength: 3,
+    example: 'user@gmail.com',
+    description: 'the unique email for each user',
+    uniqueItems: true,
+    minLength: 5,
     maxLength: 256,
+  })
+  @IsOptional()
+  @MinLength(5)
+  @MaxLength(256)
+  @IsEmail()
+  readonly email?: string;
+
+  @ApiProperty({
+    type: String,
     required: true,
+    example: '09123456789',
+    description: 'User phone number',
+    minLength: 11,
+    maxLength: 11,
   })
   @IsNotEmpty()
-  @IsString()
-  @MinLength(3)
-  @MaxLength(256)
-  username: string;
+  @IsOptional()
+  @IsPhoneNumber('IR', { message: 'the phone number is wrong' })
+  @MinLength(11)
+  @MaxLength(11)
+  readonly phoneNumber?: string;
 
   @ApiProperty({
     type: String,

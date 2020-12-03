@@ -5,11 +5,13 @@ import { Model } from 'mongoose';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { User, UserDocument } from '../../users/schemas/user.schema';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
+import { Role, RoleDocument } from '../schemas/role.schema';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(Role.name) private readonly roleModel: Model<RoleDocument>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -18,7 +20,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload): Promise<UserDocument> {
-    const user = await this.userModel.findById(payload.id);
+    const user = await this.userModel
+      .findById(payload.id)
+      .populate('roles', 'permissions');
     if (!user) throw new UnauthorizedException();
 
     return user;

@@ -1,17 +1,23 @@
-import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsArray,
+  IsBoolean,
   IsEmail,
+  IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import * as mongoose from 'mongoose';
 
-export class AuthSignUpDto {
+export class UpdateUserDto {
   @ApiProperty({
     type: String,
+    required: true,
     example: 'user@gmail.com',
     description: 'the unique email for each user',
     uniqueItems: true,
@@ -32,25 +38,38 @@ export class AuthSignUpDto {
     minLength: 11,
     maxLength: 11,
   })
-  @IsNotEmpty()
-  @IsOptional()
   @IsPhoneNumber('IR', { message: 'the phone number is wrong' })
+  @IsOptional()
   @IsString()
   @MinLength(11)
   @MaxLength(11)
   readonly phoneNumber?: string;
 
   @ApiProperty({
-    type: String,
-    example: 'myPassword',
-    description: 'the password of user',
-    minLength: 8,
-    maxLength: 1024,
+    type: Boolean,
     required: true,
+    default: true,
+    description: 'Defining being staff',
   })
   @IsNotEmpty()
-  @IsString()
-  @MinLength(8)
-  @MaxLength(1024)
-  password: string;
+  @IsBoolean()
+  readonly isStaff?: boolean;
+
+  @ApiProperty({
+    type: [String],
+    required: true,
+    default: false,
+    description: 'Defining being staff',
+  })
+  @IsNotEmpty()
+  @IsArray()
+  readonly roles?: Array<mongoose.Schema.Types.ObjectId>;
+
+  @ApiPropertyOptional()
+  @ApiProperty({
+    type: Boolean,
+  })
+  @IsBoolean()
+  @IsOptional()
+  readonly verified?: boolean;
 }

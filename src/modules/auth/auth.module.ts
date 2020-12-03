@@ -8,6 +8,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import * as dotenv from 'dotenv';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { AuthHistory, AuthHistorySchema } from './schemas/authHistory.schema';
+import {
+  ForgotPassword,
+  ForgotPasswordSchema,
+} from './schemas/forgotPassword.schema';
 
 dotenv.config();
 @Module({
@@ -24,6 +29,8 @@ dotenv.config();
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: Role.name, schema: RoleSchema },
+      { name: AuthHistory.name, schema: AuthHistorySchema },
+      { name: ForgotPassword.name, schema: ForgotPasswordSchema },
     ]),
   ],
   providers: [AuthService, JwtStrategy],
