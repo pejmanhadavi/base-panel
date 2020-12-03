@@ -2,9 +2,6 @@ import {
   IsArray,
   IsBoolean,
   IsEmail,
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -32,7 +29,6 @@ export class UpdateUserDto {
 
   @ApiProperty({
     type: String,
-    required: true,
     example: '09123456789',
     description: 'User phone number',
     minLength: 11,
@@ -51,17 +47,15 @@ export class UpdateUserDto {
     default: true,
     description: 'Defining being staff',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsBoolean()
   readonly isStaff?: boolean;
 
   @ApiProperty({
     type: [String],
-    required: true,
-    default: false,
     description: 'Defining being staff',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsArray()
   readonly roles?: Array<mongoose.Schema.Types.ObjectId>;
 

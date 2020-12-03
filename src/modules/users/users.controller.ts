@@ -60,9 +60,7 @@ export class UsersController {
   @HttpCode(201)
   @ApiCreatedResponse()
   @ApiOperation({ summary: 'Create user' })
-  async createUser(
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<UserDocument> {
+  async createUser(@Body() createUserDto: CreateUserDto) {
     return await this.usersService.createUser(createUserDto);
   }
 

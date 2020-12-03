@@ -46,7 +46,7 @@ export class AuthController {
   @Post('/signin')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'signIn the user' })
-  async signIn(@Body() authSignInDto: AuthSignInDto): Promise<object | void> {
+  async signIn(@Body() authSignInDto: AuthSignInDto): Promise<string | void> {
     return this.authService.signIn(authSignInDto);
   }
 

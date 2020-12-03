@@ -20,6 +20,7 @@ export class CreateUserDto {
     minLength: 5,
     maxLength: 256,
   })
+  @IsOptional()
   @MinLength(5)
   @MaxLength(256)
   @IsEmail()
@@ -32,6 +33,7 @@ export class CreateUserDto {
     minLength: 11,
     maxLength: 11,
   })
+  @IsOptional()
   @IsPhoneNumber('IR', { message: 'the phone number is wrong' })
   @MinLength(11)
   @MaxLength(11)
@@ -64,8 +66,8 @@ export class CreateUserDto {
   @ApiProperty({
     type: [String],
     required: true,
-    default: false,
-    description: 'Defining being staff',
+    example: 'role id (Object id)',
+    description: 'user roles',
   })
   @IsNotEmpty()
   @IsArray()

@@ -45,11 +45,11 @@ export class AuthService {
     }
   }
 
-  async signIn(authSignInDto: AuthSignInDto): Promise<object | void> {
+  async signIn(authSignInDto: AuthSignInDto): Promise<string | void> {
     const { email, phoneNumber, password } = authSignInDto;
 
     const user: any = await this.userModel
-      .findOne({ email, phoneNumber })
+      .findOne({ $or: [{ email }, { phoneNumber }] })
       .select('+password');
 
     if (!user) throw new UnauthorizedException();
@@ -64,7 +64,7 @@ export class AuthService {
     };
     // generate token
     const token = this.jwtService.sign(payload);
-    return { token };
+    return token;
   }
 
   // ROLES CRUD

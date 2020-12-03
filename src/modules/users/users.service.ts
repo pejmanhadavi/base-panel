@@ -15,23 +15,37 @@ export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async getAllUsers(): Promise<UserDocument[]> {
-    return await this.userModel.find(); //.select('+roles +verified');
+    return await this.userModel.find().populate('roles', 'name permissions'); //.select('+roles +verified');
   }
 
   async getUserById(id: string): Promise<UserDocument> {
-    const user = await this.userModel.findById(id); //.select('+roles +verified');
+    const user = await this.userModel
+      .findById(id)
+      .populate('roles', 'name permissions'); //.select('+roles +verified');
     if (!user) throw new NotFoundException('not found user by the given id');
     return user;
   }
 
-  async createUser(createUserDto: CreateUserDto): Promise<UserDocument> {
+  async createUser(createUserDto: CreateUserDto) {
+    const { email, phoneNumber } = createUserDto;
+
+    if (!email && !phoneNumber)
+      throw new BadRequestException('please enter phone number or email');
     try {
-      const { email, phoneNumber, password } = createUserDto;
-      const user = new this.userModel(createUserDto);
-      return await user.save();
+      let user = new this.userModel(createUserDto);
+
+      user = await user.save();
+      return user;
     } catch (error) {
       if (error.code == 11000)
-        throw new BadRequestException('username has already exists');
+        throw new BadRequestException('user has already exists');
+      else if (
+        error.message.match(
+          /Cast to ObjectId failed for value "string" at path "roles"/,
+        )
+      )
+        throw new BadRequestException('please enter valid roles');
+
       throw new InternalServerErrorException();
     }
   }
@@ -48,7 +62,7 @@ export class UsersService {
       });
     } catch (error) {
       if (error.code == 11000)
-        throw new BadRequestException('username has already exists');
+        throw new BadRequestException('user has already exists');
       throw new InternalServerErrorException();
     }
   }

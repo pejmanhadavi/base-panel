@@ -2,13 +2,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 import * as bcrypt from 'bcryptjs';
-import { isEmail } from 'class-validator';
-
-// export enum Roles {
-//   User = 'user',
-//   SuperAdmin = 'superAdmin',
-//   Admin = 'admin',
-// }
 
 export type UserDocument = User & Document;
 @Schema({ versionKey: false, timestamps: true })
@@ -37,6 +30,7 @@ export class User {
     select: false,
   })
   password: string;
+
   @Prop({ type: Boolean, default: false })
   isSuperAdmin: boolean;
 
