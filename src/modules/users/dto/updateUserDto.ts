@@ -34,7 +34,7 @@ export class UpdateUserDto {
     minLength: 11,
     maxLength: 11,
   })
-  @IsPhoneNumber('IR', { message: 'the phone number is wrong' })
+  @IsPhoneNumber(null, { message: 'the phone number is wrong' })
   @IsOptional()
   @IsString()
   @MinLength(11)

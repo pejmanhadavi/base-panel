@@ -34,7 +34,7 @@ export class CreateUserDto {
     maxLength: 11,
   })
   @IsOptional()
-  @IsPhoneNumber('IR', { message: 'the phone number is wrong' })
+  @IsPhoneNumber(null, { message: 'the phone number is wrong' })
   @MinLength(11)
   @MaxLength(11)
   readonly phoneNumber?: string;

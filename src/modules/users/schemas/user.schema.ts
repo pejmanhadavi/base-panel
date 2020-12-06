@@ -17,6 +17,7 @@ export class User {
 
   @Prop({
     type: String,
+    unique: [true, 'THE_EMAIL_ALREADY_EXISTS'],
     minlength: 11,
     maxlength: 11,
   })
@@ -52,13 +53,13 @@ export class User {
   verificationCode: string;
 
   @Prop({ type: Date })
-  verificationExpires: string;
+  verificationExpires: number;
 
   @Prop({ type: Number })
   confirmationAttemptsCount: number;
 
   @Prop({ type: Date })
-  blockExpires: string;
+  blockExpires: number;
 
   // @Prop({
   //   type: [mongoose.Schema.Types.ObjectId],

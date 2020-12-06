@@ -30,12 +30,12 @@ import { Roles } from '../auth/decorators/roles.decorator';
 @ApiBearerAuth()
 @ApiTags('users')
 @UseGuards(AuthGuard('jwt'))
+@UseGuards(RolesGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @UseGuards(RolesGuard)
   @Roles(permissions.READ_USER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all users' })
@@ -45,7 +45,6 @@ export class UsersController {
   }
 
   @Get('/:id')
-  @UseGuards(RolesGuard)
   @Roles(permissions.READ_USER)
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
@@ -55,7 +54,6 @@ export class UsersController {
   }
 
   @Post()
-  @UseGuards(RolesGuard)
   @Roles(permissions.CREATE_USER)
   @HttpCode(201)
   @ApiCreatedResponse()
@@ -65,7 +63,6 @@ export class UsersController {
   }
 
   @Patch('/:id')
-  @UseGuards(RolesGuard)
   @Roles(permissions.UPDATE_USER)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update user' })
@@ -78,7 +75,6 @@ export class UsersController {
   }
 
   @Delete('/:id')
-  @UseGuards(RolesGuard)
   @Roles(permissions.DELETE_USER)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete user' })

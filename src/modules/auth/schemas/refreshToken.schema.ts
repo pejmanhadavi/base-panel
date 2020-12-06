@@ -2,9 +2,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 
-export type ForgotPasswordDocument = ForgotPassword & Document;
+export type RefreshTokenDocument = RefreshToken & Document;
 @Schema({ versionKey: false, timestamps: true })
-export class ForgotPassword {
+export class RefreshToken {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -12,11 +12,8 @@ export class ForgotPassword {
   })
   user_id: mongoose.Schema.Types.ObjectId;
 
-  @Prop({ type: String, required: true })
-  forgotPasswordToken: string;
-
-  @Prop({ type: Date, required: true })
-  forgotPasswordExpires: number;
+  @Prop({ type: String })
+  refreshToken: string;
 
   @Prop({ type: String, required: true })
   ip: string;
@@ -24,10 +21,8 @@ export class ForgotPassword {
   @Prop({ type: String, required: true })
   agent: string;
 
-  @Prop({ type: Boolean, default: false })
-  used: boolean;
+  @Prop({ type: String, required: true })
+  country: string;
 }
 
-export const ForgotPasswordSchema = SchemaFactory.createForClass(
-  ForgotPassword,
-);
+export const RefreshTokenSchema = SchemaFactory.createForClass(RefreshToken);

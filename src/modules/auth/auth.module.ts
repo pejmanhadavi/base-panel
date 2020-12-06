@@ -13,6 +13,10 @@ import {
   ForgotPassword,
   ForgotPasswordSchema,
 } from './schemas/forgotPassword.schema';
+import {
+  RefreshToken,
+  RefreshTokenSchema,
+} from './schemas/refreshToken.schema';
 
 dotenv.config();
 @Module({
@@ -23,7 +27,7 @@ dotenv.config();
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: {
-        expiresIn: 3600 * 12,
+        expiresIn: 1800,
       },
     }),
     MongooseModule.forFeature([
@@ -31,6 +35,7 @@ dotenv.config();
       { name: Role.name, schema: RoleSchema },
       { name: AuthHistory.name, schema: AuthHistorySchema },
       { name: ForgotPassword.name, schema: ForgotPasswordSchema },
+      { name: RefreshToken.name, schema: RefreshTokenSchema },
     ]),
   ],
   providers: [AuthService, JwtStrategy],

@@ -8,8 +8,10 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { AuthGuard, PassportModule } from '@nestjs/passport';
 import {
   ApiBearerAuth,
@@ -17,7 +19,6 @@ import {
   ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
@@ -25,10 +26,13 @@ import { Roles } from './decorators/roles.decorator';
 import { AuthSignInDto } from './dto/auth-signIn.dto';
 import { AuthSignUpDto } from './dto/auth-signUp.dto';
 import { RolesGuard } from './guards/roles.guard';
-import permissions from '../../constants/permissions.constant';
 import { RoleDocument } from './schemas/role.schema';
 import { CreateRoleDto } from './dto/createRole.dto';
 import { UpdateRoleDto } from './dto/updateRole.dto';
+import { VerifyUuidDto } from './dto/verifyUuid.dto';
+import { RefreshAccessTokenDto } from './dto/refreshAccessToken.dto';
+import { ForgotPasswordDto } from './dto/forgotPassword.dto';
+import { PasswordResetDto } from './dto/passwordReset.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -39,35 +43,18 @@ export class AuthController {
   @Post('/signup')
   @ApiOperation({ summary: 'signUp new user' })
   @HttpCode(HttpStatus.CREATED)
-  async signUp(@Body() authSingUpDto: AuthSignUpDto): Promise<string | void> {
+  async signUp(@Body() authSingUpDto: AuthSignUpDto): Promise<string | object> {
     return await this.authService.signUp(authSingUpDto);
   }
 
   @Post('/signin')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'signIn the user' })
-  async signIn(@Body() authSignInDto: AuthSignInDto): Promise<string | void> {
+  async signIn(@Body() authSignInDto: AuthSignInDto): Promise<any> {
     return this.authService.signIn(authSignInDto);
   }
 
-  @Get('/me')
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
-  @ApiOperation({ summary: 'a private route' })
-  async me() {
-    return 'me';
-  }
-
-  @Get('/create-user')
-  @UseGuards(AuthGuard('jwt'))
-  @Roles('SUPER_ADMIN')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'a protected route to create user' })
-  async createUser() {
-    return 'user created';
-  }
-
-  // ROLES CRUD
+  // roles CRUD routes
   @Get()
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
@@ -116,6 +103,58 @@ export class AuthController {
   async deleteUser(@Param('id') id: string): Promise<string> {
     return this.authService.deleteRole(id);
   }
+
+  // verify route
+  @Post('verification')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse()
+  @ApiOperation({ summary: 'verify user' })
+  async verify(@Req() req: Request, @Body() verifyUuidDto: VerifyUuidDto) {
+    return await this.authService.verifyUser(req, verifyUuidDto);
+  }
+  // refresh access token
+  @Post('refresh-token')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse()
+  @ApiOperation({ summary: 'Refresh Access Token with refresh token' })
+  async refreshAccessToken(@Body() refreshAccessToke: RefreshAccessTokenDto) {
+    return await this.authService.refreshAccessToken(refreshAccessToke);
+  }
+
+  // forgot password
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Forgot password' })
+  @ApiOkResponse({})
+  async forgotPassword(
+    @Req() req: Request,
+    @Body() forgotPasswordDto: ForgotPasswordDto,
+  ) {
+    return await this.authService.forgotPassword(req, forgotPasswordDto);
+  }
+
+  // forgot password verify
+  @Post('forgot-password-verify')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Verify forget password code' })
+  @ApiOkResponse({})
+  async forgotPasswordVerify(
+    @Req() req: Request,
+    @Body() verifyUuidDto: VerifyUuidDto,
+  ) {
+    return await this.authService.forgotPasswordVerify(verifyUuidDto);
+  }
+
+  // reset password
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reset password after verify reset password' })
+  @ApiOkResponse({})
+  async resetPassword(@Body() passwordResetDto: PasswordResetDto) {
+    return await this.authService.resetPassword(passwordResetDto);
+  }
 }
 
 // verify-email
@@ -125,8 +164,8 @@ export class AuthController {
 // forgot-password-verify
 // reset-password
 
-// CRUD ROLE
-// CRUD USER
+// CRUD ROLE ++
+// CRUD USER ++
 
 // -------------------------
 // userSchema =>auth:  objectId('auth')
@@ -138,7 +177,7 @@ export class AuthController {
 // verification expires
 // user => objectId('user')
 // confirmationAttemptsCount
-// blockExpires: Date
+// blockExpires: Date !!!!
 
 // -------------------------
 // authHistorySchema =>
@@ -174,7 +213,7 @@ signup (username, (email or phonenumber))
 db => optional
 dto => optional
 service => data.phoneNumber, data.email => Error
-*/
+*/ // ++
 
 /*
 @IP ip
