@@ -8,7 +8,6 @@ export type UserDocument = User & Document;
 export class User {
   @Prop({
     type: String,
-    unique: [true, 'THE_EMAIL_ALREADY_EXISTS'],
     minlength: 5,
     maxlength: 256,
     trim: true,
@@ -17,7 +16,6 @@ export class User {
 
   @Prop({
     type: String,
-    unique: [true, 'THE_EMAIL_ALREADY_EXISTS'],
     minlength: 11,
     maxlength: 11,
   })

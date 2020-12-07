@@ -48,7 +48,7 @@ export class PasswordResetDto {
   })
   @IsNotEmpty()
   @IsString()
-  @MinLength(5)
+  @MinLength(8)
   @MaxLength(1024)
   readonly password: string;
 }

@@ -20,9 +20,6 @@ export class RefreshToken {
 
   @Prop({ type: String, required: true })
   agent: string;
-
-  @Prop({ type: String, required: true })
-  country: string;
 }
 
 export const RefreshTokenSchema = SchemaFactory.createForClass(RefreshToken);

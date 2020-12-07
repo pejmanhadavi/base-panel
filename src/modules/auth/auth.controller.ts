@@ -12,7 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { AuthGuard, PassportModule } from '@nestjs/passport';
+import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -55,7 +55,7 @@ export class AuthController {
   }
 
   // roles CRUD routes
-  @Get()
+  @Get('roles')
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Roles('SUPER_ADMIN')
@@ -66,52 +66,71 @@ export class AuthController {
     return await this.authService.getAllRoles();
   }
 
-  @Post()
+  @Get('roles/:id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Roles('SUPER_ADMIN')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get a role by id' })
+  @ApiOkResponse()
+  async getRoleById(@Param('id') id: string): Promise<any> {
+    return await this.authService.getRoleById(id);
+  }
+
+  @Post('roles')
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Roles('SUPER_ADMIN')
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse()
   @ApiOperation({ summary: 'Create role' })
-  async createRole(
-    @Body() creteRoleDto: CreateRoleDto,
-  ): Promise<string | RoleDocument> {
+  async createRole(@Body() creteRoleDto: CreateRoleDto): Promise<string | RoleDocument> {
     return await this.authService.createRole(creteRoleDto);
   }
 
-  @Patch('/:id')
+  @Patch('roles/:id')
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Roles('SUPER_ADMIN')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update role' })
   @ApiOkResponse()
-  async updateUser(
+  async updateRole(
     @Param('id') id: string,
     @Body() updateRoleDto: UpdateRoleDto,
   ): Promise<RoleDocument> {
     return await this.authService.updateRole(id, updateRoleDto);
   }
 
-  @Delete('/:id')
+  @Delete('roles/:id')
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Roles('SUPER_ADMIN')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete role' })
   @ApiNoContentResponse()
-  async deleteUser(@Param('id') id: string): Promise<string> {
+  async deleteRole(@Param('id') id: string): Promise<string> {
     return this.authService.deleteRole(id);
   }
 
-  // verify route
-  @Post('verification')
+  // verify email
+  @Post('verify-email')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
-  @ApiOperation({ summary: 'verify user' })
-  async verify(@Req() req: Request, @Body() verifyUuidDto: VerifyUuidDto) {
-    return await this.authService.verifyUser(req, verifyUuidDto);
+  @ApiOperation({ summary: 'verify the email' })
+  async verifyEmail(@Req() req: Request, @Body() verifyUuidDto: VerifyUuidDto) {
+    return await this.authService.verifyEmail(req, verifyUuidDto);
   }
+
+  // verify phone number
+  @Post('verify-phone-number')
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse()
+  @ApiOperation({ summary: 'verify the phone number' })
+  async verifyPhoneNumber(@Req() req: Request, @Body() verifyUuidDto: VerifyUuidDto) {
+    return await this.authService.verifyPhoneNumber(req, verifyUuidDto);
+  }
+
   // refresh access token
   @Post('refresh-token')
   @ApiBearerAuth()
@@ -140,10 +159,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Verify forget password code' })
   @ApiOkResponse({})
-  async forgotPasswordVerify(
-    @Req() req: Request,
-    @Body() verifyUuidDto: VerifyUuidDto,
-  ) {
+  async forgotPasswordVerify(@Req() req: Request, @Body() verifyUuidDto: VerifyUuidDto) {
     return await this.authService.forgotPasswordVerify(verifyUuidDto);
   }
 

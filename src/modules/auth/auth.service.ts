@@ -18,16 +18,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { getClientIp } from 'request-ip';
 import { VerifyUuidDto } from './dto/verifyUuid.dto';
 import global from '../../constants/global.constant';
-import {
-  RefreshToken,
-  RefreshTokenDocument,
-} from './schemas/refreshToken.schema';
+import { RefreshToken, RefreshTokenDocument } from './schemas/refreshToken.schema';
 import { RefreshAccessTokenDto } from './dto/refreshAccessToken.dto';
 import { Request } from 'express';
-import {
-  ForgotPassword,
-  ForgotPasswordDocument,
-} from './schemas/forgotPassword.schema';
+import { ForgotPassword, ForgotPasswordDocument } from './schemas/forgotPassword.schema';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { PasswordResetDto } from './dto/passwordReset.dto';
 
@@ -46,25 +40,28 @@ export class AuthService {
 
   async signUp(authSignUpDto: AuthSignUpDto): Promise<string | object> {
     const { password, email, phoneNumber } = authSignUpDto;
+    let findByEmail: UserDocument;
+    let findByPhone: UserDocument;
 
     if (!email && !phoneNumber)
       throw new BadRequestException('please enter phone number or email');
 
-    try {
-      const user = new this.userModel({
-        phoneNumber,
-        email,
-        password,
-      });
+    if (email) findByEmail = await this.userModel.findOne({ email });
+    if (phoneNumber) findByPhone = await this.userModel.findOne({ phoneNumber });
 
-      this.setVerifyInfo(user);
-      await user.save();
+    if (findByPhone || findByEmail)
+      throw new BadRequestException('the user has already exists');
 
-      return { verificationCode: user.verificationCode };
-    } catch (error) {
-      if (error.code == 11000)
-        throw new BadRequestException('user has already exists');
-    }
+    const newUser = new this.userModel({
+      phoneNumber,
+      email,
+      password,
+    });
+    await newUser.save();
+
+    await this.setVerifyInfo(newUser);
+
+    return { verificationCode: newUser.verificationCode };
   }
 
   async signIn(authSignInDto: AuthSignInDto): Promise<object | void> {
@@ -82,7 +79,7 @@ export class AuthService {
 
     if (!isPassCorrect) throw new UnauthorizedException();
 
-    return this.generateAccessToken(user._id);
+    return { accessToken: this.generateAccessToken(user._id) };
   }
 
   // ROLES CRUD
@@ -90,51 +87,74 @@ export class AuthService {
     return this.roleModel.find({});
   }
 
-  async createRole(
-    createRoleDto: CreateRoleDto,
-  ): Promise<RoleDocument | string> {
+  async getRoleById(id: string): Promise<any> {
+    const role = await this.roleModel.findById(id);
+    if (!role) throw new NotFoundException('role was not found');
+    return role;
+  }
+
+  async createRole(createRoleDto: CreateRoleDto): Promise<RoleDocument | string> {
     try {
-      const role = new this.roleModel(createRoleDto);
-      return await role.save();
+      return await this.roleModel.create(createRoleDto);
     } catch (error) {
-      if (error.code == 11000)
-        throw new BadRequestException('This role already exists');
+      if (error.code == 11000) throw new BadRequestException('This role already exists');
       if (error._message == 'Role validation failed')
-        throw new BadRequestException('the role entered is invalid');
+        throw new BadRequestException('the permissions entered are invalid');
     }
   }
 
-  async updateRole(
-    id: string,
-    updateRoleDto: UpdateRoleDto,
-  ): Promise<RoleDocument> {
-    const role = await this.roleModel.findById(id);
-    if (!role) throw new NotFoundException('role was not found');
+  async updateRole(id: string, updateRoleDto: UpdateRoleDto): Promise<RoleDocument> {
+    await this.getRoleById(id);
+
     return await this.roleModel.findByIdAndUpdate(id, updateRoleDto, {
       new: true,
     });
   }
   async deleteRole(id: string): Promise<string> {
-    const role = await this.roleModel.findById(id);
-    if (!role) throw new NotFoundException('role was not found');
+    const role = await this.getRoleById(id);
+
     await role.deleteOne();
-    return 'delete successfully';
+
+    return 'deleted successfully';
   }
 
-  // verify user
-  async verifyUser(
+  // verify email
+  async verifyEmail(req: Request, verifyUuidDto: VerifyUuidDto): Promise<object | void> {
+    const { verificationCode } = verifyUuidDto;
+
+    const filter = {
+      verificationCode,
+      verified: false,
+      verificationExpires: { $gt: Date.now() },
+    };
+
+    const user = await this.findUser(filter);
+
+    user.verified = true;
+    user.verificationCode = undefined;
+    user.verificationExpires = undefined;
+
+    await user.save();
+
+    return {
+      accessToken: this.generateAccessToken(user._id),
+      refreshToken: await this.generateRefreshToken(req, user._id),
+    };
+  }
+  // verify phone number
+  async verifyPhoneNumber(
     req: Request,
     verifyUuidDto: VerifyUuidDto,
   ): Promise<object | void> {
     const { verificationCode } = verifyUuidDto;
-
-    const user = await this.userModel.findOne({
+    const filter = {
       verificationCode,
       verified: false,
       verificationExpires: { $gt: Date.now() },
-    });
+    };
 
-    if (!user) throw new BadRequestException();
+    const user = await this.findUser(filter);
+
     // set user as verified
     user.verified = true;
     user.verificationCode = undefined;
@@ -148,29 +168,14 @@ export class AuthService {
     };
   }
 
-  // refresh token
-  async generateRefreshToken(req: Request, userId): Promise<any> {
-    const refreshToken = new this.refreshTokenModel({
-      user_id: userId,
-      refreshToken: uuidv4(),
-      ip: getClientIp(req),
-      agent: req.headers['user-agent'] || 'XX',
-      country: req.header['cf-ipcountry'] ? req.header['cf-ipcountry'] : 'XX',
-    });
-    await refreshToken.save();
-    return refreshToken.refreshToken;
-  }
   // refresh access token
-  async refreshAccessToken(
-    refreshAccessTokenDto: RefreshAccessTokenDto,
-  ): Promise<any> {
-    const user_id = await this.findRefreshToken(
-      refreshAccessTokenDto.refreshToken,
-    );
+  async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto): Promise<any> {
+    const user_id = await this.findRefreshToken(refreshAccessTokenDto.refreshToken);
+
     const user = await this.userModel.findById(user_id);
     if (!user) throw new UnauthorizedException();
 
-    return this.generateAccessToken(user._id);
+    return { accessToken: this.generateAccessToken(user._id) };
   }
 
   // forgot password
@@ -178,15 +183,16 @@ export class AuthService {
     const { email, phoneNumber } = forgotPasswordDto;
     if (!email && !phoneNumber)
       throw new BadRequestException('please enter phone number or email');
-    const user = await this.userModel.findOne({
-      $or: [{ email }, { phoneNumber }],
-    });
-    if (!user) throw new NotFoundException('the user not found');
+
+    const filter = { $or: [{ email }, { phoneNumber }] };
+    const user = await this.findUser(filter);
+
     // create forgot password
     const forgotPassword = await this.createForgotPassword(req, user._id);
 
     return { forgotPassword };
   }
+
   // verify forgot password
   async forgotPasswordVerify(verifyUuidDto: VerifyUuidDto): Promise<string> {
     const forgotPassword = await this.forgotPasswordModel.findOne({
@@ -194,33 +200,30 @@ export class AuthService {
       used: false,
       forgotPasswordExpires: { $gt: Date.now() },
     });
-    if (!forgotPassword) throw new BadRequestException();
+    if (!forgotPassword) throw new BadRequestException('the verify token is invalid');
 
     forgotPassword.used = true;
     await forgotPassword.save();
 
-    return 'please reset your password';
+    return 'ok, please reset your password';
   }
 
   // reset password
   async resetPassword(passwordResetDto: PasswordResetDto) {
     const { email, phoneNumber, password } = passwordResetDto;
+
     if (!email && !phoneNumber)
       throw new BadRequestException('please enter phone number or email');
 
-    const user = await this.userModel.findOne({
-      $or: [{ email }, { phoneNumber }],
-      verified: true,
-    });
-
-    if (!user) throw new NotFoundException('the user not found');
+    const filter = { $or: [{ email }, { phoneNumber }], verified: true };
+    const user = await this.findUser(filter);
 
     const forgotPassword = await this.forgotPasswordModel.findOne({
       user_id: user._id,
       used: true,
       forgotPasswordExpires: { $gt: Date.now() },
     });
-    if (!forgotPassword) throw new BadRequestException('bad request');
+    if (!forgotPassword) throw new BadRequestException('please verify again');
 
     user.password = password;
     await user.save();
@@ -228,22 +231,28 @@ export class AuthService {
     return 'Password changed successfully';
   }
 
-  // ************ private methods ***************
+  // ***************** private methods ********************
 
-  // private async resetUserPassword(passwordResetDto: PasswordResetDto) {
-  //   const { password, email, phoneNumber } = passwordResetDto;
+  private async findUser(filter: object): Promise<UserDocument> {
+    const user = await this.userModel.findOne(filter);
+    if (!user) throw new BadRequestException('bad request');
+    return user;
+  }
 
-  //   const user = await this.userModel.findOne({
-  //     $or: [{ email }, { phoneNumber }],
-  //     verified: true,
-  //   });
-  //   user.password = password;
-  //   await user.save();
-  // }
+  // refresh token
+  private async generateRefreshToken(req: Request, user_id: UserDocument): Promise<any> {
+    const refreshToken = await this.refreshTokenModel.create({
+      user_id,
+      refreshToken: uuidv4(),
+      ip: getClientIp(req),
+      agent: req.headers['user-agent'] || 'XX',
+    });
+    return refreshToken.refreshToken;
+  }
 
-  private async createForgotPassword(req: Request, userId: UserDocument) {
+  private async createForgotPassword(req: Request, user_id: UserDocument) {
     const forgotPassword = await this.forgotPasswordModel.create({
-      user_id: userId,
+      user_id,
       forgotPasswordToken: uuidv4(),
       forgotPasswordExpires: Date.now() + 1800000,
       ip: getClientIp(req),
@@ -251,7 +260,6 @@ export class AuthService {
       used: false,
     });
 
-    await forgotPassword.save();
     return forgotPassword.forgotPasswordToken;
   }
 
@@ -259,18 +267,18 @@ export class AuthService {
     const refreshToken = await this.refreshTokenModel.findOne({
       refreshToken: token,
     });
-    if (!refreshToken)
-      throw new UnauthorizedException('user has been logged out.');
+    if (!refreshToken) throw new UnauthorizedException('user has been logged out.');
 
     return refreshToken.user_id;
   }
 
-  private setVerifyInfo(user: UserDocument) {
+  private async setVerifyInfo(user: UserDocument): Promise<void> {
     user.verificationCode = uuidv4();
     user.verificationExpires = Date.now() + global.VERIFICATION_EXPIRES;
+    await user.save();
   }
 
-  private generateAccessToken(userId): Object {
+  private generateAccessToken(userId: string): Object {
     const payload: JwtPayload = {
       id: userId,
     };
