@@ -19,9 +19,7 @@ export class UsersService {
   }
 
   async getUserById(id: string): Promise<UserDocument> {
-    const user = await this.userModel
-      .findById(id)
-      .populate('roles', 'name permissions'); //.select('+roles +verified');
+    const user = await this.userModel.findById(id).populate('roles', 'name permissions'); //.select('+roles +verified');
     if (!user) throw new NotFoundException('not found user by the given id');
     return user;
   }
@@ -37,23 +35,14 @@ export class UsersService {
       user = await user.save();
       return user;
     } catch (error) {
-      if (error.code == 11000)
-        throw new BadRequestException('user has already exists');
-      else if (
-        error.message.match(
-          /Cast to ObjectId failed for value "string" at path "roles"/,
-        )
-      )
-        throw new BadRequestException('please enter valid roles');
+      if (error.code == 11000) throw new BadRequestException('user has already exists');
 
-      throw new InternalServerErrorException();
+      if (error.message.match(/Cast to ObjectId failed for value /))
+        throw new BadRequestException('please enter valid roles');
     }
   }
 
-  async updateUser(
-    id: string,
-    updateUserDto: UpdateUserDto,
-  ): Promise<UserDocument> {
+  async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<UserDocument> {
     await this.getUserById(id);
 
     try {
@@ -61,9 +50,10 @@ export class UsersService {
         new: true,
       });
     } catch (error) {
-      if (error.code == 11000)
-        throw new BadRequestException('user has already exists');
-      throw new InternalServerErrorException();
+      if (error.code == 11000) throw new BadRequestException('user has already exists');
+
+      if (error.message.match(/Cast to ObjectId failed for value /))
+        throw new BadRequestException('please enter valid roles');
     }
   }
 

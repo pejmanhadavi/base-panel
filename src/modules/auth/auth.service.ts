@@ -67,6 +67,10 @@ export class AuthService {
   async signIn(authSignInDto: AuthSignInDto): Promise<object | void> {
     const { email, phoneNumber, password } = authSignInDto;
 
+    // const user: any = await this.userModel
+    //   .findOne({ email, phoneNumber })
+    //   .select('+password +verified');
+
     const user: any = await this.userModel
       .findOne({ $or: [{ email }, { phoneNumber }] })
       .select('+password +verified');

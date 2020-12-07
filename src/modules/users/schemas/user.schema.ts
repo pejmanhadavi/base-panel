@@ -7,6 +7,7 @@ export type UserDocument = User & Document;
 @Schema({ versionKey: false, timestamps: true })
 export class User {
   @Prop({
+    unique: ['THE_USER_ALREADY_EXISTS'],
     type: String,
     minlength: 5,
     maxlength: 256,
@@ -15,9 +16,11 @@ export class User {
   email?: string;
 
   @Prop({
+    unique: ['THE_USER_ALREADY_EXISTS'],
     type: String,
     minlength: 11,
     maxlength: 11,
+    trim: true,
   })
   phoneNumber?: string;
 

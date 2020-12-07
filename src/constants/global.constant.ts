@@ -1,3 +1,4 @@
 export default {
   VERIFICATION_EXPIRES: 180000,
+  LOGIN_ATTEMPTS_TO_BLOCK: 5,
 };

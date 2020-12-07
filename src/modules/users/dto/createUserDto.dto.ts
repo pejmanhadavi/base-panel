@@ -34,7 +34,7 @@ export class CreateUserDto {
     maxLength: 11,
   })
   @IsOptional()
-  @IsPhoneNumber(null, { message: 'the phone number is wrong' })
+  @IsPhoneNumber('IR', { message: 'the phone number is wrong' })
   @MinLength(11)
   @MaxLength(11)
   readonly phoneNumber?: string;
@@ -55,18 +55,16 @@ export class CreateUserDto {
 
   @ApiProperty({
     type: Boolean,
-    required: true,
     default: true,
     description: 'Defining being staff',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsBoolean()
-  readonly isStaff: boolean;
+  readonly isStaff?: boolean;
 
   @ApiProperty({
     type: [String],
     required: true,
-    example: 'role id (Object id)',
     description: 'user roles',
   })
   @IsNotEmpty()
