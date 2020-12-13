@@ -1,9 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
+import * as bcrypt from 'bcryptjs';
 import { Role } from '../../auth/schemas/role.schema';
+import sequencePlugin from '../../../common/plugins/squence.plugin';
 
 export type UserDocument = User & Document;
+
 @Schema({ versionKey: false, timestamps: true })
 export class User {
   @Prop({
@@ -60,3 +63,18 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  this['password'] = await bcrypt.hash(this['password'], 12);
+  next();
+});
+UserSchema.statics.fun = function () {
+  console.log(this);
+};
+
+UserSchema.methods.validatePassword = async function (
+  candidatePass: string,
+): Promise<Boolean> {
+  return await bcrypt.compare(candidatePass, this['password']);
+};
