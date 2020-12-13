@@ -24,6 +24,13 @@ import { Request } from 'express';
 import { ForgotPassword, ForgotPasswordDocument } from './schemas/forgotPassword.schema';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { PasswordResetDto } from './dto/passwordReset.dto';
+import { AuthHistory, AuthHistoryDocument } from './schemas/authHistory.schema';
+import authActions from '../../constants/auth-actions.constant';
+import { VerifyEmailDto } from './dto/verifyEmail.dto';
+import { VerifyPhoneNumberDto } from './dto/verifyPhoneNumber.dto';
+import { ObjectIdDto } from '../../common/dto/objectId.dto';
+import { addHours } from 'date-fns';
+import responseFormat from '../../common/responseFormat';
 
 @Injectable()
 export class AuthService {
@@ -34,70 +41,55 @@ export class AuthService {
     private readonly forgotPasswordModel: Model<ForgotPasswordDocument>,
     @InjectModel(RefreshToken.name)
     private readonly refreshTokenModel: Model<RefreshTokenDocument>,
-
+    @InjectModel(AuthHistory.name)
+    private readonly authHistoryModel: Model<AuthHistoryDocument>,
     private readonly jwtService: JwtService,
   ) {}
 
-  async signUp(authSignUpDto: AuthSignUpDto): Promise<string | object> {
+  async signUp(
+    req: Request,
+    authSignUpDto: AuthSignUpDto,
+  ): Promise<{ verificationCode: string }> {
     const { password, email, phoneNumber } = authSignUpDto;
-    let findByEmail: UserDocument;
-    let findByPhone: UserDocument;
 
-    if (!email && !phoneNumber)
-      throw new BadRequestException('please enter phone number or email');
+    await this.checkUserExistence(authSignUpDto);
 
-    if (email) findByEmail = await this.userModel.findOne({ email });
-    if (phoneNumber) findByPhone = await this.userModel.findOne({ phoneNumber });
+    const newUser = new this.userModel({ phoneNumber, email, password });
 
-    if (findByPhone || findByEmail)
-      throw new BadRequestException('the user has already exists');
-
-    const newUser = new this.userModel({
-      phoneNumber,
-      email,
-      password,
-    });
     await newUser.save();
 
     await this.setVerifyInfo(newUser);
 
+    this.createAuthHistory(req, newUser._id, authActions.SIGN_UP);
+
     return { verificationCode: newUser.verificationCode };
   }
 
-  async signIn(authSignInDto: AuthSignInDto): Promise<object | void> {
-    const { email, phoneNumber, password } = authSignInDto;
+  async signIn(
+    req: Request,
+    authSignInDto: AuthSignInDto,
+  ): Promise<{ accessToken: string }> {
+    const user = await this.validateUserInput(authSignInDto);
 
-    // const user: any = await this.userModel
-    //   .findOne({ email, phoneNumber })
-    //   .select('+password +verified');
-
-    const user: any = await this.userModel
-      .findOne({ $or: [{ email }, { phoneNumber }] })
-      .select('+password +verified');
-
-    if (!user) throw new UnauthorizedException();
-
-    if (!user.verified) throw new UnauthorizedException();
-
-    const isPassCorrect = await user.validatePassword(password);
-
-    if (!isPassCorrect) throw new UnauthorizedException();
+    this.createAuthHistory(req, user._id, authActions.SIGN_IN);
 
     return { accessToken: this.generateAccessToken(user._id) };
   }
 
   // ROLES CRUD
-  async getAllRoles(): Promise<RoleDocument[]> {
-    return this.roleModel.find({});
+  async getAllRoles(): Promise<{ status: string; result: number; data: {}[] }> {
+    const roles = await this.roleModel.find({});
+    return responseFormat('success', roles.length, roles);
   }
 
-  async getRoleById(id: string): Promise<any> {
-    const role = await this.roleModel.findById(id);
-    if (!role) throw new NotFoundException('role was not found');
+  async getRoleById(objectIdDto: ObjectIdDto): Promise<RoleDocument> {
+    const role = await this.roleModel.findById(objectIdDto);
+    if (!role) throw new NotFoundException('the role not found');
+
     return role;
   }
 
-  async createRole(createRoleDto: CreateRoleDto): Promise<RoleDocument | string> {
+  async createRole(createRoleDto: CreateRoleDto): Promise<RoleDocument> {
     try {
       return await this.roleModel.create(createRoleDto);
     } catch (error) {
@@ -107,15 +99,18 @@ export class AuthService {
     }
   }
 
-  async updateRole(id: string, updateRoleDto: UpdateRoleDto): Promise<RoleDocument> {
-    await this.getRoleById(id);
+  async updateRole(
+    objectIdDto: ObjectIdDto,
+    updateRoleDto: UpdateRoleDto,
+  ): Promise<RoleDocument> {
+    await this.getRoleById(objectIdDto);
 
-    return await this.roleModel.findByIdAndUpdate(id, updateRoleDto, {
+    return await this.roleModel.findByIdAndUpdate(objectIdDto, updateRoleDto, {
       new: true,
     });
   }
-  async deleteRole(id: string): Promise<string> {
-    const role = await this.getRoleById(id);
+  async deleteRole(objectIdDto: ObjectIdDto): Promise<string> {
+    const role = await this.getRoleById(objectIdDto);
 
     await role.deleteOne();
 
@@ -123,22 +118,28 @@ export class AuthService {
   }
 
   // verify email
-  async verifyEmail(req: Request, verifyUuidDto: VerifyUuidDto): Promise<object | void> {
-    const { verificationCode } = verifyUuidDto;
+  async verifyEmail(
+    req: Request,
+    verifyEmailDto: VerifyEmailDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const { email, token } = verifyEmailDto;
 
-    const filter = {
-      verificationCode,
-      verified: false,
-      verificationExpires: { $gt: Date.now() },
-    };
+    const filter = { email, verified: false, verificationExpires: { $gt: new Date() } };
 
-    const user = await this.findUser(filter);
+    const user: UserDocument = await this.findUser(filter);
+
+    if (token !== user.verificationCode) {
+      this.createAuthHistory(req, user._id, authActions.VERIFICATION_CODE_REJECTED);
+      throw new BadRequestException('invalid token, please verify again');
+    }
 
     user.verified = true;
     user.verificationCode = undefined;
     user.verificationExpires = undefined;
 
     await user.save();
+
+    this.createAuthHistory(req, user._id, authActions.VERIFICATION_CODE_CONFIRMED);
 
     return {
       accessToken: this.generateAccessToken(user._id),
@@ -148,16 +149,21 @@ export class AuthService {
   // verify phone number
   async verifyPhoneNumber(
     req: Request,
-    verifyUuidDto: VerifyUuidDto,
-  ): Promise<object | void> {
-    const { verificationCode } = verifyUuidDto;
+    verifyPhoneNumberDto: VerifyPhoneNumberDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const { phoneNumber, token } = verifyPhoneNumberDto;
     const filter = {
-      verificationCode,
+      phoneNumber,
       verified: false,
-      verificationExpires: { $gt: Date.now() },
+      verificationExpires: { $gt: new Date() },
     };
 
-    const user = await this.findUser(filter);
+    const user: UserDocument = await this.findUser(filter);
+
+    if (token !== user.verificationCode) {
+      this.createAuthHistory(req, user._id, authActions.VERIFICATION_CODE_REJECTED);
+      throw new BadRequestException('invalid token, please verify again');
+    }
 
     // set user as verified
     user.verified = true;
@@ -166,6 +172,8 @@ export class AuthService {
 
     await user.save();
 
+    this.createAuthHistory(req, user._id, authActions.VERIFICATION_CODE_CONFIRMED);
+
     return {
       accessToken: this.generateAccessToken(user._id),
       refreshToken: await this.generateRefreshToken(req, user._id),
@@ -173,17 +181,25 @@ export class AuthService {
   }
 
   // refresh access token
-  async refreshAccessToken(refreshAccessTokenDto: RefreshAccessTokenDto): Promise<any> {
+  async refreshAccessToken(
+    req: Request,
+    refreshAccessTokenDto: RefreshAccessTokenDto,
+  ): Promise<{ accessToken: string }> {
     const user_id = await this.findRefreshToken(refreshAccessTokenDto.refreshToken);
 
     const user = await this.userModel.findById(user_id);
     if (!user) throw new UnauthorizedException();
 
+    this.createAuthHistory(req, user._id, authActions.REFRESH_ACCESS_TOKEN);
+
     return { accessToken: this.generateAccessToken(user._id) };
   }
 
   // forgot password
-  async forgotPassword(req: Request, forgotPasswordDto: ForgotPasswordDto) {
+  async forgotPassword(
+    req: Request,
+    forgotPasswordDto: ForgotPasswordDto,
+  ): Promise<{ forgotPassword: string }> {
     const { email, phoneNumber } = forgotPasswordDto;
     if (!email && !phoneNumber)
       throw new BadRequestException('please enter phone number or email');
@@ -194,6 +210,8 @@ export class AuthService {
     // create forgot password
     const forgotPassword = await this.createForgotPassword(req, user._id);
 
+    this.createAuthHistory(req, user._id, authActions.FORGOT_PASSWORD);
+
     return { forgotPassword };
   }
 
@@ -202,7 +220,7 @@ export class AuthService {
     const forgotPassword = await this.forgotPasswordModel.findOne({
       forgotPasswordToken: verifyUuidDto.verificationCode,
       used: false,
-      forgotPasswordExpires: { $gt: Date.now() },
+      forgotPasswordExpires: { $gt: new Date() },
     });
     if (!forgotPassword) throw new BadRequestException('the verify token is invalid');
 
@@ -213,7 +231,7 @@ export class AuthService {
   }
 
   // reset password
-  async resetPassword(passwordResetDto: PasswordResetDto) {
+  async resetPassword(req: Request, passwordResetDto: PasswordResetDto): Promise<string> {
     const { email, phoneNumber, password } = passwordResetDto;
 
     if (!email && !phoneNumber)
@@ -225,12 +243,14 @@ export class AuthService {
     const forgotPassword = await this.forgotPasswordModel.findOne({
       user_id: user._id,
       used: true,
-      forgotPasswordExpires: { $gt: Date.now() },
+      forgotPasswordExpires: { $gt: new Date() },
     });
     if (!forgotPassword) throw new BadRequestException('please verify again');
 
     user.password = password;
     await user.save();
+
+    this.createAuthHistory(req, user._id, authActions.RESET_PASSWORD);
 
     return 'Password changed successfully';
   }
@@ -244,7 +264,10 @@ export class AuthService {
   }
 
   // refresh token
-  private async generateRefreshToken(req: Request, user_id: UserDocument): Promise<any> {
+  private async generateRefreshToken(
+    req: Request,
+    user_id: UserDocument,
+  ): Promise<string> {
     const refreshToken = await this.refreshTokenModel.create({
       user_id,
       refreshToken: uuidv4(),
@@ -254,7 +277,10 @@ export class AuthService {
     return refreshToken.refreshToken;
   }
 
-  private async createForgotPassword(req: Request, user_id: UserDocument) {
+  private async createForgotPassword(
+    req: Request,
+    user_id: UserDocument,
+  ): Promise<string> {
     const forgotPassword = await this.forgotPasswordModel.create({
       user_id,
       forgotPasswordToken: uuidv4(),
@@ -278,16 +304,110 @@ export class AuthService {
 
   private async setVerifyInfo(user: UserDocument): Promise<void> {
     user.verificationCode = uuidv4();
-    user.verificationExpires = Date.now() + global.VERIFICATION_EXPIRES;
+    // Math.floor(Math.random() * 999999 + 1);
+    user.verificationExpires = addHours(Date.now(), global.VERIFICATION_EXPIRES);
     await user.save();
   }
 
-  private generateAccessToken(userId: string): Object {
+  private generateAccessToken(userId: string): string {
     const payload: JwtPayload = {
       id: userId,
     };
     // generate access token
     const token = this.jwtService.sign(payload);
     return token;
+  }
+
+  private async checkUserExistence(authSignUpDto: AuthSignUpDto): Promise<void> {
+    const { email, phoneNumber } = authSignUpDto;
+    let findByEmail: UserDocument;
+    let findByPhone: UserDocument;
+
+    if (!email && !phoneNumber)
+      throw new BadRequestException('please enter phone number or email');
+
+    if (email && phoneNumber)
+      throw new BadRequestException('we want one of phone number or email');
+
+    if (email)
+      findByEmail = await this.userModel.findOne({
+        email,
+        isActive: true,
+        verified: true,
+      });
+    if (phoneNumber)
+      findByPhone = await this.userModel.findOne({
+        phoneNumber,
+        isActive: true,
+        verified: true,
+      });
+
+    if (findByPhone || findByEmail)
+      throw new BadRequestException('the user has already exists');
+  }
+
+  private async validateUserInput(authSignInDto: AuthSignInDto): Promise<any> {
+    const { email, phoneNumber, password } = authSignInDto;
+    let user;
+
+    if (!email && !phoneNumber)
+      throw new BadRequestException('please enter phone number or email');
+
+    if (email && phoneNumber)
+      throw new BadRequestException('we want one of phone number or email');
+
+    if (email)
+      user = await this.userModel
+        .findOne({ email, isActive: true, verified: true })
+        .select('+password');
+    if (phoneNumber)
+      user = await this.userModel
+        .findOne({ phoneNumber, isActive: true, verified: true })
+        .select('+password');
+
+    if (!user) throw new UnauthorizedException();
+
+    this.isUserBlocked(user);
+
+    await this.checkPasswordAttempts(user, password);
+
+    return user;
+  }
+
+  private isUserBlocked(user: UserDocument): void {
+    if (user.blockExpires > new Date())
+      throw new BadRequestException('the user has been blocked, please try later');
+  }
+
+  private async checkPasswordAttempts(user: any, password: string): Promise<void> {
+    const isCorrectPassword = await user.validatePassword(password);
+
+    if (!isCorrectPassword) {
+      user.confirmationAttemptsCount += 1;
+      await user.save();
+
+      if (user.confirmationAttemptsCount >= global.LOGIN_ATTEMPTS_TO_BLOCK) {
+        user.blockExpires = addHours(Date.now(), global.HOUR_TO_BLOCK);
+        await user.save();
+        throw new BadRequestException('user blocked. Please try again in 1 hour');
+      }
+      throw new UnauthorizedException();
+    }
+
+    user.confirmationAttemptsCount = 0;
+    await user.save();
+  }
+
+  private async createAuthHistory(
+    req: Request,
+    user_id: UserDocument,
+    action: string,
+  ): Promise<void> {
+    await this.authHistoryModel.create({
+      user_id,
+      action,
+      ip: getClientIp(req),
+      agent: req.headers['user-agent'] || 'XX',
+    });
   }
 }

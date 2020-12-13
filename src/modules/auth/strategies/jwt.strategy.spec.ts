@@ -19,6 +19,12 @@ describe('JwtStrategy', () => {
             findById: jest.fn().mockResolvedValue('user'),
           },
         },
+        {
+          provide: JwtStrategy,
+          useValue: {
+            validate: jest.fn().mockResolvedValue(true),
+          },
+        },
       ],
     }).compile();
 
@@ -36,9 +42,7 @@ describe('JwtStrategy', () => {
     it('should throw Unauthorized exception if user not found', () => {
       expect(userModel.findById).not.toHaveBeenCalled();
       userModel.findById.mockResolvedValue(null);
-      expect(jwtStrategy.validate(payload)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      expect(jwtStrategy.validate(payload)).rejects.toThrow(UnauthorizedException);
     });
     it('should validate the user and return it', async () => {
       const result = await jwtStrategy.validate(payload);

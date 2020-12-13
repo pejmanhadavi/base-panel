@@ -19,6 +19,7 @@ import {
   ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
@@ -33,6 +34,9 @@ import { VerifyUuidDto } from './dto/verifyUuid.dto';
 import { RefreshAccessTokenDto } from './dto/refreshAccessToken.dto';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { PasswordResetDto } from './dto/passwordReset.dto';
+import { VerifyPhoneNumberDto } from './dto/verifyPhoneNumber.dto';
+import { VerifyEmailDto } from './dto/verifyEmail.dto';
+import { ObjectIdDto } from '../../common/dto/objectId.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -43,15 +47,21 @@ export class AuthController {
   @Post('/signup')
   @ApiOperation({ summary: 'signUp new user' })
   @HttpCode(HttpStatus.CREATED)
-  async signUp(@Body() authSingUpDto: AuthSignUpDto): Promise<string | object> {
-    return await this.authService.signUp(authSingUpDto);
+  async signUp(
+    @Req() req: Request,
+    @Body() authSingUpDto: AuthSignUpDto,
+  ): Promise<string | object> {
+    return await this.authService.signUp(req, authSingUpDto);
   }
 
   @Post('/signin')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'signIn the user' })
-  async signIn(@Body() authSignInDto: AuthSignInDto): Promise<any> {
-    return this.authService.signIn(authSignInDto);
+  async signIn(
+    @Req() req: Request,
+    @Body() authSignInDto: AuthSignInDto,
+  ): Promise<{ accessToken: string }> {
+    return this.authService.signIn(req, authSignInDto);
   }
 
   // roles CRUD routes
@@ -62,7 +72,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all roles' })
   @ApiOkResponse()
-  async getAllRoles(): Promise<RoleDocument[]> {
+  async getAllRoles(): Promise<{ status: string; result: number; data: {}[] }> {
     return await this.authService.getAllRoles();
   }
 
@@ -73,8 +83,9 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a role by id' })
   @ApiOkResponse()
-  async getRoleById(@Param('id') id: string): Promise<any> {
-    return await this.authService.getRoleById(id);
+  @ApiParam({ name: 'id', required: true })
+  async getRoleById(@Param() objectIdDto: ObjectIdDto): Promise<RoleDocument> {
+    return await this.authService.getRoleById(objectIdDto);
   }
 
   @Post('roles')
@@ -84,7 +95,7 @@ export class AuthController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse()
   @ApiOperation({ summary: 'Create role' })
-  async createRole(@Body() creteRoleDto: CreateRoleDto): Promise<string | RoleDocument> {
+  async createRole(@Body() creteRoleDto: CreateRoleDto): Promise<RoleDocument> {
     return await this.authService.createRole(creteRoleDto);
   }
 
@@ -96,10 +107,10 @@ export class AuthController {
   @ApiOperation({ summary: 'Update role' })
   @ApiOkResponse()
   async updateRole(
-    @Param('id') id: string,
+    @Param() objectIdDto: ObjectIdDto,
     @Body() updateRoleDto: UpdateRoleDto,
   ): Promise<RoleDocument> {
-    return await this.authService.updateRole(id, updateRoleDto);
+    return await this.authService.updateRole(objectIdDto, updateRoleDto);
   }
 
   @Delete('roles/:id')
@@ -107,10 +118,11 @@ export class AuthController {
   @UseGuards(AuthGuard('jwt'))
   @Roles('SUPER_ADMIN')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete role' })
   @ApiNoContentResponse()
-  async deleteRole(@Param('id') id: string): Promise<string> {
-    return this.authService.deleteRole(id);
+  @ApiOperation({ summary: 'Delete role' })
+  @ApiParam({ name: 'id', required: true })
+  async deleteRole(@Param() objectIdDto: ObjectIdDto): Promise<string> {
+    return this.authService.deleteRole(objectIdDto);
   }
 
   // verify email
@@ -118,8 +130,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
   @ApiOperation({ summary: 'verify the email' })
-  async verifyEmail(@Req() req: Request, @Body() verifyUuidDto: VerifyUuidDto) {
-    return await this.authService.verifyEmail(req, verifyUuidDto);
+  async verifyEmail(
+    @Req() req: Request,
+    @Body() verifyEmailDto: VerifyEmailDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    return await this.authService.verifyEmail(req, verifyEmailDto);
   }
 
   // verify phone number
@@ -127,8 +142,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
   @ApiOperation({ summary: 'verify the phone number' })
-  async verifyPhoneNumber(@Req() req: Request, @Body() verifyUuidDto: VerifyUuidDto) {
-    return await this.authService.verifyPhoneNumber(req, verifyUuidDto);
+  async verifyPhoneNumber(
+    @Req() req: Request,
+    @Body() verifyPhoneNumberDto: VerifyPhoneNumberDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    return await this.authService.verifyPhoneNumber(req, verifyPhoneNumberDto);
   }
 
   // refresh access token
@@ -138,8 +156,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
   @ApiOperation({ summary: 'Refresh Access Token with refresh token' })
-  async refreshAccessToken(@Body() refreshAccessToke: RefreshAccessTokenDto) {
-    return await this.authService.refreshAccessToken(refreshAccessToke);
+  async refreshAccessToken(
+    @Req() req: Request,
+    @Body() refreshAccessToke: RefreshAccessTokenDto,
+  ): Promise<{ accessToken: string }> {
+    return await this.authService.refreshAccessToken(req, refreshAccessToke);
   }
 
   // forgot password
@@ -150,7 +171,7 @@ export class AuthController {
   async forgotPassword(
     @Req() req: Request,
     @Body() forgotPasswordDto: ForgotPasswordDto,
-  ) {
+  ): Promise<{ forgotPassword: string }> {
     return await this.authService.forgotPassword(req, forgotPasswordDto);
   }
 
@@ -159,7 +180,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Verify forget password code' })
   @ApiOkResponse({})
-  async forgotPasswordVerify(@Req() req: Request, @Body() verifyUuidDto: VerifyUuidDto) {
+  async forgotPasswordVerify(
+    @Req() req: Request,
+    @Body() verifyUuidDto: VerifyUuidDto,
+  ): Promise<string> {
     return await this.authService.forgotPasswordVerify(verifyUuidDto);
   }
 
@@ -168,8 +192,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reset password after verify reset password' })
   @ApiOkResponse({})
-  async resetPassword(@Body() passwordResetDto: PasswordResetDto) {
-    return await this.authService.resetPassword(passwordResetDto);
+  async resetPassword(
+    @Req() req: Request,
+    @Body() passwordResetDto: PasswordResetDto,
+  ): Promise<string> {
+    return await this.authService.resetPassword(req, passwordResetDto);
   }
 }
 

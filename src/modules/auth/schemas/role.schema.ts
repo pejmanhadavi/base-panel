@@ -17,11 +17,7 @@ export class Role {
   name: string;
 
   @Prop({
-    type: [
-      {
-        type: String,
-      },
-    ],
+    type: [{ type: String }],
     enum: Object.values(permissions),
     required: true,
     index: true,

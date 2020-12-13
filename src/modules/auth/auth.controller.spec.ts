@@ -15,9 +15,15 @@ import { RefreshAccessTokenDto } from './dto/refreshAccessToken.dto';
 import { PasswordResetDto } from './dto/passwordReset.dto';
 import { Request } from 'express';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
+import { ObjectIdDto } from '../../common/dto/objectId.dto';
+import { VerifyEmailDto } from './dto/verifyEmail.dto';
+import { VerifyPhoneNumberDto } from './dto/verifyPhoneNumber.dto';
+
+const objectId: ObjectIdDto = { id: '1234567890' };
+const invalidId: ObjectIdDto = { id: '0' };
 
 const mockUser = {
-  id: '1',
+  id: objectId,
   email: 'reza@gmail.com',
   phoneNumber: '09123456789',
   password: 'reza1234',
@@ -28,7 +34,7 @@ const verificationCode = new Date().getTime();
 const accessToken = 'token';
 
 const mockRole = {
-  id: '1',
+  id: objectId,
   name: 'admin',
   phoneNumber: '09122221233',
   permissions: ['permission'],
@@ -55,32 +61,40 @@ describe('AuthController', () => {
         {
           provide: AuthService,
           useValue: {
-            signUp: jest.fn().mockImplementation((authSignUpDto: AuthSignUpDto) => {
-              const { email, phoneNumber } = authSignUpDto;
+            signUp: jest
+              .fn()
+              .mockImplementation((req: any, authSignUpDto: AuthSignUpDto) => {
+                const { email, phoneNumber } = authSignUpDto;
 
-              if (!email && !phoneNumber) throw new BadRequestException();
+                if (!email && !phoneNumber) throw new BadRequestException();
 
-              if (email == mockUser.email || phoneNumber == mockUser.phoneNumber)
-                throw new BadRequestException('user has already exists');
+                if (email && phoneNumber) throw new BadRequestException();
 
-              return { verificationCode };
-            }),
+                if (email == mockUser.email || phoneNumber == mockUser.phoneNumber)
+                  throw new BadRequestException('user has already exists');
 
-            signIn: jest.fn().mockImplementation((authSignInDto: AuthSignInDto) => {
-              const { email, phoneNumber, password } = authSignInDto;
+                return { verificationCode };
+              }),
 
-              if (!email && !phoneNumber) throw new BadRequestException();
+            signIn: jest
+              .fn()
+              .mockImplementation((req: any, authSignInDto: AuthSignInDto) => {
+                const { email, phoneNumber, password } = authSignInDto;
 
-              if (email !== mockUser.email && phoneNumber !== mockUser.phoneNumber)
-                throw new UnauthorizedException();
+                if (!email && !phoneNumber) throw new BadRequestException();
 
-              if (password !== mockUser.password) throw new UnauthorizedException();
+                if (email && phoneNumber) throw new BadRequestException();
 
-              return { accessToken };
-            }),
+                if (email !== mockUser.email && phoneNumber !== mockUser.phoneNumber)
+                  throw new UnauthorizedException();
+
+                if (password !== mockUser.password) throw new UnauthorizedException();
+
+                return { accessToken };
+              }),
 
             getAllRoles: jest.fn().mockResolvedValue('all roles'),
-            getRoleById: jest.fn().mockImplementation((id: string) => {
+            getRoleById: jest.fn().mockImplementation((id: ObjectIdDto) => {
               if (id !== mockRole.id) throw new NotFoundException();
 
               return mockRole;
@@ -94,36 +108,36 @@ describe('AuthController', () => {
             }),
             updateRole: jest
               .fn()
-              .mockImplementation((id: string, updateRoleDto: UpdateRoleDto) => {
+              .mockImplementation((id: ObjectIdDto, updateRoleDto: UpdateRoleDto) => {
                 if (id !== mockRole.id) throw new NotFoundException();
 
                 return 'role updated';
               }),
-            deleteRole: jest.fn().mockImplementation((id: string) => {
+            deleteRole: jest.fn().mockImplementation((id: ObjectIdDto) => {
               if (id !== mockRole.id) throw new NotFoundException();
 
               return 'role deleted';
             }),
             verifyEmail: jest
               .fn()
-              .mockImplementation((req: Request, verifyUuidDto: VerifyUuidDto) => {
-                const { verificationCode } = verifyUuidDto;
+              .mockImplementation((req: Request, verifyEmail: VerifyEmailDto) => {
+                const { token } = verifyEmail;
 
-                if (verificationCode !== verificationUuid)
-                  throw new BadRequestException();
+                if (token !== verificationUuid) throw new BadRequestException();
 
                 return 'verified';
               }),
             verifyPhoneNumber: jest
               .fn()
-              .mockImplementation((req: Request, verifyUuidDto: VerifyUuidDto) => {
-                const { verificationCode } = verifyUuidDto;
+              .mockImplementation(
+                (req: Request, verifyPhoneNumber: VerifyPhoneNumberDto) => {
+                  const { token } = verifyPhoneNumber;
 
-                if (verificationCode !== verificationUuid)
-                  throw new BadRequestException();
+                  if (token !== verificationUuid) throw new BadRequestException();
 
-                return 'verified';
-              }),
+                  return 'verified';
+                },
+              ),
             refreshAccessToken: jest
               .fn()
               .mockImplementation((refreshTokenDto: RefreshAccessTokenDto) => {
@@ -182,7 +196,12 @@ describe('AuthController', () => {
       const newUser: AuthSignUpDto = {
         password: 'password',
       };
-      await expect(authController.signUp(newUser)).rejects.toThrow();
+      await expect(
+        authController.signUp(
+          { headers: { 'user-agent': 'mozilla' } } as Request,
+          newUser,
+        ),
+      ).rejects.toThrow();
     });
 
     it('should throw BadRequest exception if user already exists', async () => {
@@ -190,20 +209,25 @@ describe('AuthController', () => {
         phoneNumber: mockUser.phoneNumber,
         password: 'password',
       };
-      await expect(authController.signUp(newUser)).rejects.toThrow();
+      await expect(
+        authController.signUp(
+          { headers: { 'user-agent': 'mozilla' } } as Request,
+          newUser,
+        ),
+      ).rejects.toThrow();
     });
 
     it('should register the user and call signUp() method ', async () => {
       const newUser: AuthSignUpDto = {
-        email: 'newUser@gmail.com',
+        email: 'mockUser.email',
         password: 'password',
       };
-      expect(authService.signUp).not.toHaveBeenCalled();
 
-      const result = await authController.signUp(newUser);
+      const req = { headers: { 'user-agent': 'mozilla' } } as Request;
+      const result = await authController.signUp(req, newUser);
 
       expect(authService.signUp).toHaveBeenCalledTimes(1);
-      expect(authService.signUp).toHaveBeenCalledWith(newUser);
+      expect(authService.signUp).toHaveBeenCalledWith(req, newUser);
       expect(result).toHaveProperty('verificationCode');
     });
   });
@@ -213,7 +237,10 @@ describe('AuthController', () => {
       const newUser: AuthSignInDto = {
         password: 'password',
       };
-      expect(authController.signIn(newUser)).rejects.toThrow(BadRequestException);
+
+      const req = { headers: { 'user-agent': 'mozilla' } } as Request;
+
+      expect(authController.signIn(req, newUser)).rejects.toThrow(BadRequestException);
     });
 
     it('should throw an exception if email or phoneNumber is invalid', () => {
@@ -222,7 +249,12 @@ describe('AuthController', () => {
         password: 'password',
       };
 
-      expect(authController.signIn(newUser)).rejects.toThrow(UnauthorizedException);
+      expect(
+        authController.signIn(
+          { headers: { 'user-agent': 'mozilla' } } as Request,
+          newUser,
+        ),
+      ).rejects.toThrow(UnauthorizedException);
     });
 
     it('should throw and exception if password is invalid ', () => {
@@ -231,7 +263,12 @@ describe('AuthController', () => {
         password: 'invalid',
       };
 
-      expect(authController.signIn(newUser)).rejects.toThrow(UnauthorizedException);
+      expect(
+        authController.signIn(
+          { headers: { 'user-agent': 'mozilla' } } as Request,
+          newUser,
+        ),
+      ).rejects.toThrow(UnauthorizedException);
     });
 
     it('should call signIn() method and return access token', async () => {
@@ -241,7 +278,10 @@ describe('AuthController', () => {
       };
       expect(authService.signIn).not.toHaveBeenCalled();
 
-      const result = await authController.signIn(newUser);
+      const result = await authController.signIn(
+        { headers: { 'user-agent': 'mozilla' } } as Request,
+        newUser,
+      );
 
       expect(authService.signIn).toHaveBeenCalledTimes(1);
       expect(authService.signIn).toHaveBeenCalledWith(newUser);
@@ -262,7 +302,7 @@ describe('AuthController', () => {
 
   describe('getRoleById', () => {
     it('should throw NotFound exception if id is invalid', async () => {
-      expect(authController.getRoleById('0')).rejects.toThrow(NotFoundException);
+      expect(authController.getRoleById(invalidId)).rejects.toThrow(NotFoundException);
     });
 
     it('should call getRoleById and return the role', async () => {
@@ -306,7 +346,7 @@ describe('AuthController', () => {
       };
     });
     it('should throw an exception if the role is not found by the given id', () => {
-      expect(authController.updateRole('0', updateRoleDto)).rejects.toThrow(
+      expect(authController.updateRole(invalidId, updateRoleDto)).rejects.toThrow(
         NotFoundException,
       );
     });
@@ -322,7 +362,7 @@ describe('AuthController', () => {
 
   describe('deleteRole', () => {
     it('should throw and exception if the role is not found by the given id', () => {
-      expect(authController.deleteRole('0')).rejects.toThrow(NotFoundException);
+      expect(authController.deleteRole(invalidId)).rejects.toThrow(NotFoundException);
     });
 
     it('should delete the role ', async () => {
@@ -336,14 +376,14 @@ describe('AuthController', () => {
 
   describe('verifyEmail', () => {
     it('should throw and exception if the user not found by the given verification code', () => {
-      const verifyCode: VerifyUuidDto = { verificationCode: '12' };
+      const verifyCode: VerifyEmailDto = { email: 'email', token: '12' };
       expect(authController.verifyEmail({} as Request, verifyCode)).rejects.toThrow(
         BadRequestException,
       );
     });
 
     it('should verify the user and return success message', async () => {
-      const verifyCode: VerifyUuidDto = { verificationCode: verificationUuid };
+      const verifyCode: VerifyEmailDto = { email: 'email', token: verificationUuid };
 
       const result = await authController.verifyEmail({} as Request, verifyCode);
 
@@ -355,14 +395,17 @@ describe('AuthController', () => {
 
   describe('verifyPhoneNumber', () => {
     it('should throw and exception if the user not found by the given verification code', () => {
-      const verifyCode: VerifyUuidDto = { verificationCode: '12' };
+      const verifyCode: VerifyPhoneNumberDto = { phoneNumber: '12', token: '00' };
       expect(authController.verifyPhoneNumber({} as Request, verifyCode)).rejects.toThrow(
         BadRequestException,
       );
     });
 
     it('should verify the user and return success message', async () => {
-      const verifyCode: VerifyUuidDto = { verificationCode: verificationUuid };
+      const verifyCode: VerifyPhoneNumberDto = {
+        phoneNumber: '12',
+        token: verificationUuid,
+      };
 
       const result = await authController.verifyPhoneNumber({} as Request, verifyCode);
 
@@ -380,15 +423,21 @@ describe('AuthController', () => {
       const refreshToken: RefreshAccessTokenDto = {
         refreshToken: '',
       };
-      expect(authController.refreshAccessToken(refreshToken)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      expect(
+        authController.refreshAccessToken(
+          { headers: { 'user-agent': 'mozilla' } } as Request,
+          refreshToken,
+        ),
+      ).rejects.toThrow(UnauthorizedException);
     });
     it('should return the refresh token', async () => {
       const refreshToken: RefreshAccessTokenDto = {
         refreshToken: refreshAccessToken,
       };
-      const result = await authController.refreshAccessToken(refreshToken);
+      const result = await authController.refreshAccessToken(
+        { headers: { 'user-agent': 'mozilla' } } as Request,
+        refreshToken,
+      );
 
       expect(authService.refreshAccessToken).toHaveBeenCalledTimes(1);
       expect(authService.refreshAccessToken).toHaveBeenCalledWith(refreshToken);
@@ -441,9 +490,12 @@ describe('AuthController', () => {
       const passwordResetDto: PasswordResetDto = {
         password: 'password',
       };
-      expect(authController.resetPassword(passwordResetDto)).rejects.toThrow(
-        BadRequestException,
-      );
+      expect(
+        authController.resetPassword(
+          { headers: { 'user-agent': 'mozilla' } } as Request,
+          passwordResetDto,
+        ),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should change the password', async () => {
@@ -452,7 +504,10 @@ describe('AuthController', () => {
         phoneNumber: '09123456789',
       };
 
-      const result = await authService.resetPassword(passwordResetDto);
+      const result = await authService.resetPassword(
+        { headers: { 'user-agent': 'mozilla' } } as Request,
+        passwordResetDto,
+      );
 
       expect(authService.resetPassword).toHaveBeenCalledWith(passwordResetDto);
       expect(authService.resetPassword).toHaveBeenCalledTimes(1);

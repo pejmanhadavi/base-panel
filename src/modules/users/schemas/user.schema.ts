@@ -1,13 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
-import * as bcrypt from 'bcryptjs';
+import { Role } from '../../auth/schemas/role.schema';
 
 export type UserDocument = User & Document;
 @Schema({ versionKey: false, timestamps: true })
 export class User {
   @Prop({
-    unique: ['THE_USER_ALREADY_EXISTS'],
     type: String,
     minlength: 5,
     maxlength: 256,
@@ -16,7 +15,6 @@ export class User {
   email?: string;
 
   @Prop({
-    unique: ['THE_USER_ALREADY_EXISTS'],
     type: String,
     minlength: 11,
     maxlength: 11,
@@ -33,7 +31,7 @@ export class User {
   })
   password: string;
 
-  @Prop({ type: Boolean, default: false })
+  @Prop({ type: Boolean, default: false, select: false })
   isSuperAdmin: boolean;
 
   @Prop({ type: Boolean, default: false })
@@ -42,10 +40,8 @@ export class User {
   @Prop({ type: Boolean, default: true, select: false })
   isActive: boolean;
 
-  @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role', index: true }],
-  })
-  roles: Array<mongoose.Schema.Types.ObjectId>;
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: Role.name, index: true }] })
+  roles: Role[];
 
   @Prop({ type: Boolean, default: false, select: false })
   verified: boolean;
@@ -54,36 +50,13 @@ export class User {
   verificationCode: string;
 
   @Prop({ type: Date })
-  verificationExpires: number;
+  verificationExpires: Date;
 
-  @Prop({ type: Number })
+  @Prop({ type: Number, default: 0 })
   confirmationAttemptsCount: number;
 
   @Prop({ type: Date })
-  blockExpires: number;
-
-  // @Prop({
-  //   type: [mongoose.Schema.Types.ObjectId],
-  //   ref: 'AuthHistory',
-  // })
-  // authHistory: Array<mongoose.Schema.Types.ObjectId>;
+  blockExpires: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
-
-// Encrypt the password and Empty the passwordConfirm field before saving
-// *note: to work this middleware you should use save() instead of create()
-UserSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  this['password'] = await bcrypt.hash(this['password'], 12);
-  // this['passwordConfirm'] = undefined;
-  next();
-});
-
-// validate the pass . If the method returned true,
-// it means that the password entered is correct
-UserSchema.methods.validatePassword = async function (
-  candidatePass: string,
-): Promise<Boolean> {
-  return await bcrypt.compare(candidatePass, this['password']);
-};

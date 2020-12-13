@@ -1,27 +1,25 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
-import permissions from '../../../constants/permissions.constant';
+import authActions from '../../../constants/auth-actions.constant';
+import { User } from '../../../modules/users/schemas/user.schema';
 
 export type AuthHistoryDocument = AuthHistory & Document;
 @Schema({ versionKey: false, timestamps: true })
 export class AuthHistory {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: User.name,
+    required: true,
   })
-  user: mongoose.Schema.Types.ObjectId;
+  user_id: User;
 
   @Prop({
-    type: {
-      type: String,
-      enum: Object.values(permissions),
-    },
+    type: String,
+    enum: Object.values(authActions),
+    required: true,
   })
   action: string;
-
-  @Prop({ type: Date, required: true })
-  date: string;
 
   @Prop({ type: String, required: true })
   ip: string;

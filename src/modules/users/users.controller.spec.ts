@@ -1,20 +1,27 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { FilterQueryDto } from 'src/common/dto/filterQuery.dto';
+import { ObjectIdDto } from 'src/common/dto/objectId.dto';
 import { CreateUserDto } from './dto/createUserDto.dto';
 import { UpdateUserDto } from './dto/updateUserDto';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
+const objectId: ObjectIdDto = { id: '1234567890' };
+const invalidId: ObjectIdDto = { id: '0' };
+
 interface userModel {
-  id: string;
+  id: ObjectIdDto;
   email: string;
+  phoneNumber: string;
   password: string;
   roles: [string];
 }
 
 const user: userModel = {
-  id: '1',
+  id: objectId,
   email: 'email',
+  phoneNumber: '0912',
   password: 'password',
   roles: ['roles'],
 };
@@ -31,7 +38,7 @@ describe('UsersController', () => {
           provide: UsersService,
           useValue: {
             getAllUsers: jest.fn().mockResolvedValueOnce('users'),
-            getUserById: jest.fn().mockImplementation(async (id: string) => {
+            getUserById: jest.fn().mockImplementation(async (id: ObjectIdDto) => {
               if (id !== user.id)
                 throw new NotFoundException('not found user by the given id');
               return 'user';
@@ -39,21 +46,23 @@ describe('UsersController', () => {
             createUser: jest
               .fn()
               .mockImplementation(async (createUserDto: CreateUserDto) => {
-                const { email, password, roles } = createUserDto;
-                if (email === user.email)
+                const { email, phoneNumber } = createUserDto;
+                if (email === user.email || phoneNumber === user.phoneNumber)
                   throw new BadRequestException('username has already exists');
 
                 return 'created';
               }),
             updateUser: jest
               .fn()
-              .mockImplementation(async (id: string, updateUserDto: UpdateUserDto) => {
-                if (updateUserDto.email === user.email)
-                  throw new BadRequestException('username has already exists');
+              .mockImplementation(
+                async (id: ObjectIdDto, updateUserDto: UpdateUserDto) => {
+                  if (updateUserDto.email === user.email)
+                    throw new BadRequestException('username has already exists');
 
-                return 'updated';
-              }),
-            deleteUser: jest.fn().mockImplementation(async (id: string) => {
+                  return 'updated';
+                },
+              ),
+            deleteUser: jest.fn().mockImplementation(async (id: ObjectIdDto) => {
               if (id !== user.id)
                 throw new NotFoundException('not found user by the given id');
 
@@ -73,7 +82,8 @@ describe('UsersController', () => {
 
   describe('getAllUsers', () => {
     it('should return an array of users', async () => {
-      const result = await controller.getAllUsers();
+      const filterQuery: FilterQueryDto = {};
+      const result = await controller.getAllUsers(filterQuery);
       expect(service.getAllUsers).toHaveBeenCalledTimes(1);
       expect(result).toBe('users');
     });
@@ -81,14 +91,14 @@ describe('UsersController', () => {
 
   describe('getUserById', () => {
     it('should throw an exception if user not found', async () => {
-      await expect(controller.getUserById('0')).rejects.toThrow(
+      await expect(controller.getUserById(invalidId)).rejects.toThrow(
         'not found user by the given id',
       );
     });
 
     it('should return a user with passed id', async () => {
       const id = '1';
-      const result = await controller.getUserById(id);
+      const result = await controller.getUserById(user.id);
       expect(service.getUserById).toHaveBeenCalledTimes(1);
       expect(result).toEqual('user');
     });
@@ -138,8 +148,7 @@ describe('UsersController', () => {
 
   describe('deleteUser', () => {
     it('should throw NotFound exception if user not found', async () => {
-      const falseId = '0';
-      await expect(controller.deleteUser(falseId)).rejects.toThrow(
+      await expect(controller.deleteUser(invalidId)).rejects.toThrow(
         'not found user by the given id',
       );
     });

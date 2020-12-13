@@ -10,6 +10,7 @@ import {
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import * as mongoose from 'mongoose';
+import { Role } from 'src/modules/auth/schemas/role.schema';
 
 export class UpdateUserDto {
   @ApiProperty({
@@ -34,7 +35,7 @@ export class UpdateUserDto {
     minLength: 11,
     maxLength: 11,
   })
-  @IsPhoneNumber(null, { message: 'the phone number is wrong' })
+  @IsPhoneNumber('IR', { message: 'the phone number is wrong' })
   @IsOptional()
   @IsString()
   @MinLength(11)
@@ -57,7 +58,7 @@ export class UpdateUserDto {
   })
   @IsOptional()
   @IsArray()
-  readonly roles?: Array<mongoose.Schema.Types.ObjectId>;
+  readonly roles?: Array<Role>;
 
   @ApiPropertyOptional()
   @ApiProperty({

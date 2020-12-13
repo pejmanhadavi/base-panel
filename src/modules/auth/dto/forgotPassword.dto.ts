@@ -35,6 +35,6 @@ export class ForgotPasswordDto {
   @IsString()
   @MinLength(5)
   @MaxLength(255)
-  @IsPhoneNumber(null, { message: 'the phone number is wrong' })
+  @IsPhoneNumber('IR', { message: 'the phone number is wrong' })
   readonly phoneNumber?: string;
 }

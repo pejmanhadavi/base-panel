@@ -9,14 +9,8 @@ import { PassportModule } from '@nestjs/passport';
 import * as dotenv from 'dotenv';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthHistory, AuthHistorySchema } from './schemas/authHistory.schema';
-import {
-  ForgotPassword,
-  ForgotPasswordSchema,
-} from './schemas/forgotPassword.schema';
-import {
-  RefreshToken,
-  RefreshTokenSchema,
-} from './schemas/refreshToken.schema';
+import { ForgotPassword, ForgotPasswordSchema } from './schemas/forgotPassword.schema';
+import { RefreshToken, RefreshTokenSchema } from './schemas/refreshToken.schema';
 
 dotenv.config();
 @Module({
@@ -27,15 +21,45 @@ dotenv.config();
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: {
-        expiresIn: 1800,
+        expiresIn: +process.env.JWT_EXPIRES,
       },
     }),
-    MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema },
-      { name: Role.name, schema: RoleSchema },
-      { name: AuthHistory.name, schema: AuthHistorySchema },
-      { name: ForgotPassword.name, schema: ForgotPasswordSchema },
-      { name: RefreshToken.name, schema: RefreshTokenSchema },
+    MongooseModule.forFeatureAsync([
+      {
+        name: User.name,
+        useFactory: () => {
+          const schema = UserSchema;
+          return schema;
+        },
+      },
+      {
+        name: Role.name,
+        useFactory: () => {
+          const schema = RoleSchema;
+          return schema;
+        },
+      },
+      {
+        name: AuthHistory.name,
+        useFactory: () => {
+          const schema = AuthHistorySchema;
+          return schema;
+        },
+      },
+      {
+        name: ForgotPassword.name,
+        useFactory: () => {
+          const schema = ForgotPasswordSchema;
+          return schema;
+        },
+      },
+      {
+        name: RefreshToken.name,
+        useFactory: () => {
+          const schema = RefreshTokenSchema;
+          return schema;
+        },
+      },
     ]),
   ],
   providers: [AuthService, JwtStrategy],

@@ -1,25 +1,33 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
 import { CreateUserDto } from './dto/createUserDto.dto';
 import { UpdateUserDto } from './dto/updateUserDto';
-import { User, UserDocument, UserSchema } from './schemas/user.schema';
+import { User, UserDocument } from './schemas/user.schema';
+import { FilterQueries } from '../../utils/filterQueries';
+import responseFormat from '../../common/responseFormat';
+import { ObjectIdDto } from '../../common/dto/objectId.dto';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async getAllUsers(): Promise<UserDocument[]> {
-    return await this.userModel.find().populate('roles', 'name permissions'); //.select('+roles +verified');
+  async getAllUsers(
+    filterQueryDto: FilterQueryDto,
+  ): Promise<{ status: string; result: number; data: {}[] }> {
+    const filterQuery = new FilterQueries(this.userModel, filterQueryDto);
+
+    filterQuery.filter().limitFields().paginate().sort();
+
+    const users = await filterQuery.query.populate('roles', 'name permissions');
+    return responseFormat('success', users.length, users);
   }
 
-  async getUserById(id: string): Promise<UserDocument> {
-    const user = await this.userModel.findById(id).populate('roles', 'name permissions'); //.select('+roles +verified');
+  async getUserById(objectIdDto: ObjectIdDto): Promise<UserDocument> {
+    const user = await this.userModel
+      .findById(objectIdDto.id)
+      .populate('roles', 'name permissions');
     if (!user) throw new NotFoundException('not found user by the given id');
     return user;
   }
@@ -36,17 +44,21 @@ export class UsersService {
       return user;
     } catch (error) {
       if (error.code == 11000) throw new BadRequestException('user has already exists');
+      console.log(error);
 
       if (error.message.match(/Cast to ObjectId failed for value /))
         throw new BadRequestException('please enter valid roles');
     }
   }
 
-  async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<UserDocument> {
-    await this.getUserById(id);
+  async updateUser(
+    objectIdDto: ObjectIdDto,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserDocument> {
+    await this.getUserById(objectIdDto);
 
     try {
-      return await this.userModel.findByIdAndUpdate(id, updateUserDto, {
+      return await this.userModel.findByIdAndUpdate(objectIdDto, updateUserDto, {
         new: true,
       });
     } catch (error) {
@@ -57,8 +69,8 @@ export class UsersService {
     }
   }
 
-  async deleteUser(id: string): Promise<void> {
-    const user = await this.getUserById(id);
+  async deleteUser(objectIdDto: ObjectIdDto): Promise<void> {
+    const user = await this.getUserById(objectIdDto);
 
     await user.deleteOne();
     return;

@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 
@@ -17,6 +18,7 @@ import {
   ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
@@ -27,6 +29,8 @@ import { UpdateUserDto } from './dto/updateUserDto';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import permissions from '../../constants/permissions.constant';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
+import { ObjectIdDto } from '../../common/dto/objectId.dto';
 @ApiBearerAuth()
 @ApiTags('users')
 @UseGuards(AuthGuard('jwt'))
@@ -40,17 +44,20 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all users' })
   @ApiOkResponse()
-  async getAllUsers(): Promise<UserDocument[]> {
-    return await this.usersService.getAllUsers();
+  async getAllUsers(
+    @Query() filterQueryDto: FilterQueryDto,
+  ): Promise<{ status: string; result: number; data: {}[] }> {
+    return await this.usersService.getAllUsers(filterQueryDto);
   }
 
-  @Get('/:id')
+  @Get(':id')
   @Roles(permissions.READ_USER)
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
   @ApiOperation({ summary: 'Get a user by id' })
-  async getUserById(@Param('id') id: string): Promise<UserDocument> {
-    return await this.usersService.getUserById(id);
+  @ApiParam({ name: 'id', required: true })
+  async getUserById(@Param() objectIdDto: ObjectIdDto): Promise<UserDocument> {
+    return await this.usersService.getUserById(objectIdDto);
   }
 
   @Post()
@@ -58,7 +65,7 @@ export class UsersController {
   @HttpCode(201)
   @ApiCreatedResponse()
   @ApiOperation({ summary: 'Create user' })
-  async createUser(@Body() createUserDto: CreateUserDto) {
+  async createUser(@Body() createUserDto: CreateUserDto): Promise<UserDocument> {
     return await this.usersService.createUser(createUserDto);
   }
 
@@ -67,11 +74,12 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update user' })
   @ApiOkResponse()
+  @ApiParam({ name: 'id', required: true })
   async updateUser(
-    @Param('id') id: string,
+    @Param('id') objectIdDto: ObjectIdDto,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserDocument> {
-    return await this.usersService.updateUser(id, updateUserDto);
+    return await this.usersService.updateUser(objectIdDto, updateUserDto);
   }
 
   @Delete('/:id')
@@ -79,7 +87,8 @@ export class UsersController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete user' })
   @ApiNoContentResponse()
-  async deleteUser(@Param('id') id: string): Promise<void> {
-    return this.usersService.deleteUser(id);
+  @ApiParam({ name: 'id', required: true })
+  async deleteUser(@Param('id') objectIdDto: ObjectIdDto): Promise<void> {
+    return this.usersService.deleteUser(objectIdDto);
   }
 }
