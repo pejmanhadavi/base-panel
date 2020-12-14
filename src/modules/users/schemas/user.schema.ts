@@ -3,7 +3,6 @@ import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { Role } from '../../auth/schemas/role.schema';
-import sequencePlugin from '../../../common/plugins/squence.plugin';
 
 export type UserDocument = User & Document;
 
@@ -75,6 +74,6 @@ UserSchema.statics.fun = function () {
 
 UserSchema.methods.validatePassword = async function (
   candidatePass: string,
-): Promise<Boolean> {
+): Promise<boolean> {
   return await bcrypt.compare(candidatePass, this['password']);
 };

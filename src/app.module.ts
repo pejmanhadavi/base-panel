@@ -5,7 +5,6 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
-import * as AutoIncrement from 'mongoose-sequence';
 
 @Module({
   imports: [
