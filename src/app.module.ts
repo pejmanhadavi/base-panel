@@ -8,6 +8,7 @@ import { UsersModule } from './modules/users/users.module';
 import { APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { AllExceptionsFilter } from './interceptors/ errors.interceptor';
+import { GenerateDataModule } from './generate-data/generate-data.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AllExceptionsFilter } from './interceptors/ errors.interceptor';
     }),
     AuthModule,
     UsersModule,
+    GenerateDataModule,
   ],
   controllers: [AppController],
   providers: [

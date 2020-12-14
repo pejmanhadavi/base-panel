@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -25,6 +25,6 @@ async function bootstrap() {
   );
 
   await app.listen(3000);
-  console.log(`connected to ${process.env.MONGO_URI}`);
+  Logger.log(`connected to ${process.env.MONGO_URI}`);
 }
 bootstrap();
