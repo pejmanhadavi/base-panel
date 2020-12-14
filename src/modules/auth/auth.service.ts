@@ -30,7 +30,6 @@ import { VerifyEmailDto } from './dto/verifyEmail.dto';
 import { VerifyPhoneNumberDto } from './dto/verifyPhoneNumber.dto';
 import { ObjectIdDto } from '../../common/dto/objectId.dto';
 import { addHours } from 'date-fns';
-import responseFormat from '../../common/responseFormat';
 
 @Injectable()
 export class AuthService {
@@ -77,9 +76,9 @@ export class AuthService {
   }
 
   // ROLES CRUD
-  async getAllRoles(): Promise<{ status: string; result: number; data: {}[] }> {
+  async getAllRoles(): Promise<Role[]> {
     const roles = await this.roleModel.find({});
-    return responseFormat('success', roles.length, roles);
+    return roles;
   }
 
   async getRoleById(objectIdDto: ObjectIdDto): Promise<RoleDocument> {
@@ -257,7 +256,7 @@ export class AuthService {
 
   // ***************** private methods ********************
 
-  private async findUser(filter: object): Promise<UserDocument> {
+  private async findUser(filter: any): Promise<UserDocument> {
     const user = await this.userModel.findOne(filter);
     if (!user) throw new BadRequestException('bad request');
     return user;

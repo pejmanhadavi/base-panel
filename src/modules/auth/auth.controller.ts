@@ -37,6 +37,7 @@ import { PasswordResetDto } from './dto/passwordReset.dto';
 import { VerifyPhoneNumberDto } from './dto/verifyPhoneNumber.dto';
 import { VerifyEmailDto } from './dto/verifyEmail.dto';
 import { ObjectIdDto } from '../../common/dto/objectId.dto';
+import { Role } from './schemas/role.schema';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -50,7 +51,7 @@ export class AuthController {
   async signUp(
     @Req() req: Request,
     @Body() authSingUpDto: AuthSignUpDto,
-  ): Promise<string | object> {
+  ): Promise<string | { verificationCode: string }> {
     return await this.authService.signUp(req, authSingUpDto);
   }
 
@@ -72,7 +73,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all roles' })
   @ApiOkResponse()
-  async getAllRoles(): Promise<{ status: string; result: number; data: {}[] }> {
+  async getAllRoles(): Promise<Role[]> {
     return await this.authService.getAllRoles();
   }
 

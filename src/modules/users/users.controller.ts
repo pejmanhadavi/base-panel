@@ -23,7 +23,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateUserDto } from './dto/createUserDto.dto';
-import { UserDocument } from './schemas/user.schema';
+import { UserDocument, User } from './schemas/user.schema';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/updateUserDto';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -31,6 +31,7 @@ import permissions from '../../constants/permissions.constant';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
 import { ObjectIdDto } from '../../common/dto/objectId.dto';
+
 @ApiBearerAuth()
 @ApiTags('users')
 @UseGuards(AuthGuard('jwt'))
@@ -44,9 +45,7 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all users' })
   @ApiOkResponse()
-  async getAllUsers(
-    @Query() filterQueryDto: FilterQueryDto,
-  ): Promise<{ status: string; result: number; data: {}[] }> {
+  async getAllUsers(@Query() filterQueryDto: FilterQueryDto): Promise<User[]> {
     return await this.usersService.getAllUsers(filterQueryDto);
   }
 

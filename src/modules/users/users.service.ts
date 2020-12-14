@@ -6,22 +6,19 @@ import { CreateUserDto } from './dto/createUserDto.dto';
 import { UpdateUserDto } from './dto/updateUserDto';
 import { User, UserDocument } from './schemas/user.schema';
 import { FilterQueries } from '../../utils/filterQueries';
-import responseFormat from '../../common/responseFormat';
 import { ObjectIdDto } from '../../common/dto/objectId.dto';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async getAllUsers(
-    filterQueryDto: FilterQueryDto,
-  ): Promise<{ status: string; result: number; data: {}[] }> {
+  async getAllUsers(filterQueryDto: FilterQueryDto): Promise<User[]> {
     const filterQuery = new FilterQueries(this.userModel, filterQueryDto);
 
     filterQuery.filter().limitFields().paginate().sort();
 
     const users = await filterQuery.query.populate('roles', 'name permissions');
-    return responseFormat('success', users.length, users);
+    return users;
   }
 
   async getUserById(objectIdDto: ObjectIdDto): Promise<UserDocument> {
