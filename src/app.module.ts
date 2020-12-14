@@ -5,8 +5,9 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { TransformInterceptor } from './interceptors/ transform.interceptor';
+import { APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
+import { TransformInterceptor } from './interceptors/transform.interceptor';
+import { AllExceptionsFilter } from './interceptors/ errors.interceptor';
 
 @Module({
   imports: [
@@ -28,6 +29,10 @@ import { TransformInterceptor } from './interceptors/ transform.interceptor';
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
     },
   ],
 })
