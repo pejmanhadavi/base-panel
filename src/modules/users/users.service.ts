@@ -1,12 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { FilterQueryDto } from '../common/dto/filterQuery.dto';
+import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
 import { CreateUserDto } from './dto/createUserDto.dto';
 import { UpdateUserDto } from './dto/updateUserDto';
 import { User, UserDocument } from './schemas/user.schema';
-import { FilterQueries } from '../utils/filterQueries';
-import { ObjectIdDto } from '../common/dto/objectId.dto';
+import { FilterQueries } from '../../utils/filterQueries';
+import { ObjectIdDto } from '../../common/dto/objectId.dto';
 
 @Injectable()
 export class UsersService {

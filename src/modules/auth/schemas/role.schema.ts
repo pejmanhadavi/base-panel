@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import permissions from '../../constants/permissions.constant';
+import permissions from '../../../constants/permissions.constant';
 
 export type RoleDocument = Role & Document;
 @Schema({ versionKey: false, timestamps: true })

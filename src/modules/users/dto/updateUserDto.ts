@@ -9,8 +9,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import * as mongoose from 'mongoose';
-import { Role } from 'src/auth/schemas/role.schema';
+import { Role } from 'src/modules/auth/schemas/role.schema';
 
 export class UpdateUserDto {
   @ApiProperty({

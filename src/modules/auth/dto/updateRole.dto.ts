@@ -7,7 +7,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import permissions from '../../constants/permissions.constant';
+import permissions from '../../../constants/permissions.constant';
 
 export class UpdateRoleDto {
   @ApiProperty({

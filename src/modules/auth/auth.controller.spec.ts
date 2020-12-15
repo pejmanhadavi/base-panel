@@ -15,7 +15,7 @@ import { RefreshAccessTokenDto } from './dto/refreshAccessToken.dto';
 import { PasswordResetDto } from './dto/passwordReset.dto';
 import { Request } from 'express';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
-import { ObjectIdDto } from '../common/dto/objectId.dto';
+import { ObjectIdDto } from '../../common/dto/objectId.dto';
 import { VerifyEmailDto } from './dto/verifyEmail.dto';
 import { VerifyPhoneNumberDto } from './dto/verifyPhoneNumber.dto';
 
