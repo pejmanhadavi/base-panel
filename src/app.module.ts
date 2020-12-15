@@ -9,6 +9,7 @@ import { APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { AllExceptionsFilter } from './interceptors/ errors.interceptor';
 import { GenerateDataModule } from './generate-data/generate-data.module';
+import sequencePlugin from './common/plugins/squence.plugin';
 
 @Module({
   imports: [
@@ -19,6 +20,10 @@ import { GenerateDataModule } from './generate-data/generate-data.module';
         connectionName: 'base-store',
         useCreateIndex: true,
         useNewUrlParser: true,
+        connectionFactory: (connection) => {
+          connection.plugin(sequencePlugin);
+          return connection;
+        },
       }),
     }),
     AuthModule,

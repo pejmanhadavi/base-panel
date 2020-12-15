@@ -1,12 +1,19 @@
-export default function (schema, options) {
+export default function (schema) {
   schema.add({
     code: {
       type: Number,
-      default: 0,
+      unique: true,
+      index: true,
     },
   });
-  schema.statics.fun = function () {
-    console.log(this);
-  };
-  schema.pre('save', function (next) {});
+
+  schema.pre('save', async function (next) {
+    if (this.code) next();
+    const Model = this.constructor;
+    const lastObject = await Model.findOne({}, {}, { sort: { createdAt: -1 } });
+    console.log(lastObject);
+    if (lastObject) this.code = lastObject.code + 1;
+    else this.code = 1;
+    next();
+  });
 }
