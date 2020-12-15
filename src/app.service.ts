@@ -1,13 +1,7 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { GenerateInitialDataService } from './generate-data/generate-initial-data.service';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class AppService implements OnModuleInit {
-  constructor(private readonly generateInitialDataService: GenerateInitialDataService) {}
-  async onModuleInit() {
-    await this.generateInitialDataService.createSuperUserModel();
-  }
-
+export class AppService {
   getHello(): string {
     return 'Hello World!';
   }

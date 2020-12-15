@@ -11,7 +11,6 @@ export default function (schema) {
     if (this.code) next();
     const Model = this.constructor;
     const lastObject = await Model.findOne({}, {}, { sort: { createdAt: -1 } });
-    console.log(lastObject);
     if (lastObject) this.code = lastObject.code + 1;
     else this.code = 1;
     next();

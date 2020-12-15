@@ -1,11 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from '../users/schemas/user.schema';
 
 @Injectable()
-export class GenerateInitialDataService {
+export class GenerateInitialDataService implements OnModuleInit {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+
+  async onModuleInit() {
+    await this.createSuperUserModel();
+  }
 
   async createSuperUserModel(
     data: any = {

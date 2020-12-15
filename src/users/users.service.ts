@@ -41,7 +41,6 @@ export class UsersService {
       return user;
     } catch (error) {
       if (error.code == 11000) throw new BadRequestException('user has already exists');
-      console.log(error);
 
       if (error.message.match(/Cast to ObjectId failed for value /))
         throw new BadRequestException('please enter valid roles');

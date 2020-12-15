@@ -1,10 +1,9 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/users/schemas/user.schema';
 import { GenerateFakeDataService } from './generate-fake-data.service';
 import { GenerateInitialDataService } from './generate-initial-data.service';
 
-@Global()
 @Module({
   imports: [
     MongooseModule.forFeatureAsync([
