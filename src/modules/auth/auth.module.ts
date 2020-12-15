@@ -11,7 +11,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthHistory, AuthHistorySchema } from './schemas/authHistory.schema';
 import { ForgotPassword, ForgotPasswordSchema } from './schemas/forgotPassword.schema';
 import { RefreshToken, RefreshTokenSchema } from './schemas/refreshToken.schema';
-import { AdminLog, AdminLogSchema } from './schemas/adminLog.schema';
 
 dotenv.config();
 @Module({
@@ -58,13 +57,6 @@ dotenv.config();
         name: RefreshToken.name,
         useFactory: () => {
           const schema = RefreshTokenSchema;
-          return schema;
-        },
-      },
-      {
-        name: AdminLog.name,
-        useFactory: () => {
-          const schema = AdminLogSchema;
           return schema;
         },
       },
