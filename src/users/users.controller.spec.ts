@@ -97,7 +97,7 @@ describe('UsersController', () => {
     });
 
     it('should return a user with passed id', async () => {
-      const id = '1';
+      // const id = '1';
       const result = await controller.getUserById(user.id);
       expect(service.getUserById).toHaveBeenCalledTimes(1);
       expect(result).toEqual('user');

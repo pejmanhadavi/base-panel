@@ -4,7 +4,7 @@ export class FilterQueries {
   filter() {
     const queryObject = { ...this.queryString };
     // ignore excluded fields from queryObject
-    let fieldsToExclude = ['sort', 'limit', 'page', 'fields'];
+    const fieldsToExclude = ['sort', 'limit', 'page', 'fields'];
     fieldsToExclude.forEach((el) => delete queryObject[el]);
 
     let queryStr = JSON.stringify(queryObject);

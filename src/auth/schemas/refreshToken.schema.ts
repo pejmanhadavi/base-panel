@@ -1,12 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
-import authActions from '../../../constants/auth-actions.constant';
-import { User } from '../../../modules/users/schemas/user.schema';
+import { User } from '../../users/schemas/user.schema';
 
-export type AuthHistoryDocument = AuthHistory & Document;
+export type RefreshTokenDocument = RefreshToken & Document;
 @Schema({ versionKey: false, timestamps: true })
-export class AuthHistory {
+export class RefreshToken {
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: User.name,
@@ -14,12 +13,8 @@ export class AuthHistory {
   })
   user_id: User;
 
-  @Prop({
-    type: String,
-    enum: Object.values(authActions),
-    required: true,
-  })
-  action: string;
+  @Prop({ type: String })
+  refreshToken: string;
 
   @Prop({ type: String, required: true })
   ip: string;
@@ -28,4 +23,4 @@ export class AuthHistory {
   agent: string;
 }
 
-export const AuthHistorySchema = SchemaFactory.createForClass(AuthHistory);
+export const RefreshTokenSchema = SchemaFactory.createForClass(RefreshToken);

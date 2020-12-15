@@ -1,8 +1,8 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
-import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
-import { ObjectIdDto } from '../../common/dto/objectId.dto';
+import { FilterQueryDto } from '../common/dto/filterQuery.dto';
+import { ObjectIdDto } from '../common/dto/objectId.dto';
 import { CreateUserDto } from './dto/createUserDto.dto';
 import { UpdateUserDto } from './dto/updateUserDto';
 import { User, UserDocument } from './schemas/user.schema';

@@ -36,7 +36,7 @@ import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { PasswordResetDto } from './dto/passwordReset.dto';
 import { VerifyPhoneNumberDto } from './dto/verifyPhoneNumber.dto';
 import { VerifyEmailDto } from './dto/verifyEmail.dto';
-import { ObjectIdDto } from '../../common/dto/objectId.dto';
+import { ObjectIdDto } from '../common/dto/objectId.dto';
 import { Role } from './schemas/role.schema';
 
 @ApiTags('auth')

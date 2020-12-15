@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserDocument } from '../modules/users/schemas/user.schema';
+import { User, UserDocument } from '../users/schemas/user.schema';
 
 @Injectable()
 export class GenerateInitialDataService {

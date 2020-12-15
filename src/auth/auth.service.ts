@@ -17,7 +17,7 @@ import { UpdateRoleDto } from './dto/updateRole.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { getClientIp } from 'request-ip';
 import { VerifyUuidDto } from './dto/verifyUuid.dto';
-import global from '../../constants/global.constant';
+import global from '../constants/global.constant';
 import { RefreshToken, RefreshTokenDocument } from './schemas/refreshToken.schema';
 import { RefreshAccessTokenDto } from './dto/refreshAccessToken.dto';
 import { Request } from 'express';
@@ -25,10 +25,10 @@ import { ForgotPassword, ForgotPasswordDocument } from './schemas/forgotPassword
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { PasswordResetDto } from './dto/passwordReset.dto';
 import { AuthHistory, AuthHistoryDocument } from './schemas/authHistory.schema';
-import authActions from '../../constants/auth-actions.constant';
+import authActions from '../constants/auth-actions.constant';
 import { VerifyEmailDto } from './dto/verifyEmail.dto';
 import { VerifyPhoneNumberDto } from './dto/verifyPhoneNumber.dto';
-import { ObjectIdDto } from '../../common/dto/objectId.dto';
+import { ObjectIdDto } from '../common/dto/objectId.dto';
 import { addHours } from 'date-fns';
 
 @Injectable()
