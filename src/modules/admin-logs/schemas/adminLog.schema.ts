@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { User } from '../../users/schemas/user.schema';
-import permissions from 'src/constants/permissions.constant';
+import adminLogs from 'src/constants/admin-logs.constant';
 
 export type AdminLogDocument = AdminLog & Document;
 
@@ -29,7 +29,7 @@ export class AdminLog {
 
   @Prop({
     type: String,
-    enum: Object.values(permissions),
+    enum: Object.values(adminLogs),
     required: true,
     index: true,
   })
