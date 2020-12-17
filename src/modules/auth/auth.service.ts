@@ -364,7 +364,7 @@ export class AuthService {
         .findOne({ phoneNumber, isActive: true, verified: true })
         .select('+password');
 
-    if (!user) throw new UnauthorizedException();
+    if (!user) throw new UnauthorizedException('user_not_found');
 
     this.isUserBlocked(user);
 

@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
@@ -7,10 +12,17 @@ import { UpdateUserDto } from './dto/updateUserDto';
 import { User, UserDocument } from './schemas/user.schema';
 import { FilterQueries } from '../../utils/filterQueries';
 import { ObjectIdDto } from '../../common/dto/objectId.dto';
+import { AdminLogsService } from '../admin-logs/admin-logs.service';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private readonly adminLogService: AdminLogsService,
+    @Inject(REQUEST) private readonly request: Request,
+  ) {}
 
   async getAllUsers(filterQueryDto: FilterQueryDto): Promise<User[]> {
     const filterQuery = new FilterQueries(this.userModel, filterQueryDto);
@@ -35,10 +47,11 @@ export class UsersService {
     if (!email && !phoneNumber)
       throw new BadRequestException('please enter phone number or email');
     try {
-      let user = new this.userModel(createUserDto);
-
-      user = await user.save();
-      return user;
+      return await this.adminLogService.create(
+        this.request.user,
+        this.userModel,
+        createUserDto,
+      );
     } catch (error) {
       if (error.code == 11000) throw new BadRequestException('user has already exists');
 
@@ -51,24 +64,29 @@ export class UsersService {
     objectIdDto: ObjectIdDto,
     updateUserDto: UpdateUserDto,
   ): Promise<UserDocument> {
-    await this.getUserById(objectIdDto);
-
     try {
-      return await this.userModel.findByIdAndUpdate(objectIdDto, updateUserDto, {
-        new: true,
-      });
+      return await this.adminLogService.update(
+        this.request.user,
+        this.userModel,
+        objectIdDto.id,
+        updateUserDto,
+      );
     } catch (error) {
+      // this error should be handled!!
       if (error.code == 11000) throw new BadRequestException('user has already exists');
 
+      // this error should be handled!!
+      // maybe admin does not want to update roles!!
       if (error.message.match(/Cast to ObjectId failed for value /))
         throw new BadRequestException('please enter valid roles');
     }
   }
 
   async deleteUser(objectIdDto: ObjectIdDto): Promise<void> {
-    const user = await this.getUserById(objectIdDto);
-
-    await user.deleteOne();
-    return;
+    return await this.adminLogService.delete(
+      this.request.user,
+      this.userModel,
+      objectIdDto.id,
+    );
   }
 }

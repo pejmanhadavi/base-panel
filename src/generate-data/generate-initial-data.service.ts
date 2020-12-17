@@ -16,6 +16,8 @@ export class GenerateInitialDataService implements OnModuleInit {
       email: 'superadmin@superadmin.me',
       password: '12345678',
       isSuperAdmin: true,
+      verified: true,
+      isActive: true,
     },
   ): Promise<UserDocument> {
     const users = await this.userModel.find();

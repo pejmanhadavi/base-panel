@@ -17,5 +17,6 @@ import { AdminLog, AdminLogSchema } from './schemas/adminLog.schema';
     ]),
   ],
   providers: [AdminLogsService],
+  exports: [AdminLogsService],
 })
 export class AdminLogsModule {}

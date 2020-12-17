@@ -53,7 +53,7 @@ export class UpdateUserDto {
 
   @ApiProperty({
     type: [String],
-    description: 'Defining being staff',
+    description: 'Roles',
   })
   @IsOptional()
   @IsArray()

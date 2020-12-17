@@ -69,6 +69,7 @@ export class CreateUserDto {
   })
   @IsNotEmpty()
   @IsArray()
+  @IsOptional()
   readonly roles: Array<string>;
 
   @ApiProperty({
