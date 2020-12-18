@@ -1,5 +1,5 @@
 export class FilterQueries {
-  constructor(public query, public queryString) {}
+  constructor(public query, public queryString, public projection) {}
 
   filter() {
     const queryObject = { ...this.queryString };
@@ -9,7 +9,7 @@ export class FilterQueries {
 
     let queryStr = JSON.stringify(queryObject);
     queryStr = queryStr.replace(/\b(gt|gte|lt|lte|ne)\b/g, (match) => `$${match}`);
-    this.query = this.query.find(JSON.parse(queryStr));
+    this.query = this.query.find(JSON.parse(queryStr)).select(this.projection);
     return this;
   }
   sort() {

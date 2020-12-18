@@ -48,8 +48,8 @@ export class User {
   @Prop({ type: Boolean, default: false, select: false })
   verified: boolean;
 
-  @Prop({ type: String })
-  verificationCode: string;
+  @Prop({ type: Number })
+  verificationCode: number;
 
   @Prop({ type: Date })
   verificationExpires: Date;

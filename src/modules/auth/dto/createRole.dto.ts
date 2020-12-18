@@ -1,11 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsNotEmpty,
-  IsString,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { IsArray, IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 import permissions from '../../../constants/permissions.constant';
 
 export class CreateRoleDto {
@@ -18,6 +12,8 @@ export class CreateRoleDto {
     required: true,
   })
   @IsNotEmpty()
+  @MinLength(3)
+  @MaxLength(256)
   @IsString()
   name: string;
 
@@ -26,7 +22,6 @@ export class CreateRoleDto {
     enumName: 'permissions',
     enum: Object.values(permissions),
     description: 'array of permissions',
-
     required: true,
   })
   @IsNotEmpty()

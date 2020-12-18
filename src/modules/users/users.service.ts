@@ -7,13 +7,22 @@ import { UpdateUserDto } from './dto/updateUserDto';
 import { User, UserDocument } from './schemas/user.schema';
 import { FilterQueries } from '../../utils/filterQueries';
 import { ObjectIdDto } from '../../common/dto/objectId.dto';
+import { ui_query_projection_fields } from './users.projection';
+import { Role, RoleDocument } from '../auth/schemas/role.schema';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Role.name) private roleModel: Model<RoleDocument>,
+  ) {}
 
   async getAllUsers(filterQueryDto: FilterQueryDto): Promise<User[]> {
-    const filterQuery = new FilterQueries(this.userModel, filterQueryDto);
+    const filterQuery = new FilterQueries(
+      this.userModel,
+      filterQueryDto,
+      ui_query_projection_fields,
+    );
 
     filterQuery.filter().limitFields().paginate().sort();
 
@@ -30,18 +39,16 @@ export class UsersService {
   }
 
   async createUser(createUserDto: CreateUserDto) {
-    const { email, phoneNumber } = createUserDto;
-
+    const { email, phoneNumber, roles } = createUserDto;
     if (!email && !phoneNumber)
       throw new BadRequestException('please enter phone number or email');
+
+    await this.checkUserExistence(email, phoneNumber);
+
     try {
       let user = new this.userModel(createUserDto);
-
-      user = await user.save();
-      return user;
+      return await user.save();
     } catch (error) {
-      if (error.code == 11000) throw new BadRequestException('user has already exists');
-
       if (error.message.match(/Cast to ObjectId failed for value /))
         throw new BadRequestException('please enter valid roles');
     }
@@ -53,13 +60,13 @@ export class UsersService {
   ): Promise<UserDocument> {
     await this.getUserById(objectIdDto);
 
+    await this.checkUserExistence(updateUserDto.email, updateUserDto.phoneNumber);
+
     try {
-      return await this.userModel.findByIdAndUpdate(objectIdDto, updateUserDto, {
+      return await this.userModel.findByIdAndUpdate(objectIdDto.id, updateUserDto, {
         new: true,
       });
     } catch (error) {
-      if (error.code == 11000) throw new BadRequestException('user has already exists');
-
       if (error.message.match(/Cast to ObjectId failed for value /))
         throw new BadRequestException('please enter valid roles');
     }
@@ -70,5 +77,14 @@ export class UsersService {
 
     await user.deleteOne();
     return;
+  }
+
+  // private methods
+  private async checkUserExistence(email?: string, phoneNumber?: string) {
+    let user;
+    if (email) user = await this.userModel.findOne({ email });
+    if (phoneNumber) user = await this.userModel.findOne({ phoneNumber });
+
+    if (user) throw new BadRequestException('the user has already exists');
   }
 }

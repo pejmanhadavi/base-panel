@@ -20,7 +20,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload): Promise<UserDocument> {
-    const user = await this.userModel
+    const user: UserDocument = await this.userModel
       .findById(payload.id)
       .populate('roles', 'permissions')
       .select('+isSuperAdmin');

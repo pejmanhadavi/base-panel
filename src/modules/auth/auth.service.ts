@@ -30,6 +30,11 @@ import { VerifyEmailDto } from './dto/verifyEmail.dto';
 import { VerifyPhoneNumberDto } from './dto/verifyPhoneNumber.dto';
 import { ObjectIdDto } from '../../common/dto/objectId.dto';
 import { addHours } from 'date-fns';
+import { ChangeMyPasswordDto } from './dto/changeMyPassword.dto';
+import { ChangeMyInfoDto } from './dto/changeMyInfo.dto';
+import mainPermissions from '../../constants/permissions.constant';
+import { el } from 'date-fns/locale';
+import { VerifyForgotPasswordDto } from './dto/verifyForgotPassword.dto';
 
 @Injectable()
 export class AuthService {
@@ -48,7 +53,7 @@ export class AuthService {
   async signUp(
     req: Request,
     authSignUpDto: AuthSignUpDto,
-  ): Promise<{ verificationCode: string }> {
+  ): Promise<{ verificationCode: number }> {
     const { password, email, phoneNumber } = authSignUpDto;
 
     await this.checkUserExistence(authSignUpDto);
@@ -82,20 +87,21 @@ export class AuthService {
   }
 
   async getRoleById(objectIdDto: ObjectIdDto): Promise<RoleDocument> {
-    const role = await this.roleModel.findById(objectIdDto);
+    const role = await this.roleModel.findById(objectIdDto.id);
+
     if (!role) throw new NotFoundException('the role not found');
 
     return role;
   }
 
   async createRole(createRoleDto: CreateRoleDto): Promise<RoleDocument> {
-    try {
-      return await this.roleModel.create(createRoleDto);
-    } catch (error) {
-      if (error.code == 11000) throw new BadRequestException('This role already exists');
-      if (error._message == 'Role validation failed')
-        throw new BadRequestException('the permissions entered are invalid');
-    }
+    const { name, permissions } = createRoleDto;
+
+    await this.checkRoleExistence(name);
+
+    await this.checkPermissions(permissions);
+
+    return await this.roleModel.create(createRoleDto);
   }
 
   async updateRole(
@@ -104,16 +110,57 @@ export class AuthService {
   ): Promise<RoleDocument> {
     await this.getRoleById(objectIdDto);
 
-    return await this.roleModel.findByIdAndUpdate(objectIdDto, updateRoleDto, {
+    if (updateRoleDto.name) await this.checkRoleExistence(updateRoleDto.name);
+
+    if (updateRoleDto.permissions) await this.checkPermissions(updateRoleDto.permissions);
+
+    return await this.roleModel.findByIdAndUpdate(objectIdDto.id, updateRoleDto, {
       new: true,
     });
   }
+
   async deleteRole(objectIdDto: ObjectIdDto): Promise<string> {
     const role = await this.getRoleById(objectIdDto);
 
     await role.deleteOne();
 
     return 'deleted successfully';
+  }
+
+  // change my password
+  async changeMyPassword(
+    req: Request,
+    changeMyPasswordDto: ChangeMyPasswordDto,
+  ): Promise<string> {
+    const { new_password, old_password } = changeMyPasswordDto;
+
+    const user: any = await this.userModel.findOne(req.user).select('password');
+
+    const isCorrectPassword = await user.validatePassword(old_password);
+
+    if (!isCorrectPassword)
+      throw new BadRequestException('the entered password is invalid');
+
+    user.password = new_password;
+    await user.save();
+    return 'password changed successfully';
+  }
+
+  // change my information
+  async changeMyInfo(req: Request, changeMyInfoDto: ChangeMyInfoDto): Promise<string> {
+    const { email, phoneNumber } = changeMyInfoDto;
+
+    if (!email && !phoneNumber)
+      throw new BadRequestException('please enter email or phoneNumber');
+
+    const user = await this.userModel.findOne(req.user);
+
+    user.email = email;
+    user.phoneNumber = phoneNumber;
+
+    await user.save();
+
+    return 'your information changed successfully';
   }
 
   // verify email
@@ -123,7 +170,12 @@ export class AuthService {
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const { email, token } = verifyEmailDto;
 
-    const filter = { email, verified: false, verificationExpires: { $gt: new Date() } };
+    const filter = {
+      email,
+      verified: false,
+      isActive: true,
+      verificationExpires: { $gt: new Date() },
+    };
 
     const user: UserDocument = await this.findUser(filter);
 
@@ -139,9 +191,9 @@ export class AuthService {
     await user.save();
 
     this.createAuthHistory(req, user._id, authActions.VERIFICATION_CODE_CONFIRMED);
-
+    const accessToken = this.generateAccessToken(user._id);
     return {
-      accessToken: this.generateAccessToken(user._id),
+      accessToken,
       refreshToken: await this.generateRefreshToken(req, user._id),
     };
   }
@@ -154,6 +206,7 @@ export class AuthService {
     const filter = {
       phoneNumber,
       verified: false,
+      isActive: true,
       verificationExpires: { $gt: new Date() },
     };
 
@@ -173,8 +226,9 @@ export class AuthService {
 
     this.createAuthHistory(req, user._id, authActions.VERIFICATION_CODE_CONFIRMED);
 
+    const accessToken = this.generateAccessToken(user._id);
     return {
-      accessToken: this.generateAccessToken(user._id),
+      accessToken,
       refreshToken: await this.generateRefreshToken(req, user._id),
     };
   }
@@ -198,12 +252,15 @@ export class AuthService {
   async forgotPassword(
     req: Request,
     forgotPasswordDto: ForgotPasswordDto,
-  ): Promise<{ forgotPassword: string }> {
+  ): Promise<{ forgotPasswordToken: number }> {
     const { email, phoneNumber } = forgotPasswordDto;
     if (!email && !phoneNumber)
       throw new BadRequestException('please enter phone number or email');
 
-    const filter = { $or: [{ email }, { phoneNumber }] };
+    if (email && phoneNumber)
+      throw new BadRequestException('we want one of phone number or email');
+
+    const filter = { $or: [{ email }, { phoneNumber }], verified: true, isActive: true };
     const user = await this.findUser(filter);
 
     // create forgot password
@@ -211,13 +268,15 @@ export class AuthService {
 
     this.createAuthHistory(req, user._id, authActions.FORGOT_PASSWORD);
 
-    return { forgotPassword };
+    return { forgotPasswordToken: forgotPassword };
   }
 
   // verify forgot password
-  async forgotPasswordVerify(verifyUuidDto: VerifyUuidDto): Promise<string> {
+  async forgotPasswordVerify(
+    verifyForgotPassword: VerifyForgotPasswordDto,
+  ): Promise<string> {
     const forgotPassword = await this.forgotPasswordModel.findOne({
-      forgotPasswordToken: verifyUuidDto.verificationCode,
+      forgotPasswordToken: verifyForgotPassword.token,
       used: false,
       forgotPasswordExpires: { $gt: new Date() },
     });
@@ -236,14 +295,16 @@ export class AuthService {
     if (!email && !phoneNumber)
       throw new BadRequestException('please enter phone number or email');
 
-    const filter = { $or: [{ email }, { phoneNumber }], verified: true };
+    const filter = { $or: [{ email }, { phoneNumber }], verified: true, isActive: true };
+
     const user = await this.findUser(filter);
 
     const forgotPassword = await this.forgotPasswordModel.findOne({
-      user_id: user._id,
+      user: user._id,
       used: true,
       forgotPasswordExpires: { $gt: new Date() },
     });
+
     if (!forgotPassword) throw new BadRequestException('please verify again');
 
     user.password = password;
@@ -255,6 +316,26 @@ export class AuthService {
   }
 
   // ***************** private methods ********************
+
+  private async checkRoleExistence(roleName: string) {
+    const role = await this.roleModel.findOne({ name: roleName });
+    if (role) throw new BadRequestException('This role name already exists');
+  }
+
+  private async checkPermissions(permissions: Array<string>) {
+    const temp = [];
+    const validPermissions = permissions.map((prm) => {
+      for (const key in mainPermissions) {
+        const element = mainPermissions[key];
+        temp.push(element);
+      }
+      if (temp.includes(prm)) return true;
+      return false;
+    });
+
+    if (validPermissions.includes(false))
+      throw new BadRequestException('the permissions entered are invalid');
+  }
 
   private async findUser(filter: any): Promise<UserDocument> {
     const user = await this.userModel.findOne(filter);
@@ -268,7 +349,7 @@ export class AuthService {
     user_id: UserDocument,
   ): Promise<string> {
     const refreshToken = await this.refreshTokenModel.create({
-      user_id,
+      user: user_id,
       refreshToken: uuidv4(),
       ip: getClientIp(req),
       agent: req.headers['user-agent'] || 'XX',
@@ -279,10 +360,10 @@ export class AuthService {
   private async createForgotPassword(
     req: Request,
     user_id: UserDocument,
-  ): Promise<string> {
+  ): Promise<number> {
     const forgotPassword = await this.forgotPasswordModel.create({
-      user_id,
-      forgotPasswordToken: uuidv4(),
+      user: user_id,
+      forgotPasswordToken: Math.floor(Math.random() * 999999 + 1),
       forgotPasswordExpires: Date.now() + 1800000,
       ip: getClientIp(req),
       agent: req.headers['user-agent'] || 'XX',
@@ -298,12 +379,11 @@ export class AuthService {
     });
     if (!refreshToken) throw new UnauthorizedException('user has been logged out.');
 
-    return refreshToken.user_id;
+    return refreshToken.user;
   }
 
   private async setVerifyInfo(user: UserDocument): Promise<void> {
-    user.verificationCode = uuidv4();
-    // Math.floor(Math.random() * 999999 + 1);
+    user.verificationCode = Math.floor(Math.random() * 999999 + 1);
     user.verificationExpires = addHours(Date.now(), global.VERIFICATION_EXPIRES);
     await user.save();
   }
@@ -403,7 +483,7 @@ export class AuthService {
     action: string,
   ): Promise<void> {
     await this.authHistoryModel.create({
-      user_id,
+      user: user_id,
       action,
       ip: getClientIp(req),
       agent: req.headers['user-agent'] || 'XX',

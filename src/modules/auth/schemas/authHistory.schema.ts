@@ -12,7 +12,7 @@ export class AuthHistory {
     ref: User.name,
     required: true,
   })
-  user_id: User;
+  user: User;
 
   @Prop({
     type: String,

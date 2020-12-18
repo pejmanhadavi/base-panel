@@ -16,10 +16,9 @@ export class UpdateRoleDto {
     description: 'the unique name for each role',
     minLength: 3,
     maxLength: 256,
-    required: true,
   })
   @IsOptional()
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   name?: string;
 
@@ -28,11 +27,8 @@ export class UpdateRoleDto {
     enumName: 'permissions',
     enum: Object.values(permissions),
     description: 'array of permissions',
-
-    required: true,
   })
   @IsOptional()
-  @IsNotEmpty()
   @IsArray()
   permissions?: Array<string>;
 }

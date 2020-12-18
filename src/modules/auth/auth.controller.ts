@@ -38,6 +38,9 @@ import { VerifyPhoneNumberDto } from './dto/verifyPhoneNumber.dto';
 import { VerifyEmailDto } from './dto/verifyEmail.dto';
 import { ObjectIdDto } from '../../common/dto/objectId.dto';
 import { Role } from './schemas/role.schema';
+import { ChangeMyPasswordDto } from './dto/changeMyPassword.dto';
+import { ChangeMyInfoDto } from './dto/changeMyInfo.dto';
+import { VerifyForgotPasswordDto } from './dto/verifyForgotPassword.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -51,7 +54,7 @@ export class AuthController {
   async signUp(
     @Req() req: Request,
     @Body() authSingUpDto: AuthSignUpDto,
-  ): Promise<string | { verificationCode: string }> {
+  ): Promise<string | { verificationCode: number }> {
     return await this.authService.signUp(req, authSingUpDto);
   }
 
@@ -104,9 +107,10 @@ export class AuthController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Roles('SUPER_ADMIN')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Update role' })
   @ApiOkResponse()
+  @ApiParam({ name: 'id', required: true })
   async updateRole(
     @Param() objectIdDto: ObjectIdDto,
     @Body() updateRoleDto: UpdateRoleDto,
@@ -124,6 +128,36 @@ export class AuthController {
   @ApiParam({ name: 'id', required: true })
   async deleteRole(@Param() objectIdDto: ObjectIdDto): Promise<string> {
     return this.authService.deleteRole(objectIdDto);
+  }
+
+  // change my password
+  @Post('change-my-password')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse()
+  @ApiOperation({ summary: 'change my password' })
+  async changeMyPassword(
+    @Req() req: Request,
+    @Body()
+    changeMyPassword: ChangeMyPasswordDto,
+  ): Promise<string> {
+    return await this.authService.changeMyPassword(req, changeMyPassword);
+  }
+
+  // change my password
+  @Post('change-my-info')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  @ApiOkResponse()
+  @ApiOperation({ summary: 'change my information' })
+  async changeMyInfo(
+    @Req() req: Request,
+    @Body()
+    changeMyInfo: ChangeMyInfoDto,
+  ): Promise<string> {
+    return await this.authService.changeMyInfo(req, changeMyInfo);
   }
 
   // verify email
@@ -166,13 +200,13 @@ export class AuthController {
 
   // forgot password
   @Post('forgot-password')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Forgot password' })
   @ApiOkResponse({})
   async forgotPassword(
     @Req() req: Request,
     @Body() forgotPasswordDto: ForgotPasswordDto,
-  ): Promise<{ forgotPassword: string }> {
+  ): Promise<{ forgotPasswordToken: number }> {
     return await this.authService.forgotPassword(req, forgotPasswordDto);
   }
 
@@ -183,14 +217,14 @@ export class AuthController {
   @ApiOkResponse({})
   async forgotPasswordVerify(
     @Req() req: Request,
-    @Body() verifyUuidDto: VerifyUuidDto,
+    @Body() verifyForgotPassword: VerifyForgotPasswordDto,
   ): Promise<string> {
-    return await this.authService.forgotPasswordVerify(verifyUuidDto);
+    return await this.authService.forgotPasswordVerify(verifyForgotPassword);
   }
 
   // reset password
   @Post('reset-password')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Reset password after verify reset password' })
   @ApiOkResponse({})
   async resetPassword(

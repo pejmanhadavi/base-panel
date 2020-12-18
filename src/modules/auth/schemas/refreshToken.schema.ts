@@ -11,7 +11,7 @@ export class RefreshToken {
     ref: User.name,
     required: true,
   })
-  user_id: User;
+  user: User;
 
   @Prop({ type: String })
   refreshToken: string;

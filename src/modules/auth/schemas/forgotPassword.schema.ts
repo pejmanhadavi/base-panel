@@ -11,10 +11,10 @@ export class ForgotPassword {
     ref: User.name,
     required: true,
   })
-  user_id: User;
+  user: User;
 
-  @Prop({ type: String, required: true })
-  forgotPasswordToken: string;
+  @Prop({ type: Number, required: true })
+  forgotPasswordToken: number;
 
   @Prop({ type: Date, required: true })
   forgotPasswordExpires: Date;

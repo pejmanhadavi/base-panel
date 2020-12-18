@@ -2,6 +2,7 @@ import {
   IsArray,
   IsBoolean,
   IsEmail,
+  IsMongoId,
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
@@ -10,6 +11,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Role } from 'src/modules/auth/schemas/role.schema';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -64,12 +66,11 @@ export class CreateUserDto {
 
   @ApiProperty({
     type: [String],
-    required: true,
     description: 'user roles',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsArray()
-  readonly roles: Array<string>;
+  readonly roles: Array<Role>;
 
   @ApiProperty({
     type: Boolean,

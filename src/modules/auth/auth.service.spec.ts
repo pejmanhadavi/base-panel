@@ -25,7 +25,6 @@ import { addHours } from 'date-fns';
 import { ObjectIdDto } from 'src/common/dto/objectId.dto';
 import { VerifyPhoneNumberDto } from './dto/verifyPhoneNumber.dto';
 import { VerifyEmailDto } from './dto/verifyEmail.dto';
-import { async } from 'rxjs';
 
 const id: ObjectIdDto = { id: '5fd4072f5417273f0c64f370' };
 
