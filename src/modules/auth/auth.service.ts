@@ -17,7 +17,7 @@ import { UpdateRoleDto } from './dto/updateRole.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { getClientIp } from 'request-ip';
 import { VerifyUuidDto } from './dto/verifyUuid.dto';
-import global from '../../constants/global.constant';
+import global from '../../constants/globals.constant';
 import { RefreshToken, RefreshTokenDocument } from './schemas/refreshToken.schema';
 import { RefreshAccessTokenDto } from './dto/refreshAccessToken.dto';
 import { Request } from 'express';

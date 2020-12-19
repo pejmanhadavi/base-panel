@@ -96,7 +96,7 @@ export class WebsiteInformation {
   @Prop({ type: [{ type: String, minlength: 5, maxlength: 256, trim: true }] })
   newsLetterEmails?: Array<string>;
 
-  @Prop({ type: Array, validate: [arrayLimit, '{PATH} exceeds the limit of 10'] })
+  @Prop({ type: Array, validate: [arrayLimit, '{PATH} exceeds the limit of 4'] })
   Advantages: [];
 }
 

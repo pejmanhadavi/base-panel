@@ -12,6 +12,9 @@ import { GenerateDataModule } from './generate-data/generate-data.module';
 import { AdminLogsModule } from './modules/admin-logs/admin-logs.module';
 import { WebsiteInformationModule } from './modules/website-information/website-information.module';
 import { CategoriesModule } from './modules/categories/categories.module';
+import { SmsModule } from './modules/sms/sms.module';
+import { EmailModule } from './modules/email/email.module';
+import { BannersModule } from './modules/banners/banners.module';
 import sequencePlugin from './common/plugins/squence.plugin';
 
 @Module({
@@ -35,6 +38,9 @@ import sequencePlugin from './common/plugins/squence.plugin';
     AdminLogsModule,
     WebsiteInformationModule,
     CategoriesModule,
+    SmsModule,
+    EmailModule,
+    BannersModule,
   ],
   controllers: [AppController],
   providers: [
