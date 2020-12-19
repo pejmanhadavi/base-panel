@@ -75,7 +75,7 @@ export class UsersController {
   @ApiOkResponse()
   @ApiParam({ name: 'id', required: true })
   async updateUser(
-    @Param('id') objectIdDto: ObjectIdDto,
+    @Param() objectIdDto: ObjectIdDto,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserDocument> {
     return await this.usersService.updateUser(objectIdDto, updateUserDto);
@@ -87,7 +87,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Delete user' })
   @ApiNoContentResponse()
   @ApiParam({ name: 'id', required: true })
-  async deleteUser(@Param('id') objectIdDto: ObjectIdDto): Promise<void> {
+  async deleteUser(@Param() objectIdDto: ObjectIdDto): Promise<void> {
     return this.usersService.deleteUser(objectIdDto);
   }
 }

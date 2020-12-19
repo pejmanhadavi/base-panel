@@ -99,7 +99,7 @@ export class AuthService {
 
     await this.checkRoleExistence(name);
 
-    await this.checkPermissions(permissions);
+    this.checkPermissions(permissions);
 
     return await this.roleModel.create(createRoleDto);
   }
@@ -112,7 +112,7 @@ export class AuthService {
 
     if (updateRoleDto.name) await this.checkRoleExistence(updateRoleDto.name);
 
-    if (updateRoleDto.permissions) await this.checkPermissions(updateRoleDto.permissions);
+    if (updateRoleDto.permissions) this.checkPermissions(updateRoleDto.permissions);
 
     return await this.roleModel.findByIdAndUpdate(objectIdDto.id, updateRoleDto, {
       new: true,
@@ -177,7 +177,13 @@ export class AuthService {
       verificationExpires: { $gt: new Date() },
     };
 
-    const user: UserDocument = await this.findUser(filter);
+    const user: UserDocument = await this.findUser(
+      filter,
+      {},
+      {
+        sort: { createdAt: -1 },
+      },
+    );
 
     if (token !== user.verificationCode) {
       this.createAuthHistory(req, user._id, authActions.VERIFICATION_CODE_REJECTED);
@@ -210,7 +216,13 @@ export class AuthService {
       verificationExpires: { $gt: new Date() },
     };
 
-    const user: UserDocument = await this.findUser(filter);
+    const user: UserDocument = await this.findUser(
+      filter,
+      {},
+      {
+        sort: { createdAt: -1 },
+      },
+    );
 
     if (token !== user.verificationCode) {
       this.createAuthHistory(req, user._id, authActions.VERIFICATION_CODE_REJECTED);
@@ -322,24 +334,16 @@ export class AuthService {
     if (role) throw new BadRequestException('This role name already exists');
   }
 
-  private async checkPermissions(permissions: Array<string>) {
-    const temp = [];
-    const validPermissions = permissions.map((prm) => {
-      for (const key in mainPermissions) {
-        const element = mainPermissions[key];
-        temp.push(element);
-      }
-      if (temp.includes(prm)) return true;
-      return false;
+  private checkPermissions(permissions: Array<string>) {
+    permissions.forEach((permission) => {
+      if (!Object.values(mainPermissions).includes(permission))
+        throw new BadRequestException('please enter valid roles');
     });
-
-    if (validPermissions.includes(false))
-      throw new BadRequestException('the permissions entered are invalid');
   }
 
-  private async findUser(filter: any): Promise<UserDocument> {
-    const user = await this.userModel.findOne(filter);
-    if (!user) throw new BadRequestException('bad request');
+  private async findUser(filter, fields = {}, options = {}): Promise<UserDocument> {
+    const user = await this.userModel.findOne(filter, fields, options);
+    if (!user) throw new BadRequestException('user not found');
     return user;
   }
 

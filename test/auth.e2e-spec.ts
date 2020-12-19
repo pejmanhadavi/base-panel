@@ -13,6 +13,7 @@ import { GenerateFakeDataService } from '../src/generate-data/generate-fake-data
 import { GenerateDataModule } from '../src/generate-data/generate-data.module';
 import { CreateRoleDto } from '../src/modules/auth/dto/createRole.dto';
 import permissions from '../src/constants/permissions.constant';
+import { AdminLogsModule } from '../src/modules/admin-logs/admin-logs.module';
 
 describe('AuthController', () => {
   let app: INestApplication;
@@ -23,6 +24,7 @@ describe('AuthController', () => {
       imports: [
         GenerateDataModule,
         AuthModule,
+        AdminLogsModule,
         UsersModule,
         ConfigModule,
         MongooseModule.forRoot(process.env.MONGO_URI_TEST, {}),

@@ -70,7 +70,8 @@ export class CreateUserDto {
   })
   @IsOptional()
   @IsArray()
-  readonly roles: Array<Role>;
+  @IsOptional()
+  readonly roles: Array<string>;
 
   @ApiProperty({
     type: Boolean,

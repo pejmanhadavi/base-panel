@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
@@ -9,12 +14,17 @@ import { FilterQueries } from '../../utils/filterQueries';
 import { ObjectIdDto } from '../../common/dto/objectId.dto';
 import { ui_query_projection_fields } from './users.projection';
 import { Role, RoleDocument } from '../auth/schemas/role.schema';
+import { AdminLogsService } from '../admin-logs/admin-logs.service';
+import { REQUEST } from '@nestjs/core';
+import { Request } from 'express';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Role.name) private roleModel: Model<RoleDocument>,
+    private readonly adminLogService: AdminLogsService,
+    @Inject(REQUEST) private readonly request: Request,
   ) {}
 
   async getAllUsers(filterQueryDto: FilterQueryDto): Promise<User[]> {
@@ -46,11 +56,14 @@ export class UsersService {
     await this.checkUserExistence(email, phoneNumber);
 
     try {
-      let user = new this.userModel(createUserDto);
-      return await user.save();
+      if (roles && roles.length) await this.doesRolesExist(createUserDto.roles);
+      return await this.adminLogService.create(
+        this.request.user,
+        this.userModel,
+        createUserDto,
+      );
     } catch (error) {
-      if (error.message.match(/Cast to ObjectId failed for value /))
-        throw new BadRequestException('please enter valid roles');
+      throw new BadRequestException(error.message);
     }
   }
 
@@ -58,33 +71,44 @@ export class UsersService {
     objectIdDto: ObjectIdDto,
     updateUserDto: UpdateUserDto,
   ): Promise<UserDocument> {
-    await this.getUserById(objectIdDto);
-
+    const { roles } = updateUserDto;
     await this.checkUserExistence(updateUserDto.email, updateUserDto.phoneNumber);
 
-    try {
-      return await this.userModel.findByIdAndUpdate(objectIdDto.id, updateUserDto, {
-        new: true,
-      });
-    } catch (error) {
-      if (error.message.match(/Cast to ObjectId failed for value /))
-        throw new BadRequestException('please enter valid roles');
-    }
+    if (roles && roles.length) await this.doesRolesExist(updateUserDto.roles);
+
+    return await this.adminLogService.update(
+      this.request.user,
+      this.userModel,
+      objectIdDto.id,
+      updateUserDto,
+    );
   }
 
   async deleteUser(objectIdDto: ObjectIdDto): Promise<void> {
-    const user = await this.getUserById(objectIdDto);
-
-    await user.deleteOne();
-    return;
+    return await this.adminLogService.delete(
+      this.request.user,
+      this.userModel,
+      objectIdDto.id,
+    );
   }
 
   // private methods
   private async checkUserExistence(email?: string, phoneNumber?: string) {
     let user;
-    if (email) user = await this.userModel.findOne({ email });
-    if (phoneNumber) user = await this.userModel.findOne({ phoneNumber });
+    if (email) user = await this.userModel.findOne({ email, verified: true });
+    if (phoneNumber) user = await this.userModel.findOne({ phoneNumber, verified: true });
 
     if (user) throw new BadRequestException('the user has already exists');
+  }
+
+  private async doesRolesExist(roles) {
+    return new Promise((resolve, reject) => {
+      roles.some((roleId) => {
+        this.roleModel.exists({ _id: roleId }, (error, data) => {
+          if (error || !data) reject(new BadRequestException(error.message));
+        });
+        resolve(true);
+      });
+    });
   }
 }
