@@ -10,6 +10,8 @@ import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { AllExceptionsFilter } from './interceptors/ errors.interceptor';
 import { GenerateDataModule } from './generate-data/generate-data.module';
 import { AdminLogsModule } from './modules/admin-logs/admin-logs.module';
+import { WebsiteInformationModule } from './modules/website-information/website-information.module';
+import { CategoriesModule } from './modules/categories/categories.module';
 import sequencePlugin from './common/plugins/squence.plugin';
 
 @Module({
@@ -31,6 +33,8 @@ import sequencePlugin from './common/plugins/squence.plugin';
     UsersModule,
     GenerateDataModule,
     AdminLogsModule,
+    WebsiteInformationModule,
+    CategoriesModule,
   ],
   controllers: [AppController],
   providers: [
