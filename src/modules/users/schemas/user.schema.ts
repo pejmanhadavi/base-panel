@@ -26,6 +26,17 @@ export class User {
 
   @Prop({
     type: String,
+  })
+  avatar?: string;
+
+  @Prop({
+    type: String,
+    maxlength: 256,
+  })
+  fullName?: string;
+
+  @Prop({
+    type: String,
     required: true,
     minlength: 8,
     maxlength: 1024,
@@ -59,6 +70,14 @@ export class User {
 
   @Prop({ type: Date })
   blockExpires: Date;
+
+  @Prop({ type: String, maxlength: 32 })
+  nationalCode?: string;
+
+  @Prop({
+    type: [{ type: Object }],
+  })
+  addresses: [];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
