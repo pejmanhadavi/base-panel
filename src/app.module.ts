@@ -16,6 +16,7 @@ import { SmsModule } from './modules/sms/sms.module';
 import { EmailModule } from './modules/email/email.module';
 import { BannersModule } from './modules/banners/banners.module';
 import { ArticlesModule } from './modules/articles/articles.module';
+import { ProductsModule } from './modules/products/products.module';
 import sequencePlugin from './common/plugins/squence.plugin';
 
 @Module({
@@ -43,6 +44,7 @@ import sequencePlugin from './common/plugins/squence.plugin';
     EmailModule,
     BannersModule,
     ArticlesModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [
