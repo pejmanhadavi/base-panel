@@ -17,6 +17,12 @@ import { EmailModule } from './modules/email/email.module';
 import { BannersModule } from './modules/banners/banners.module';
 import { ArticlesModule } from './modules/articles/articles.module';
 import { ProductsModule } from './modules/products/products.module';
+import { CouponsModule } from './modules/coupons/coupons.module';
+import { WishlistsModule } from './modules/wishlists/wishlists.module';
+import { BasketsModule } from './modules/baskets/baskets.module';
+import { OrdersModule } from './modules/orders/orders.module';
+import { PaymentsModule } from './modules/payments/payments.module';
+import { TransactionsModule } from './modules/transactions/transactions.module';
 import sequencePlugin from './common/plugins/squence.plugin';
 
 @Module({
@@ -45,6 +51,12 @@ import sequencePlugin from './common/plugins/squence.plugin';
     BannersModule,
     ArticlesModule,
     ProductsModule,
+    CouponsModule,
+    WishlistsModule,
+    BasketsModule,
+    OrdersModule,
+    PaymentsModule,
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [
