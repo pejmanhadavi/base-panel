@@ -10,7 +10,7 @@ import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
 import { CreateUserDto } from './dto/createUserDto.dto';
 import { UpdateUserDto } from './dto/updateUserDto';
 import { User, UserDocument } from './schemas/user.schema';
-import { FilterQueries } from '../../utils/filterQueries';
+import { FilterQueries } from '../../utils/filterQueries.util';
 import { ObjectIdDto } from '../../common/dto/objectId.dto';
 import { ui_query_projection_fields } from './users.projection';
 import { Role, RoleDocument } from '../auth/schemas/role.schema';
