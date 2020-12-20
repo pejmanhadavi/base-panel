@@ -18,7 +18,6 @@ import { BannersModule } from './modules/banners/banners.module';
 import { ArticlesModule } from './modules/articles/articles.module';
 import { ProductsModule } from './modules/products/products.module';
 import { CouponsModule } from './modules/coupons/coupons.module';
-import { WishlistsModule } from './modules/wishlists/wishlists.module';
 import { BasketsModule } from './modules/baskets/baskets.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { PaymentsModule } from './modules/payments/payments.module';
@@ -52,7 +51,6 @@ import sequencePlugin from './common/plugins/squence.plugin';
     ArticlesModule,
     ProductsModule,
     CouponsModule,
-    WishlistsModule,
     BasketsModule,
     OrdersModule,
     PaymentsModule,

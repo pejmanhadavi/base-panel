@@ -3,6 +3,7 @@ import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { Role } from '../../auth/schemas/role.schema';
+import { Product } from '../../products/schemas/product.schema';
 
 export type UserDocument = User & Document;
 
@@ -78,6 +79,11 @@ export class User {
     type: [{ type: Object }],
   })
   addresses: [];
+
+  @Prop({
+    type: [{ type: mongoose.Types.ObjectId, ref: Product.name }],
+  })
+  wishLists: Product[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
