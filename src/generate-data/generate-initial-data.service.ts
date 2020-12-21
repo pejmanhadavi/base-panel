@@ -18,6 +18,7 @@ export class GenerateInitialDataService implements OnModuleInit {
       isSuperAdmin: true,
       verified: true,
       isActive: true,
+      code: 1,
     },
   ): Promise<UserDocument> {
     const users = await this.userModel.find();

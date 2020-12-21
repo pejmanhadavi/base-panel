@@ -74,6 +74,22 @@ describe('AuthController', () => {
         .expect(HttpStatus.UNAUTHORIZED);
     });
 
+    it('should signIn the user and return accessToken', async () => {
+      const res2 = await request(app.getHttpServer())
+        .post('/auth/signIn')
+        .send(user3)
+        .expect(HttpStatus.OK);
+
+      expect(res2.body).toHaveProperty('accessToken');
+    });
+
+    it('should throw BadRequest if verification code is invalid', async () => {
+      await request(app.getHttpServer())
+        .post('/auth/verify-email')
+        .send({ email: user1.email, token: 1 })
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
     it('should verify the user by email and returns accessToken and refresh access token', async () => {
       const response = await request(app.getHttpServer())
         .post('/auth/verify-email')
@@ -91,6 +107,13 @@ describe('AuthController', () => {
       expect(res2.body).toHaveProperty('accessToken');
     });
 
+    it('should throw BadRequest if verification code is invalid', async () => {
+      await request(app.getHttpServer())
+        .post('/auth/verify-phone-number')
+        .send({ phoneNumber: user2.phoneNumber, token: 1 })
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
     it('should verify the user by phoneNumber and returns accessToken and refreshToken', async () => {
       const response = await request(app.getHttpServer())
         .post('/auth/verify-phone-number')
@@ -103,16 +126,14 @@ describe('AuthController', () => {
       expect(response.body).toHaveProperty('refreshToken');
     });
 
-    it('should logIn the user and return accessToken', async () => {
-      const res2 = await request(app.getHttpServer())
-        .post('/auth/signIn')
-        .send(user3)
-        .expect(HttpStatus.OK);
-
-      expect(res2.body).toHaveProperty('accessToken');
+    it('should throw and exception if the entered user is not verified', async () => {
+      await request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: verifiedUser.email })
+        .expect(HttpStatus.BAD_REQUEST);
     });
 
-    it('should send forgotPassword request and return forgot password token', async () => {
+    it('should send "forgotPassword request" and return "forgot password token"', async () => {
       const response = await request(app.getHttpServer())
         .post('/auth/forgot-password')
         .send({ email: user3.email })
@@ -120,10 +141,21 @@ describe('AuthController', () => {
       expect(response.body).toHaveProperty('forgotPasswordToken');
     });
 
-    it('should verify forgot password and change the password', async () => {
+    it('should throw an exception if forgot password token is invalid', async () => {
       await request(app.getHttpServer())
-        .post('/auth/forgot-password-verify')
-        .send({ token: forgotPassword.body.forgotPasswordToken })
+        .post('/auth/verify-forgot-password')
+        .send({ email: user3.email, token: 1 })
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
+    it('should verify forgot password and change the password', async () => {
+      const forgotPassword = await request(app.getHttpServer())
+        .post('/auth/forgot-password')
+        .send({ email: user3.email });
+
+      await request(app.getHttpServer())
+        .post('/auth/verify-forgot-password')
+        .send({ email: user3.email, token: forgotPassword.body.forgotPasswordToken })
         .expect(HttpStatus.OK);
 
       await request(app.getHttpServer())
@@ -131,11 +163,64 @@ describe('AuthController', () => {
         .send({ email: user3.email, password: 'newPassword' })
         .expect(HttpStatus.CREATED);
     });
+
+    it('should throw unauthorize exception if an unauthorize user request to change my password', async () => {
+      await request(app.getHttpServer())
+        .post('/auth/change-my-password')
+        .send({ old_password: '12345678', new_password: '12345678' })
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('should throw BadRequestException  if entered password is invalid', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/auth/signin')
+        .send(user3)
+        .expect(HttpStatus.OK);
+
+      await request(app.getHttpServer())
+        .post('/auth/change-my-password')
+        .set('Authorization', `Bearer ${res.body.accessToken}`)
+        .send({ old_password: '12345678', new_password: '12345678' })
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
+    it('should change my password and return accessToken and refreshToken', async () => {
+      const res1 = await request(app.getHttpServer())
+        .post('/auth/signin')
+        .send(user3)
+        .expect(HttpStatus.OK);
+
+      const res2 = await request(app.getHttpServer())
+        .post('/auth/change-my-password')
+        .set('Authorization', `Bearer ${res1.body.accessToken}`)
+        .send({ old_password: user3.password, new_password: '12345678' })
+        .expect(HttpStatus.CREATED);
+
+      expect(res2.body).toHaveProperty('accessToken', res2.body.accessToken);
+      expect(res2.body).toHaveProperty('refreshToken', res2.body.refreshToken);
+    });
+
+    it('should change my information', async () => {
+      const res1 = await request(app.getHttpServer())
+        .post('/auth/signin')
+        .send(user3)
+        .expect(HttpStatus.OK);
+
+      const res2 = await request(app.getHttpServer())
+        .post('/auth/change-my-info')
+        .set('Authorization', `Bearer ${res1.body.accessToken}`)
+        .send({ email: 'new@gmail.com' })
+        .expect(HttpStatus.CREATED);
+
+      expect(res2.body).toHaveProperty('accessToken', res2.body.accessToken);
+      expect(res2.body).toHaveProperty('refreshToken', res2.body.refreshToken);
+    });
   });
 
   describe('CRUD Role', () => {
     let superAdmin, role;
     let createRoleDto: CreateRoleDto;
+    let invalidMongoId = '5fdcf6704952e62ed4861b70';
     beforeEach(async () => {
       createRoleDto = {
         name: 'role',
@@ -152,8 +237,25 @@ describe('AuthController', () => {
         .set('Authorization', `Bearer ${superAdmin.body.accessToken}`)
         .expect(HttpStatus.CREATED);
     });
+
+    it('should throw unauthorize exception if the user creator is not superAdmin', async () => {
+      await request(app.getHttpServer())
+        .post('/auth/roles')
+        .send({ name: 'newRole', permissions: [permissions.CREATE_USER] })
+        .set('Authorization', `Bearer token`)
+        .expect(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('should throw BadRequest if the permissions entered is invalid', async () => {
+      await request(app.getHttpServer())
+        .post('/auth/roles')
+        .send({ name: 'newRole', permissions: ['invalid'] })
+        .set('Authorization', `Bearer ${superAdmin.body.accessToken}`)
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
     it('should create new role and return it', async () => {
-      const res = await request(app.getHttpServer())
+      await request(app.getHttpServer())
         .post('/auth/roles')
         .send({ name: 'newRole', permissions: [permissions.CREATE_USER] })
         .set('Authorization', `Bearer ${superAdmin.body.accessToken}`)
@@ -167,11 +269,29 @@ describe('AuthController', () => {
         .expect(HttpStatus.OK);
     });
 
+    it('should throw an exception if the role id is invalid', async () => {
+      await request(app.getHttpServer())
+        .get(`/auth/roles/${invalidMongoId}`)
+        .set('Authorization', `Bearer ${superAdmin.body.accessToken}`)
+        .expect(HttpStatus.NOT_FOUND);
+    });
+
     it('should get a role by the id', async () => {
       await request(app.getHttpServer())
         .get(`/auth/roles/${role.body._id}`)
         .set('Authorization', `Bearer ${superAdmin.body.accessToken}`)
         .expect(HttpStatus.OK);
+    });
+
+    it('should throw BadRequest if the permissions entered is invalid', async () => {
+      await request(app.getHttpServer())
+        .patch(`/auth/roles/${role.body._id}`)
+        .send({
+          name: 'newRoleName',
+          permissions: ['invalid permissions'],
+        })
+        .set('Authorization', `Bearer ${superAdmin.body.accessToken}`)
+        .expect(HttpStatus.BAD_REQUEST);
     });
 
     it('should update the role ', async () => {
@@ -194,7 +314,6 @@ describe('AuthController', () => {
   });
 
   afterAll(async () => {
-    // await mongoose.connection.db.dropDatabase();
     await app.close();
   });
 });
