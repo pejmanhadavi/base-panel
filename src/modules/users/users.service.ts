@@ -107,8 +107,8 @@ export class UsersService {
         this.roleModel.exists({ _id: roleId }, (error, data) => {
           if (error || !data) reject(new BadRequestException(error.message));
         });
-        resolve(true);
       });
+      resolve(true);
     });
   }
 }
