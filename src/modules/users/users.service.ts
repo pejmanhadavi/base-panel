@@ -111,14 +111,9 @@ export class UsersService {
   }
 
   private async doesRolesExist(roles) {
-    return new Promise((resolve, reject) => {
-      roles.some((roleId) => {
-        this.roleModel.exists({ _id: roleId }, (err, res) => {
-          if (!res || err)
-            reject(new BadRequestException('the entered roles are invalid'));
-        });
-      });
-      resolve(true);
-    });
+    for (const roleId of roles) {
+      const role = await this.roleModel.exists({ _id: roleId });
+      if (!role) throw new BadRequestException('role does not exist');
+    }
   }
 }
