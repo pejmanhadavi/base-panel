@@ -61,7 +61,7 @@ export class UsersController {
 
   @Post()
   @Roles(permissions.CREATE_USER)
-  @HttpCode(201)
+  @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse()
   @ApiOperation({ summary: 'Create user' })
   async createUser(@Body() createUserDto: CreateUserDto): Promise<UserDocument> {
@@ -70,7 +70,7 @@ export class UsersController {
 
   @Patch('/:id')
   @Roles(permissions.UPDATE_USER)
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Update user' })
   @ApiOkResponse()
   @ApiParam({ name: 'id', required: true })

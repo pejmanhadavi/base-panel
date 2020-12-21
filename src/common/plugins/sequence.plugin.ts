@@ -2,7 +2,7 @@ export default function (schema) {
   schema.add({
     code: {
       type: Number,
-      unique: true,
+      // unique: true,
       index: true,
     },
   });

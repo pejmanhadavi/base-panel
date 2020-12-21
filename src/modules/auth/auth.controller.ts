@@ -64,7 +64,7 @@ export class AuthController {
   async signIn(
     @Req() req: Request,
     @Body() authSignInDto: AuthSignInDto,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     return this.authService.signIn(req, authSignInDto);
   }
 
@@ -134,14 +134,14 @@ export class AuthController {
   @Post('change-my-password')
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @ApiOkResponse()
   @ApiOperation({ summary: 'change my password' })
   async changeMyPassword(
     @Req() req: Request,
     @Body()
     changeMyPassword: ChangeMyPasswordDto,
-  ): Promise<string> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     return await this.authService.changeMyPassword(req, changeMyPassword);
   }
 
@@ -149,7 +149,7 @@ export class AuthController {
   @Post('change-my-info')
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   @ApiOkResponse()
   @ApiOperation({ summary: 'change my information' })
   async changeMyInfo(
@@ -210,16 +210,16 @@ export class AuthController {
     return await this.authService.forgotPassword(req, forgotPasswordDto);
   }
 
-  // forgot password verify
-  @Post('forgot-password-verify')
+  // verify forgot password
+  @Post('verify-forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Verify forget password code' })
   @ApiOkResponse({})
-  async forgotPasswordVerify(
+  async verifyForgotPassword(
     @Req() req: Request,
     @Body() verifyForgotPassword: VerifyForgotPasswordDto,
   ): Promise<string> {
-    return await this.authService.forgotPasswordVerify(verifyForgotPassword);
+    return await this.authService.verifyForgotPassword(verifyForgotPassword);
   }
 
   // reset password
@@ -230,7 +230,7 @@ export class AuthController {
   async resetPassword(
     @Req() req: Request,
     @Body() passwordResetDto: PasswordResetDto,
-  ): Promise<string> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     return await this.authService.resetPassword(req, passwordResetDto);
   }
 }

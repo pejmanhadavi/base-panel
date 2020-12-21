@@ -23,8 +23,6 @@ export class AdminLogsService {
   }
 
   async update(user: any, model: any, id: string, data: any): Promise<any> {
-    console.log(id);
-    console.log(data);
     const instance: any = await model.findByIdAndUpdate(id, data, { new: true });
     if (!instance) throw new NotFoundException();
     const adminLog: AdminLogDocument = new this.adminLog({
