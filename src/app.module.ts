@@ -22,6 +22,9 @@ import { BasketsModule } from './modules/baskets/baskets.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
+import { BrandsModule } from './modules/brands/brands.module';
+import { QsAsModule } from './modules/qs-as/qs-as.module';
+import { CommentsModule } from './modules/comments/comments.module';
 import sequencePlugin from './common/plugins/squence.plugin';
 
 @Module({
@@ -55,6 +58,9 @@ import sequencePlugin from './common/plugins/squence.plugin';
     OrdersModule,
     PaymentsModule,
     TransactionsModule,
+    BrandsModule,
+    QsAsModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [

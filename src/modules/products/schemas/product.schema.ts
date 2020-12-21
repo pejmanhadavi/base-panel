@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
 import { Category } from 'src/modules/categories/schemas/category.schema';
-import { Brand } from './brand.schema';
+import { Brand } from '../../brands/schemas/brand.schema';
 
 export type ProductDocument = Product & Document;
 
