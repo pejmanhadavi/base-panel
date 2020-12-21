@@ -84,6 +84,9 @@ export class User {
     type: [{ type: mongoose.Types.ObjectId, ref: Product.name }],
   })
   wishLists: Product[];
+
+  @Prop({ type: Number, default: 0 })
+  credit: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
