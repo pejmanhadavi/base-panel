@@ -111,9 +111,9 @@ export class UsersService {
   }
 
   private async doesRolesExist(roles) {
-    for (const roleId of roles) {
-      const role = await this.roleModel.exists({ _id: roleId });
-      if (!role) throw new BadRequestException('role does not exist');
+    for (const role of roles) {
+      if (!(await this.roleModel.exists({ _id: role })))
+        throw new BadRequestException('the entered roles are invalid');
     }
   }
 }
