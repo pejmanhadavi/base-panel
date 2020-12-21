@@ -12,7 +12,7 @@ import { GenerateDataModule } from './generate-data/generate-data.module';
 import { AdminLogsModule } from './modules/admin-logs/admin-logs.module';
 import { WebsiteInformationModule } from './modules/website-information/website-information.module';
 import { CategoriesModule } from './modules/categories/categories.module';
-import sequencePlugin from './common/plugins/squence.plugin';
+import sequencePlugin from './common/plugins/sequence.plugin';
 
 @Module({
   imports: [

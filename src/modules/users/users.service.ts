@@ -17,6 +17,7 @@ import { Role, RoleDocument } from '../auth/schemas/role.schema';
 import { AdminLogsService } from '../admin-logs/admin-logs.service';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import * as mongoose from 'mongoose';
 
 @Injectable()
 export class UsersService {
@@ -57,6 +58,7 @@ export class UsersService {
 
     try {
       if (roles && roles.length) await this.doesRolesExist(createUserDto.roles);
+
       return await this.adminLogService.create(
         this.request.user,
         this.userModel,
@@ -95,8 +97,16 @@ export class UsersService {
   // private methods
   private async checkUserExistence(email?: string, phoneNumber?: string) {
     let user;
-    if (email) user = await this.userModel.findOne({ email, verified: true });
-    if (phoneNumber) user = await this.userModel.findOne({ phoneNumber, verified: true });
+
+    if (email)
+      user = await this.userModel.findOne({ email, verified: true, isActive: true });
+
+    if (phoneNumber)
+      user = await this.userModel.findOne({
+        phoneNumber,
+        verified: true,
+        isActive: true,
+      });
 
     if (user) throw new BadRequestException('the user has already exists');
   }
@@ -104,8 +114,9 @@ export class UsersService {
   private async doesRolesExist(roles) {
     return new Promise((resolve, reject) => {
       roles.some((roleId) => {
-        this.roleModel.exists({ _id: roleId }, (error, data) => {
-          if (error || !data) reject(new BadRequestException(error.message));
+        this.roleModel.exists({ _id: roleId }, (err, res) => {
+          if (!res || err)
+            reject(new BadRequestException('the entered roles are invalid'));
         });
       });
       resolve(true);
