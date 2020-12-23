@@ -74,7 +74,6 @@ export class AuthService {
     authSignInDto: AuthSignInDto,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.validateUserInput(authSignInDto);
-
     this.createAuthHistory(req, user._id, authActions.SIGN_IN);
 
     return {
@@ -363,7 +362,7 @@ export class AuthService {
   private checkPermissions(permissions: Array<string>) {
     permissions.forEach((permission) => {
       if (!Object.values(mainPermissions).includes(permission))
-        throw new BadRequestException('please enter valid roles');
+        throw new BadRequestException('please enter valid permissions');
     });
   }
 

@@ -25,6 +25,8 @@ import { addHours } from 'date-fns';
 import { ObjectIdDto } from 'src/common/dto/objectId.dto';
 import { VerifyPhoneNumberDto } from './dto/verifyPhoneNumber.dto';
 import { VerifyEmailDto } from './dto/verifyEmail.dto';
+import { VerifyForgotPasswordDto } from './dto/verifyForgotPassword.dto';
+import permissions from '../../constants/permissions.constant';
 
 const id: ObjectIdDto = { id: '5fd4072f5417273f0c64f370' };
 
@@ -60,6 +62,7 @@ describe('AuthService', () => {
           provide: getModelToken(Role.name),
           useValue: {
             find: jest.fn().mockResolvedValue('roles'),
+            findOne: jest.fn().mockResolvedValue('role'),
             findById: jest.fn().mockResolvedValue('role'),
             create: jest.fn().mockResolvedValue('created'),
             findByIdAndUpdate: jest.fn().mockResolvedValue('updated'),
@@ -117,14 +120,14 @@ describe('AuthService', () => {
     let authSignUpDto: AuthSignUpDto;
 
     beforeEach(() => {
-      authSignUpDto = { password: 'password', email: 'email' };
+      authSignUpDto = { email: 'email', password: 'password' };
     });
 
-    it('should throw BadRequest exception if email and phone number is empty', async () => {
+    it('should throw BadRequest exception if email and phone number are blank', async () => {
       const authSignUpDto: AuthSignUpDto = { password: 'password' };
 
       expect(authService.signUp({} as Request, authSignUpDto)).rejects.toThrow(
-        'please enter phone number or email',
+        'Please enter either phone number or email',
       );
     });
 
@@ -172,11 +175,11 @@ describe('AuthService', () => {
       authSignInDto = { password: 'password', email: 'email' };
     });
 
-    it('should throw BadRequest exception if email and phone number is empty', async () => {
+    it('should throw BadRequest exception if email and phone number are blank', async () => {
       const authSignInDto: AuthSignInDto = { password: 'password' };
 
       expect(authService.signUp({} as Request, authSignInDto)).rejects.toThrow(
-        'please enter phone number or email',
+        'Please enter either phone number or email',
       );
     });
 
@@ -269,20 +272,21 @@ describe('AuthService', () => {
 
       expect(roleModel.find).toHaveBeenCalledTimes(1);
       expect(roleModel.find).toHaveBeenCalledWith({});
-      expect(result).toEqual({ data: 'roles', result: 5, status: 'success' });
+      expect(result).toEqual('roles');
     });
   });
 
   describe('getRoleById', () => {
     it('should throw an exception if role not found by the id', () => {
       roleModel.findById = jest.fn().mockRejectedValue(new NotFoundException());
+
       expect(authService.getRoleById(id)).rejects.toThrow(NotFoundException);
     });
 
     it('should return the role by id', async () => {
       const result = await authService.getRoleById(id);
 
-      expect(roleModel.findById).toHaveBeenCalledWith(id);
+      expect(roleModel.findById).toHaveBeenCalledWith(id.id);
       expect(roleModel.findById).toHaveBeenCalledTimes(1);
       expect(result).toEqual('role');
     });
@@ -290,35 +294,55 @@ describe('AuthService', () => {
 
   describe('createRole', () => {
     it('should throw an exception if role already exists', () => {
-      const error = { code: 11000 };
       const createRoleDto: CreateRoleDto = {
         name: 'roleName',
         permissions: ['permissions'],
       };
 
-      roleModel.create = jest.fn().mockRejectedValue(error);
+      roleModel.create = jest.fn().mockRejectedValue(' ');
       expect(authService.createRole(createRoleDto)).rejects.toThrow(
-        'This role already exists',
+        'This role name already exists',
       );
     });
 
     it('should throw an exception if permissions are invalid', () => {
-      const error = { _message: 'Role validation failed' };
       const createRoleDto: CreateRoleDto = {
         name: 'roleName',
         permissions: ['permissions'],
       };
 
-      roleModel.create = jest.fn().mockRejectedValue(error);
+      roleModel.create = jest.fn().mockRejectedValue(' ');
       expect(authService.createRole(createRoleDto)).rejects.toThrow(
-        'the permissions entered are invalid',
+        'This role name already exists',
       );
     });
-    it('should create new role and return it', async () => {
+
+    it('should throw an exception if the role has already exists', async () => {
       const createRoleDto: CreateRoleDto = {
         name: 'roleName',
         permissions: ['permissions'],
       };
+
+      expect(authService.createRole(createRoleDto)).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw an exception if the entered permissions are invalid', async () => {
+      const createRoleDto: CreateRoleDto = {
+        name: 'roleName',
+        permissions: ['permissions'],
+      };
+
+      expect(authService.createRole(createRoleDto)).rejects.toThrow(BadRequestException);
+    });
+
+    it('should create new role and return it', async () => {
+      const createRoleDto: CreateRoleDto = {
+        name: 'roleName',
+        permissions: [permissions.CREATE_USER],
+      };
+
+      roleModel.findOne = jest.fn().mockResolvedValue(false);
+
       const result = await authService.createRole(createRoleDto);
 
       expect(roleModel.create).toHaveBeenCalledTimes(1);
@@ -332,13 +356,25 @@ describe('AuthService', () => {
       const updateRoleDto: UpdateRoleDto = { name: 'name' };
       roleModel.findByIdAndUpdate = jest.fn().mockRejectedValue(new NotFoundException());
 
+      roleModel.findOne = jest.fn().mockResolvedValue(false);
+
       expect(authService.updateRole(id, updateRoleDto)).rejects.toThrow(
         NotFoundException,
       );
     });
 
+    it('should throw an exception if the role has already exists', async () => {
+      const updateRoleDto: UpdateRoleDto = { name: 'name' };
+
+      expect(authService.updateRole(id, updateRoleDto)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
     it('should update the role and return it', async () => {
       const updateRoleDto: UpdateRoleDto = { name: 'name' };
+
+      roleModel.findOne = jest.fn().mockResolvedValue(false);
 
       const result = await authService.updateRole(id, updateRoleDto);
 
@@ -370,7 +406,7 @@ describe('AuthService', () => {
     it('should throw an exception if user with the given email not found', async () => {
       const verifyEmailDto: VerifyEmailDto = {
         email: 'email',
-        token: 'token',
+        token: 123456,
       };
       userModel.findOne = jest.fn().mockRejectedValue(new BadRequestException());
       expect(userModel.findOne).not.toHaveBeenCalled();
@@ -383,7 +419,7 @@ describe('AuthService', () => {
     it('should throw and exception if token is invalid', async () => {
       const verifyEmailDto: VerifyEmailDto = {
         email: 'email',
-        token: 'token',
+        token: 123456,
       };
 
       userModel.findOne = jest.fn().mockImplementation(() => {
@@ -400,7 +436,7 @@ describe('AuthService', () => {
     it('should verify the email and return access token and refresh token', async () => {
       const verifyEmailDto: VerifyEmailDto = {
         email: 'email',
-        token: 'token',
+        token: 123456,
       };
       userModel.findOne = jest.fn().mockImplementation(() => {
         return {
@@ -426,7 +462,7 @@ describe('AuthService', () => {
     it('should throw an exception if user with the given phoneNumber not found', async () => {
       const verifyPhoneNumber: VerifyPhoneNumberDto = {
         phoneNumber: '0912',
-        token: 'token',
+        token: 123456,
       };
       userModel.findOne = jest.fn().mockRejectedValue(new BadRequestException());
       expect(userModel.findOne).not.toHaveBeenCalled();
@@ -439,7 +475,7 @@ describe('AuthService', () => {
     it('should throw and exception if token is invalid', async () => {
       const verifyPhoneNumber: VerifyPhoneNumberDto = {
         phoneNumber: '0912',
-        token: 'token',
+        token: 123456,
       };
 
       userModel.findOne = jest.fn().mockImplementation(() => {
@@ -456,7 +492,7 @@ describe('AuthService', () => {
     it('should verify the phoneNumber and return access token and refresh token', async () => {
       const verifyPhoneNumber: VerifyPhoneNumberDto = {
         phoneNumber: '0912',
-        token: 'token',
+        token: 123456,
       };
       userModel.findOne = jest.fn().mockImplementation(() => {
         return {
@@ -519,16 +555,27 @@ describe('AuthService', () => {
   });
 
   describe('forgotPassword', () => {
-    it('should throw an exception if email and phoneNumber is empty', () => {
+    it('should throw an exception if email and phoneNumber are blank', () => {
       expect(userModel.findOne).not.toHaveBeenCalled();
 
       expect(authService.forgotPassword({} as Request, {})).rejects.toThrow(
-        'please enter phone number or email',
+        'Please enter either phone number or email',
       );
     });
 
-    it('should create new forgotPassword instance and return forgotPasswordToken', async () => {
+    it('should throw an exception if both email and phone number are entered', async () => {
       const forgotPasswordDto: ForgotPasswordDto = { email: 'email', phoneNumber: '09' };
+
+      expect(
+        authService.forgotPassword(
+          { headers: { 'user-agent': 'mozilla' } } as Request,
+          forgotPasswordDto,
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should create new forgotPassword instance and return forgotPasswordToken', async () => {
+      const forgotPasswordDto: ForgotPasswordDto = { email: 'email' };
 
       const result = await authService.forgotPassword(
         { headers: { 'user-agent': 'mozilla' } } as Request,
@@ -536,32 +583,38 @@ describe('AuthService', () => {
       );
       expect(userModel.findOne).toHaveBeenCalled();
       expect(forgotPasswordModel.create).toHaveBeenCalled();
-      expect(result).toHaveProperty('forgotPassword');
+      expect(result).toHaveProperty('forgotPasswordToken');
     });
   });
 
   describe('forgotPasswordVerify', () => {
     it('should throw BadRequest exception if not found forgotPassword instance with the given token', () => {
       expect(forgotPasswordModel.findOne).not.toHaveBeenCalled();
-      const verifyUUid: VerifyUuidDto = { verificationCode: '' };
+      const verifyForgotPassword: VerifyForgotPasswordDto = {
+        token: 123456,
+        email: 'a@b.c',
+      };
       forgotPasswordModel.findOne = jest.fn().mockResolvedValue(false);
-      expect(authService.forgotPasswordVerify(verifyUUid)).rejects.toThrow(
+      expect(authService.verifyForgotPassword(verifyForgotPassword)).rejects.toThrow(
         BadRequestException,
       );
     });
 
     it('should verify the user and return success message', async () => {
-      const verifyUUid: VerifyUuidDto = { verificationCode: '' };
+      const verifyForgotPassword: VerifyForgotPasswordDto = {
+        token: 123456,
+        email: 'a@b.c',
+      };
 
-      const result = await authService.forgotPasswordVerify(verifyUUid);
+      const result = await authService.verifyForgotPassword(verifyForgotPassword);
 
       expect(forgotPasswordModel.findOne).toHaveBeenCalledTimes(1);
-      expect(result).toEqual('ok, please reset your password');
+      expect(result).toEqual('the token verified, please reset your password');
     });
   });
 
   describe('resetPassword', () => {
-    it('should throw an exception if email and phone number is empty', () => {
+    it('should throw an exception if email and phone number are empty', () => {
       const passwordResetDto: PasswordResetDto = { password: 'password' };
       expect(userModel.findOne).not.toHaveBeenCalled();
       expect(forgotPasswordModel.findOne).not.toHaveBeenCalled();
@@ -570,7 +623,7 @@ describe('AuthService', () => {
           { headers: { 'user-agent': 'mozilla' } } as Request,
           passwordResetDto,
         ),
-      ).rejects.toThrow('please enter phone number or email');
+      ).rejects.toThrow('Please enter either phone number or email');
     });
 
     it('should throw an exception if not found user with the given user info', () => {
@@ -582,7 +635,7 @@ describe('AuthService', () => {
           { headers: { 'user-agent': 'mozilla' } } as Request,
           passwordResetDto,
         ),
-      ).rejects.toThrow('bad request');
+      ).rejects.toThrow('user not found');
     });
 
     it('should throw an exception if not found the forgot password', () => {

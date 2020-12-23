@@ -21,10 +21,10 @@ import { Request } from 'express';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
-    @InjectModel(Role.name) private roleModel: Model<RoleDocument>,
-    private readonly adminLogService: AdminLogsService,
+    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
+    @InjectModel(Role.name) private readonly roleModel: Model<RoleDocument>,
     @Inject(REQUEST) private readonly request: Request,
+    private readonly adminLogService: AdminLogsService,
   ) {}
 
   async getAllUsers(filterQueryDto: FilterQueryDto): Promise<User[]> {
@@ -55,17 +55,15 @@ export class UsersService {
 
     await this.checkUserExistence(email, phoneNumber);
 
-    try {
-      if (roles && roles.length) await this.doesRolesExist(createUserDto.roles);
+    if (roles && roles.length) await this.doesRolesExist(createUserDto.roles);
 
-      return await this.adminLogService.create(
-        this.request.user,
-        this.userModel,
-        createUserDto,
-      );
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
+    this.checkSuperAdmin(this.request.user, createUserDto);
+
+    return await this.adminLogService.create(
+      this.request.user,
+      this.userModel,
+      createUserDto,
+    );
   }
 
   async updateUser(
@@ -76,7 +74,11 @@ export class UsersService {
     await this.checkUserExistence(updateUserDto.email, updateUserDto.phoneNumber);
 
     if (roles && roles.length) await this.doesRolesExist(updateUserDto.roles);
+    console.log(updateUserDto);
 
+    this.checkSuperAdmin(this.request.user, updateUserDto);
+
+    console.log(updateUserDto);
     return await this.adminLogService.update(
       this.request.user,
       this.userModel,
@@ -115,5 +117,11 @@ export class UsersService {
       if (!(await this.roleModel.exists({ _id: role })))
         throw new BadRequestException('the entered roles are invalid');
     }
+  }
+
+  private checkSuperAdmin(user, userDto) {
+    if (user.isSuperAdmin) return;
+
+    if (userDto.isSuperAdmin) delete userDto.isSuperAdmin;
   }
 }
