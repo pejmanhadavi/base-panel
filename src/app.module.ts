@@ -25,7 +25,7 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
 import { BrandsModule } from './modules/brands/brands.module';
 import { QsAsModule } from './modules/qs-as/qs-as.module';
 import { CommentsModule } from './modules/comments/comments.module';
-import sequencePlugin from './common/plugins/squence.plugin';
+import sequencePlugin from './common/plugins/sequence.plugin';
 
 @Module({
   imports: [

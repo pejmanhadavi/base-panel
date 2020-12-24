@@ -25,7 +25,10 @@ export class WebsiteInformationController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateWebsiteInformationDto: UpdateWebsiteInformationDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateWebsiteInformationDto: UpdateWebsiteInformationDto,
+  ) {
     return this.websiteInformationService.update(+id, updateWebsiteInformationDto);
   }
 

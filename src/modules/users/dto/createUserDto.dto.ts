@@ -11,7 +11,6 @@ import {
   MinLength,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from 'src/modules/auth/schemas/role.schema';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -68,10 +67,9 @@ export class CreateUserDto {
     type: [String],
     description: 'user roles',
   })
-  @IsOptional()
   @IsArray()
   @IsOptional()
-  readonly roles: Array<string>;
+  readonly roles?: Array<string>;
 
   @ApiProperty({
     type: Boolean,

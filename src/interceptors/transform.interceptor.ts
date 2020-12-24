@@ -34,9 +34,10 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
             timestamp: new Date().toISOString(),
           };
         return {
-          data,
+          result: data.length,
           success: true,
           timestamp: new Date().toISOString(),
+          data,
         };
       }),
     );

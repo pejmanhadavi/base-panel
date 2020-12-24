@@ -29,7 +29,7 @@ import authActions from '../../constants/auth-actions.constant';
 import { VerifyEmailDto } from './dto/verifyEmail.dto';
 import { VerifyPhoneNumberDto } from './dto/verifyPhoneNumber.dto';
 import { ObjectIdDto } from '../../common/dto/objectId.dto';
-import { addHours } from 'date-fns';
+import { addHours, addMinutes } from 'date-fns';
 import { ChangeMyPasswordDto } from './dto/changeMyPassword.dto';
 import { ChangeMyInfoDto } from './dto/changeMyInfo.dto';
 import mainPermissions from '../../constants/permissions.constant';
@@ -72,12 +72,14 @@ export class AuthService {
   async signIn(
     req: Request,
     authSignInDto: AuthSignInDto,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const user = await this.validateUserInput(authSignInDto);
-
     this.createAuthHistory(req, user._id, authActions.SIGN_IN);
 
-    return { accessToken: this.generateAccessToken(user._id) };
+    return {
+      accessToken: this.generateAccessToken(user._id),
+      refreshToken: await this.generateRefreshToken(req, user._id),
+    };
   }
 
   // ROLES CRUD
@@ -131,7 +133,7 @@ export class AuthService {
   async changeMyPassword(
     req: Request,
     changeMyPasswordDto: ChangeMyPasswordDto,
-  ): Promise<string> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const { new_password, old_password } = changeMyPasswordDto;
 
     const user: any = await this.userModel.findOne(req.user).select('password');
@@ -143,7 +145,11 @@ export class AuthService {
 
     user.password = new_password;
     await user.save();
-    return 'password changed successfully';
+
+    return {
+      accessToken: this.generateAccessToken(user._id),
+      refreshToken: await this.generateRefreshToken(req, user._id),
+    };
   }
 
   // change my information
@@ -267,7 +273,7 @@ export class AuthService {
   ): Promise<{ forgotPasswordToken: number }> {
     const { email, phoneNumber } = forgotPasswordDto;
     if (!email && !phoneNumber)
-      throw new BadRequestException('please enter phone number or email');
+      throw new BadRequestException('Please enter either phone number or email');
 
     if (email && phoneNumber)
       throw new BadRequestException('we want one of phone number or email');
@@ -284,28 +290,44 @@ export class AuthService {
   }
 
   // verify forgot password
-  async forgotPasswordVerify(
+  async verifyForgotPassword(
     verifyForgotPassword: VerifyForgotPasswordDto,
   ): Promise<string> {
+    const { email, phoneNumber } = verifyForgotPassword;
+    let user: UserDocument;
+
+    if (!email && !phoneNumber)
+      throw new BadRequestException('Please enter either phone number or email');
+
+    if (email) user = await this.findUser({ email, isActive: true, verified: true });
+
+    if (phoneNumber)
+      user = await this.findUser({ phoneNumber, isActive: true, verified: true });
+
     const forgotPassword = await this.forgotPasswordModel.findOne({
       forgotPasswordToken: verifyForgotPassword.token,
+      user: user._id,
       used: false,
       forgotPasswordExpires: { $gt: new Date() },
     });
+
     if (!forgotPassword) throw new BadRequestException('the verify token is invalid');
 
     forgotPassword.used = true;
     await forgotPassword.save();
 
-    return 'ok, please reset your password';
+    return 'the token verified, please reset your password';
   }
 
   // reset password
-  async resetPassword(req: Request, passwordResetDto: PasswordResetDto): Promise<string> {
+  async resetPassword(
+    req: Request,
+    passwordResetDto: PasswordResetDto,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const { email, phoneNumber, password } = passwordResetDto;
 
     if (!email && !phoneNumber)
-      throw new BadRequestException('please enter phone number or email');
+      throw new BadRequestException('Please enter either phone number or email');
 
     const filter = { $or: [{ email }, { phoneNumber }], verified: true, isActive: true };
 
@@ -324,7 +346,10 @@ export class AuthService {
 
     this.createAuthHistory(req, user._id, authActions.RESET_PASSWORD);
 
-    return 'Password changed successfully';
+    return {
+      accessToken: this.generateAccessToken(user._id),
+      refreshToken: await this.generateRefreshToken(req, user._id),
+    };
   }
 
   // ***************** private methods ********************
@@ -337,7 +362,7 @@ export class AuthService {
   private checkPermissions(permissions: Array<string>) {
     permissions.forEach((permission) => {
       if (!Object.values(mainPermissions).includes(permission))
-        throw new BadRequestException('please enter valid roles');
+        throw new BadRequestException('please enter valid permissions');
     });
   }
 
@@ -367,8 +392,8 @@ export class AuthService {
   ): Promise<number> {
     const forgotPassword = await this.forgotPasswordModel.create({
       user: user_id,
-      forgotPasswordToken: Math.floor(Math.random() * 999999 + 1),
-      forgotPasswordExpires: Date.now() + 1800000,
+      forgotPasswordToken: this.generateRandomNumber(6),
+      forgotPasswordExpires: addMinutes(Date.now(), 30),
       ip: getClientIp(req),
       agent: req.headers['user-agent'] || 'XX',
       used: false,
@@ -387,7 +412,7 @@ export class AuthService {
   }
 
   private async setVerifyInfo(user: UserDocument): Promise<void> {
-    user.verificationCode = Math.floor(Math.random() * 999999 + 1);
+    user.verificationCode = this.generateRandomNumber(6);
     user.verificationExpires = addHours(Date.now(), global.VERIFICATION_EXPIRES);
     await user.save();
   }
@@ -407,7 +432,7 @@ export class AuthService {
     let findByPhone: UserDocument;
 
     if (!email && !phoneNumber)
-      throw new BadRequestException('please enter phone number or email');
+      throw new BadRequestException('Please enter either phone number or email');
 
     if (email && phoneNumber)
       throw new BadRequestException('we want one of phone number or email');
@@ -434,7 +459,7 @@ export class AuthService {
     let user;
 
     if (!email && !phoneNumber)
-      throw new BadRequestException('please enter phone number or email');
+      throw new BadRequestException('Please enter either phone number or email');
 
     if (email && phoneNumber)
       throw new BadRequestException('we want one of phone number or email');
@@ -492,5 +517,13 @@ export class AuthService {
       ip: getClientIp(req),
       agent: req.headers['user-agent'] || 'XX',
     });
+  }
+
+  private generateRandomNumber(length = 6): number {
+    const token = Array(length)
+      .fill(null)
+      .map(() => Math.floor(Math.random() * 10).toString(10))
+      .join('');
+    return parseInt(token);
   }
 }

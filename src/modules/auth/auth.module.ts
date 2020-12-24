@@ -18,12 +18,14 @@ dotenv.config();
     PassportModule.register({
       defaultStrategy: 'jwt',
     }),
+
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: {
         expiresIn: +process.env.JWT_EXPIRES,
       },
     }),
+
     MongooseModule.forFeatureAsync([
       {
         name: User.name,
