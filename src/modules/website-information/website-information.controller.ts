@@ -19,18 +19,7 @@ export class WebsiteInformationController {
     return this.websiteInformationService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.websiteInformationService.findOne(+id);
-  }
-
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateWebsiteInformationDto: UpdateWebsiteInformationDto) {
-    return this.websiteInformationService.update(+id, updateWebsiteInformationDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.websiteInformationService.remove(+id);
-  }
+  // generate init => make an instance of website information
+  // route1 => get => findOne(); superadmin;
+  // route2 => update => updateOne(); superadmin;
 }

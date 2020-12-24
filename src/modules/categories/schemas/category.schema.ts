@@ -32,7 +32,7 @@ export class Category {
     ref: Category.name,
     index: true,
   })
-  parent: Category;
+  parent?: Category;
 
   @Prop({
     type: [{ type: String }],

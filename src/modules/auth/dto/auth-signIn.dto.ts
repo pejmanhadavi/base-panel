@@ -17,6 +17,7 @@ export class AuthSignInDto {
     uniqueItems: true,
     minLength: 5,
     maxLength: 256,
+    format: 'email',
   })
   @IsOptional()
   @MinLength(5)
