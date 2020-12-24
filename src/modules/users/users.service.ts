@@ -122,6 +122,8 @@ export class UsersService {
   private checkSuperAdmin(user, userDto) {
     if (user.isSuperAdmin) return;
 
-    if (userDto.isSuperAdmin) delete userDto.isSuperAdmin;
+    delete userDto.isSuperAdmin;
+    delete userDto.isStaff;
+    delete userDto.roles;
   }
 }

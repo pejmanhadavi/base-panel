@@ -392,7 +392,7 @@ export class AuthService {
   ): Promise<number> {
     const forgotPassword = await this.forgotPasswordModel.create({
       user: user_id,
-      forgotPasswordToken: Math.floor(Math.random() * 999999 + 1),
+      forgotPasswordToken: this.generateRandomNumber(6),
       forgotPasswordExpires: addMinutes(Date.now(), 30),
       ip: getClientIp(req),
       agent: req.headers['user-agent'] || 'XX',
@@ -412,7 +412,7 @@ export class AuthService {
   }
 
   private async setVerifyInfo(user: UserDocument): Promise<void> {
-    user.verificationCode = Math.floor(Math.random() * 999999 + 1);
+    user.verificationCode = this.generateRandomNumber(6);
     user.verificationExpires = addHours(Date.now(), global.VERIFICATION_EXPIRES);
     await user.save();
   }
@@ -517,5 +517,13 @@ export class AuthService {
       ip: getClientIp(req),
       agent: req.headers['user-agent'] || 'XX',
     });
+  }
+
+  private generateRandomNumber(length = 6): number {
+    const token = Array(length)
+      .fill(null)
+      .map(() => Math.floor(Math.random() * 10).toString(10))
+      .join('');
+    return parseInt(token);
   }
 }
