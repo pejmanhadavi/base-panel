@@ -45,6 +45,6 @@ export class AdminLogsService {
       action: adminLogs.DELETE,
     });
     await adminLog.save();
-    return;
+    return instance;
   }
 }

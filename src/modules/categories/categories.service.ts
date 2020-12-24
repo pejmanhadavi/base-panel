@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
@@ -15,7 +16,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category, CategoryDocument } from './schemas/category.schema';
 import { AdminLogsService } from '../admin-logs/admin-logs.service';
-
+import * as fs from 'fs';
 @Injectable()
 export class CategoriesService {
   constructor(
@@ -75,7 +76,19 @@ export class CategoriesService {
   }
 
   async delete(code: number): Promise<any> {
-    return await this.adminLogService.delete(this.request.user, this.categoryModel, code);
+    const category = await this.adminLogService.delete(
+      this.request.user,
+      this.categoryModel,
+      code,
+    );
+
+    fs.unlink(category.thumbnail, (err) => {
+      if (err) throw new InternalServerErrorException();
+    });
+
+    fs.unlink(category.picture, (err) => {
+      if (err) throw new InternalServerErrorException();
+    });
   }
 
   private async checkCategoryExistence(name: string) {
