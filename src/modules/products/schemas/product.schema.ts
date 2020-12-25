@@ -33,10 +33,10 @@ export class Product {
   maxDeliveryDays: number;
 
   @Prop({ type: [String] })
-  colors?: string[];
+  colors?: Array<string>;
 
   @Prop({ type: [String] })
-  sizes?: string[];
+  sizes?: Array<string>;
 
   @Prop({ type: Number })
   remainingNumber?: number;
@@ -44,14 +44,14 @@ export class Product {
   @Prop({ type: String, required: true })
   review: string;
 
-  @Prop({ type: Number, required: true, default: 0 })
+  @Prop({ type: Number, required: true })
   price: number;
 
-  @Prop({ type: Number })
+  @Prop({ type: Number, default: 0 })
   discount?: number;
 
   @Prop({ type: Number, default: 0 })
-  visits: number;
+  visits?: number;
 
   @Prop({ type: Number })
   weight?: number;
