@@ -55,8 +55,8 @@ export class UsersController {
   @ApiOkResponse()
   @ApiOperation({ summary: 'Get a user by id' })
   @ApiParam({ name: 'id', required: true })
-  async getUserById(@Param('id') id: number): Promise<UserDocument> {
-    return await this.usersService.getUserById(id);
+  async getUserById(@Param('id') code: number): Promise<UserDocument> {
+    return await this.usersService.getUserById(code);
   }
 
   @Post()
@@ -75,10 +75,10 @@ export class UsersController {
   @ApiOkResponse()
   @ApiParam({ name: 'id', required: true })
   async updateUser(
-    @Param('id') id: number,
+    @Param('id') code: number,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserDocument> {
-    return await this.usersService.updateUser(id, updateUserDto);
+    return await this.usersService.updateUser(code, updateUserDto);
   }
 
   @Delete('/:id')
@@ -87,7 +87,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Delete user' })
   @ApiNoContentResponse()
   @ApiParam({ name: 'id', required: true })
-  async deleteUser(@Param('id') id: number): Promise<void> {
-    return this.usersService.deleteUser(id);
+  async deleteUser(@Param('id') code: number): Promise<void> {
+    return this.usersService.deleteUser(code);
   }
 }
