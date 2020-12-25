@@ -1,5 +1,5 @@
 export class FilterQueries {
-  constructor(public query, public queryString, public projection) {}
+  constructor(public query, public queryString, public projection = {}) {}
 
   filter() {
     const queryObject = { ...this.queryString };

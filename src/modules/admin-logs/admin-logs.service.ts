@@ -4,10 +4,21 @@ import { Model } from 'mongoose';
 import { AdminLog, AdminLogDocument } from './schemas/adminLog.schema';
 import adminLogs from '../../constants/admin-logs.constant';
 import { ObjectIdDto } from '../../../src/common/dto/objectId.dto';
+import { FilterQueryDto } from 'src/common/dto/filterQuery.dto';
+import { FilterQueries } from 'src/utils/filterQueries.util';
 
 @Injectable()
 export class AdminLogsService {
   constructor(@InjectModel(AdminLog.name) private adminLog: Model<AdminLogDocument>) {}
+
+  async getAll(filterQueryDto: FilterQueryDto) {
+    const filterQuery = new FilterQueries(this.adminLog, filterQueryDto);
+    console.log();
+
+    filterQuery.filter().limitFields().paginate().sort();
+
+    return await filterQuery.query;
+  }
 
   async create(user: any, model, data: any): Promise<any> {
     const instance: any = await model.create(data);
