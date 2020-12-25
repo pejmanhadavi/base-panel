@@ -27,6 +27,7 @@ import { QsAsModule } from './modules/qs-as/qs-as.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { UploadFileModule } from './modules/upload-file/upload-file.module';
 import sequencePlugin from './common/plugins/sequence.plugin';
+import { ProductsController } from './modules/products/products.controller';
 
 @Module({
   imports: [
@@ -64,7 +65,7 @@ import sequencePlugin from './common/plugins/sequence.plugin';
     CommentsModule,
     UploadFileModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, ProductsController],
   providers: [
     AppService,
     {
