@@ -14,7 +14,18 @@ export class UploadFileService {
       throw new BadRequestException(`you can not set thumbnail for ${modelName}s`);
 
     await this.connection.models[modelName].updateOne({ code }, { thumbnail });
-    return 'thumbnail updated';
+    return { thumbnail };
+  }
+
+  async uploadPicture(modelName: string, code: number, picture: string) {
+    if (!this.connection.modelNames().includes(modelName))
+      throw new BadRequestException('model_does_not_exist');
+
+    if (!this.connection.models[modelName].schema.obj.hasOwnProperty('picture'))
+      throw new BadRequestException(`you can not set picture for ${modelName}s`);
+
+    await this.connection.models[modelName].updateOne({ code }, { picture });
+    return { picture };
   }
 
   async getModelNames() {

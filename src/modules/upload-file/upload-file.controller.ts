@@ -21,7 +21,7 @@ export class UploadFileController {
     return await this.uploadFileService.getModelNames();
   }
 
-  @Post(':modelName/:code')
+  @Post('thumbnails/:modelName/:code')
   @ApiConsumes('multipart/form-data')
   @ApiFile()
   @ApiParam({
@@ -33,10 +33,29 @@ export class UploadFileController {
   })
   @ApiParam({ name: 'code', required: true, type: 'number' })
   @UseInterceptors(uploadImage('thumbnail'))
-  async createArticle(
+  async uploadThumbnail(
     @Param() { modelName, code }: { modelName: string; code: number },
     @UploadedFile() file,
   ) {
     return await this.uploadFileService.uploadThumbnail(modelName, code, file.filePath);
+  }
+
+  @Post('pictures/:modelName/:code')
+  @ApiConsumes('multipart/form-data')
+  @ApiFile()
+  @ApiParam({
+    name: 'modelName',
+    required: true,
+    type: 'string',
+    description: 'name of model',
+    example: 'Category',
+  })
+  @ApiParam({ name: 'code', required: true, type: 'number' })
+  @UseInterceptors(uploadImage('picture', 2 * 1000 * 1000))
+  async uploadPicture(
+    @Param() { modelName, code }: { modelName: string; code: number },
+    @UploadedFile() file,
+  ) {
+    return await this.uploadFileService.uploadPicture(modelName, code, file.filePath);
   }
 }
