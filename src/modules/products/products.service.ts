@@ -49,6 +49,8 @@ export class ProductsService {
   async create(createProductDto: CreateProductDto) {
     await this.checkProductExistence(createProductDto.title);
 
+    await this.checkCategory(createProductDto.category);
+
     return await this.adminLogService.create(
       this.request.user,
       this.productModel,
@@ -81,5 +83,11 @@ export class ProductsService {
   private async checkProductExistence(title: string) {
     const product = await this.productModel.findOne({ title });
     if (product) throw new BadRequestException('the product already exists');
+  }
+
+  // check category
+  private async checkCategory(categoryId: string) {
+    const category = await this.categoryModel.findById(categoryId);
+    if (!category) throw new BadRequestException('the entered category is invalid');
   }
 }

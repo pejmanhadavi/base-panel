@@ -11,13 +11,16 @@ export class Product {
   @Prop({ type: String, maxlength: 256, index: true })
   title: string;
 
-  @Prop({ type: String, required: true, index: true })
-  thumbnail: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Category.name, required: true })
+  category: Category;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Category.name, index: true })
-  homeCategories: Category;
+  @Prop({ type: [String], index: true })
+  pictures?: [string];
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Brand.name })
+  @Prop({ type: String, index: true })
+  thumbnail?: string;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Brand.name, required: true })
   brand: Brand;
 
   @Prop({ type: Number, min: 0, max: 5, default: 3 })

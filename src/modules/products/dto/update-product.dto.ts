@@ -26,14 +26,24 @@ export class UpdateProductDto {
   title?: string;
 
   @ApiProperty({
-    name: 'homeCategories',
-    description: 'home categories',
+    name: 'thumbnail',
+    description: 'product thumbnail',
+    required: false,
+    type: String,
+  })
+  @IsArray()
+  @IsOptional()
+  thumbnail?: string;
+
+  @ApiProperty({
+    name: 'pictures',
+    description: 'product pictures',
     required: false,
     type: [String],
   })
   @IsArray()
   @IsOptional()
-  homeCategories?: Array<string>;
+  pictures?: Array<string>;
 
   @ApiProperty({
     name: 'brand',

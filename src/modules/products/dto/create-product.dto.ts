@@ -3,6 +3,7 @@ import {
   IsArray,
   IsBoolean,
   IsDate,
+  IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -27,14 +28,34 @@ export class CreateProductDto {
   title: string;
 
   @ApiProperty({
-    name: 'homeCategories',
-    description: 'home categories',
+    name: 'category',
+    description: 'product category',
+    type: String,
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsMongoId()
+  category: string;
+
+  @ApiProperty({
+    name: 'thumbnail',
+    description: 'product thumbnail',
+    required: false,
+    type: String,
+  })
+  @IsArray()
+  @IsOptional()
+  thumbnail?: string;
+
+  @ApiProperty({
+    name: 'pictures',
+    description: 'product pictures',
     required: false,
     type: [String],
   })
   @IsArray()
   @IsOptional()
-  homeCategories: Array<string>;
+  pictures?: Array<string>;
 
   @ApiProperty({
     name: 'brand',

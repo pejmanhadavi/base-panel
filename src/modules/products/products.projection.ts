@@ -4,7 +4,7 @@ export const products_projection: Partial<ProductDocument> = {
   _id: 1 as any,
   title: 1 as any,
   thumbnail: 1 as any,
-  homeCategories: 1 as any,
+  category: 1 as any,
   brand: 1 as any,
   stars: 1 as any,
   specialOfferExpires: 1 as any,
