@@ -1,6 +1,6 @@
 import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
-import uploadThumbnailConfig from 'src/configs/upload-thumbnail.config';
+import uploadImage from 'src/configs/upload-image.config';
 import { ApiTags, ApiConsumes } from '@nestjs/swagger';
 import { ApiFile } from 'src/common/decorators/api-file.decorator';
 
@@ -12,7 +12,7 @@ export class ArticlesController {
   @Post()
   @ApiConsumes('multipart/form-data')
   @ApiFile('thumbnail')
-  @UseInterceptors(uploadThumbnailConfig)
+  @UseInterceptors(uploadImage('thumbnail'))
   async createArticle(@UploadedFile() file) {
     console.log(file);
     return;

@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
 import { ApiFile } from 'src/common/decorators/api-file.decorator';
-import uploadThumbnailConfig from 'src/configs/upload-thumbnail.config';
+import uploadImage from 'src/configs/upload-image.config';
 import { UploadFileService } from './upload-file.service';
 
 @ApiTags('upload-file')
@@ -29,10 +29,10 @@ export class UploadFileController {
     required: true,
     type: 'string',
     description: 'name of model',
-    example: 'Product or Category',
+    example: 'Category',
   })
   @ApiParam({ name: 'code', required: true, type: 'number' })
-  @UseInterceptors(uploadThumbnailConfig)
+  @UseInterceptors(uploadImage('thumbnail'))
   async createArticle(
     @Param() { modelName, code }: { modelName: string; code: number },
     @UploadedFile() file,
