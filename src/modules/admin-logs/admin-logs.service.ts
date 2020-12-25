@@ -22,8 +22,8 @@ export class AdminLogsService {
     return instance;
   }
 
-  async update(user: any, model: any, id: string, data: any): Promise<any> {
-    const instance: any = await model.findByIdAndUpdate(id, data, { new: true });
+  async update(user: any, model: any, code: number, data: any): Promise<any> {
+    const instance: any = await model.findOneAndUpdate({ code }, data, { new: true });
     if (!instance) throw new NotFoundException();
     const adminLog: AdminLogDocument = new this.adminLog({
       user,
@@ -35,8 +35,8 @@ export class AdminLogsService {
     return instance;
   }
 
-  async delete(user: any, model: any, id: string) {
-    const instance: any = await model.findByIdAndDelete(id);
+  async delete(user: any, model: any, code: number) {
+    const instance: any = await model.findOneAndDelete({ code });
     if (!instance) throw new NotFoundException();
     const adminLog: AdminLogDocument = new this.adminLog({
       user,
