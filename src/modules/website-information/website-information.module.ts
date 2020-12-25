@@ -6,6 +6,7 @@ import {
   WebsiteInformation,
   WebsiteInformationSchema,
 } from './schemas/website-information.schema';
+import { Category, CategorySchema } from '../categories/schemas/category.schema';
 
 @Module({
   imports: [
@@ -14,6 +15,13 @@ import {
         name: WebsiteInformation.name,
         useFactory: () => {
           const schema = WebsiteInformationSchema;
+          return schema;
+        },
+      },
+      {
+        name: Category.name,
+        useFactory: () => {
+          const schema = CategorySchema;
           return schema;
         },
       },

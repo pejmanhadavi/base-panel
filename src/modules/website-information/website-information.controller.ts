@@ -1,36 +1,56 @@
-import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+  UseGuards,
+  HttpStatus,
+  HttpCode,
+  Patch,
+} from '@nestjs/common';
 import { WebsiteInformationService } from './website-information.service';
-import { CreateWebsiteInformationDto } from './dto/create-website-information.dto';
-import { UpdateWebsiteInformationDto } from './dto/update-website-information.dto';
-import { ApiTags } from '@nestjs/swagger';
 
-@ApiTags('website information')
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { WebsiteInformationDocument } from './schemas/website-information.schema';
+import { UpdateWebsiteInformationDto } from './dto/update-website-information.dto';
+
+@ApiBearerAuth()
+@UseGuards(AuthGuard('jwt'))
+@UseGuards(RolesGuard)
+@ApiTags('website-information')
 @Controller('website-information')
 export class WebsiteInformationController {
   constructor(private readonly websiteInformationService: WebsiteInformationService) {}
 
-  @Post()
-  create(@Body() createWebsiteInformationDto: CreateWebsiteInformationDto) {
-    return this.websiteInformationService.create(createWebsiteInformationDto);
-  }
-
   @Get()
-  findAll() {
-    return this.websiteInformationService.findAll();
+  @Roles('SUPER_ADMIN')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get website information' })
+  @ApiOkResponse()
+  async getWebsiteInfo(): Promise<WebsiteInformationDocument> {
+    return await this.websiteInformationService.getWebsiteInfo();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.websiteInformationService.findOne(+id);
-  }
-
-  @Put(':id')
-  update(@Param('id') id: string, @Body() updateWebsiteInformationDto: UpdateWebsiteInformationDto) {
-    return this.websiteInformationService.update(+id, updateWebsiteInformationDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.websiteInformationService.remove(+id);
+  @Patch(':id')
+  @Roles('SUPER_ADMIN')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'edit website information' })
+  @ApiCreatedResponse()
+  async updateWebsiteInfo(
+    @Body() updateWebsiteInfo: UpdateWebsiteInformationDto,
+  ): Promise<WebsiteInformationDocument> {
+    return await this.websiteInformationService.updateWebsiteInfo(updateWebsiteInfo);
   }
 }
