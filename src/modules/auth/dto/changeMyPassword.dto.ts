@@ -5,7 +5,7 @@ export class ChangeMyPasswordDto {
   @ApiProperty({
     name: 'old_password',
     description: 'the old password',
-    example: 'oldPassword!',
+    example: 'oldPassword',
     format: 'string',
     minLength: 8,
     maxLength: 255,
@@ -19,7 +19,7 @@ export class ChangeMyPasswordDto {
   @ApiProperty({
     name: 'new_password',
     description: 'the new password',
-    example: 'newPassword!',
+    example: 'newPassword',
     format: 'string',
     minLength: 8,
     maxLength: 255,

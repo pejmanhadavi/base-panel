@@ -6,8 +6,8 @@ import { Connection } from 'mongoose';
 export class UploadFileService {
   constructor(@InjectConnection() private connection: Connection) {}
 
-  async getModelNames() {
-    return await this.connection.modelNames();
+  getModelNames(): string[] {
+    return this.connection.modelNames();
   }
 
   async uploadThumbnail(

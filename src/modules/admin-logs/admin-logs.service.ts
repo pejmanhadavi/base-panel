@@ -17,7 +17,7 @@ export class AdminLogsService {
 
     filterQuery.filter().limitFields().paginate().sort();
 
-    return await filterQuery.query;
+    return await filterQuery.query.populate('user', 'email phoneNumber');
   }
 
   async create(user: any, model, data: any): Promise<any> {

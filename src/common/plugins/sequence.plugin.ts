@@ -8,7 +8,7 @@ export default function (schema) {
   });
 
   schema.pre('save', async function (next) {
-    if (this.code) next();
+    if (this.code) return next();
     const Model = this.constructor;
     const lastObject = await Model.findOne({}, {}, { sort: { createdAt: -1 } });
     if (lastObject) this.code = lastObject.code + 1;

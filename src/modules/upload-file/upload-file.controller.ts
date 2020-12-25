@@ -20,8 +20,8 @@ export class UploadFileController {
   constructor(private readonly uploadFileService: UploadFileService) {}
 
   @Get('models')
-  async getModelNames() {
-    return await this.uploadFileService.getModelNames();
+  getModelNames(): string[] {
+    return this.uploadFileService.getModelNames();
   }
 
   @Post('thumbnail/:modelName/:code/:field')
@@ -35,6 +35,7 @@ export class UploadFileController {
     example: 'Category',
   })
   @ApiParam({ name: 'code', required: true, type: 'number' })
+  @ApiParam({ name: 'field', required: true, type: 'string' })
   @UseInterceptors(uploadImage('thumbnail'))
   async uploadThumbnail(
     @Param()
@@ -60,6 +61,7 @@ export class UploadFileController {
     example: 'Category',
   })
   @ApiParam({ name: 'code', required: true, type: 'number' })
+  @ApiParam({ name: 'field', required: true, type: 'string' })
   @UseInterceptors(uploadImage('picture', 2 * 1000 * 1000))
   async uploadPicture(
     @Param()

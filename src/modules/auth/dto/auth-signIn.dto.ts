@@ -12,7 +12,7 @@ import {
 export class AuthSignInDto {
   @ApiProperty({
     type: String,
-    example: 'superadmin@superadmin.me',
+    example: 'admin@gmail.com',
     description: 'the unique email for each user',
     uniqueItems: true,
     minLength: 5,
@@ -41,7 +41,7 @@ export class AuthSignInDto {
 
   @ApiProperty({
     type: String,
-    example: '12345678',
+    example: 'password',
     description: 'the password of user',
     minLength: 8,
     maxLength: 1024,
