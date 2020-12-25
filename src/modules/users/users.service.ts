@@ -23,11 +23,11 @@ export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(Role.name) private readonly roleModel: Model<RoleDocument>,
-    @Inject(REQUEST) private readonly request: Request,
     private readonly adminLogService: AdminLogsService,
+    @Inject(REQUEST) private readonly request: Request,
   ) {}
 
-  async getAllUsers(filterQueryDto: FilterQueryDto): Promise<User[]> {
+  async getAllUsers(filterQueryDto: FilterQueryDto): Promise<UserDocument[]> {
     const filterQuery = new FilterQueries(
       this.userModel,
       filterQueryDto,
@@ -40,9 +40,9 @@ export class UsersService {
     return users;
   }
 
-  async getUserById(objectIdDto: ObjectIdDto): Promise<UserDocument> {
+  async getUserById(code: number): Promise<UserDocument> {
     const user = await this.userModel
-      .findById(objectIdDto.id)
+      .findOne({ code })
       .populate('roles', 'name permissions');
     if (!user) throw new NotFoundException('not found user by the given id');
     return user;
@@ -66,10 +66,7 @@ export class UsersService {
     );
   }
 
-  async updateUser(
-    objectIdDto: ObjectIdDto,
-    updateUserDto: UpdateUserDto,
-  ): Promise<UserDocument> {
+  async updateUser(code: number, updateUserDto: UpdateUserDto): Promise<UserDocument> {
     const { roles } = updateUserDto;
     await this.checkUserExistence(updateUserDto.email, updateUserDto.phoneNumber);
 
@@ -82,17 +79,13 @@ export class UsersService {
     return await this.adminLogService.update(
       this.request.user,
       this.userModel,
-      objectIdDto.id,
+      code,
       updateUserDto,
     );
   }
 
-  async deleteUser(objectIdDto: ObjectIdDto): Promise<void> {
-    return await this.adminLogService.delete(
-      this.request.user,
-      this.userModel,
-      objectIdDto.id,
-    );
+  async deleteUser(code: number): Promise<void> {
+    return await this.adminLogService.delete(this.request.user, this.userModel, code);
   }
 
   // private methods

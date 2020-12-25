@@ -14,7 +14,7 @@ export class ArticlesController {
   @ApiFile('thumbnail')
   @UseInterceptors(uploadImage('thumbnail'))
   async createArticle(@UploadedFile() file) {
-    console.log(file);
+    console.log(file.path); // save it in db
     return;
   }
 }

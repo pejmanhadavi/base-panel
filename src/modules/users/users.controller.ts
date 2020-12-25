@@ -45,7 +45,7 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all users' })
   @ApiOkResponse()
-  async getAllUsers(@Query() filterQueryDto: FilterQueryDto): Promise<User[]> {
+  async getAllUsers(@Query() filterQueryDto: FilterQueryDto): Promise<UserDocument[]> {
     return await this.usersService.getAllUsers(filterQueryDto);
   }
 
@@ -55,8 +55,8 @@ export class UsersController {
   @ApiOkResponse()
   @ApiOperation({ summary: 'Get a user by id' })
   @ApiParam({ name: 'id', required: true })
-  async getUserById(@Param() objectIdDto: ObjectIdDto): Promise<UserDocument> {
-    return await this.usersService.getUserById(objectIdDto);
+  async getUserById(@Param('id') id: number): Promise<UserDocument> {
+    return await this.usersService.getUserById(id);
   }
 
   @Post()
@@ -75,10 +75,10 @@ export class UsersController {
   @ApiOkResponse()
   @ApiParam({ name: 'id', required: true })
   async updateUser(
-    @Param() objectIdDto: ObjectIdDto,
+    @Param('id') id: number,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserDocument> {
-    return await this.usersService.updateUser(objectIdDto, updateUserDto);
+    return await this.usersService.updateUser(id, updateUserDto);
   }
 
   @Delete('/:id')
@@ -87,7 +87,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Delete user' })
   @ApiNoContentResponse()
   @ApiParam({ name: 'id', required: true })
-  async deleteUser(@Param() objectIdDto: ObjectIdDto): Promise<void> {
-    return this.usersService.deleteUser(objectIdDto);
+  async deleteUser(@Param('id') id: number): Promise<void> {
+    return this.usersService.deleteUser(id);
   }
 }

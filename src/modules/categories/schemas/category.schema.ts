@@ -16,23 +16,23 @@ export class Category {
 
   @Prop({
     type: String,
-    required: true,
+    required: false,
     index: true,
   })
-  thumbnail: string;
+  thumbnail?: string;
 
   @Prop({
     type: String,
-    required: true,
+    required: false,
   })
-  picture: string;
+  picture?: string;
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: Category.name,
     index: true,
   })
-  parent: Category;
+  parent?: Category;
 
   @Prop({
     type: [{ type: String }],
