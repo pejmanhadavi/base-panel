@@ -8,23 +8,23 @@ export type CommentDocument = Comment & Document;
 
 @Schema({ versionKey: false, timestamps: true })
 export class Comment {
-  @Prop({ type: String, maxlength: 1024 })
+  @Prop({ type: String, maxlength: 1024, required: true })
   body: string;
 
-  @Prop({ type: mongoose.Types.ObjectId, ref: Product.name })
+  @Prop({ type: mongoose.Types.ObjectId, ref: Product.name, required: true })
   product: Product;
 
-  @Prop({ type: mongoose.Types.ObjectId, ref: User.name })
+  @Prop({ type: mongoose.Types.ObjectId, ref: User.name, required: true })
   user: User;
 
   @Prop({ type: Boolean, default: false })
-  published: boolean;
+  published?: boolean;
 
   @Prop({ type: Number, min: 0, max: 5 })
-  stars: number;
+  stars?: number;
 
   @Prop({ type: Number, min: 0, max: 5 })
-  quality: number;
+  quality?: number;
 
   @Prop({ type: Number, min: 0, max: 5 })
   value: number;

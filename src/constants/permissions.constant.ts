@@ -24,4 +24,9 @@ export default {
   CREATE_BRAND: 'create_brand',
   UPDATE_BRAND: 'update_brand',
   DELETE_BRAND: 'delete_brand',
+  // Banner
+  READ_BANNER: 'read_banner',
+  CREATE_BANNER: 'create_banner',
+  UPDATE_BANNER: 'update_banner',
+  DELETE_BANNER: 'delete_banner',
 };
