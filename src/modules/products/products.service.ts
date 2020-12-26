@@ -18,12 +18,14 @@ import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { UpdateProductDto } from './dto/update-product.dto';
 import * as fs from 'fs';
+import { Brand, BrandDocument } from '../brands/schemas/brand.schema';
 
 @Injectable()
 export class ProductsService {
   constructor(
     @InjectModel(Product.name) private readonly productModel: Model<ProductDocument>,
     @InjectModel(Category.name) private readonly categoryModel: Model<CategoryDocument>,
+    @InjectModel(Brand.name) private readonly brandModel: Model<BrandDocument>,
     @Inject(REQUEST) private readonly request: Request,
     private readonly adminLogService: AdminLogsService,
   ) {}
@@ -41,7 +43,7 @@ export class ProductsService {
     return product;
   }
   async getById(code: number) {
-    const product = this.productModel.findOne({ code });
+    const product = await this.productModel.findOne({ code });
     if (!product) throw new NotFoundException('Product not found');
     return product;
   }
@@ -51,6 +53,8 @@ export class ProductsService {
 
     await this.checkCategory(createProductDto.category);
 
+    await this.checkBrand(createProductDto.brand);
+
     return await this.adminLogService.create(
       this.request.user,
       this.productModel,
@@ -58,10 +62,16 @@ export class ProductsService {
     );
   }
   async update(code: number, updateProductDto: UpdateProductDto) {
-    if (updateProductDto.title) await this.checkProductExistence(updateProductDto.title);
+    const { title, category, brand } = updateProductDto;
+
+    if (title) await this.checkProductExistence(title);
+
+    if (category) await this.checkCategory(category);
+
+    if (brand) await this.checkBrand(brand);
 
     return await this.adminLogService.update(
-      this.request,
+      this.request.user,
       this.productModel,
       code,
       updateProductDto,
@@ -89,5 +99,11 @@ export class ProductsService {
   private async checkCategory(categoryId: string) {
     const category = await this.categoryModel.findById(categoryId);
     if (!category) throw new BadRequestException('the entered category is invalid');
+  }
+
+  // check Brand
+  private async checkBrand(brandId: string) {
+    const brand = await this.brandModel.findById(brandId);
+    if (!brand) throw new BadRequestException('the entered brand is invalid');
   }
 }

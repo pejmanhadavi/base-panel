@@ -46,6 +46,9 @@ export class GenerateInitialDataService implements OnModuleInit {
     }
   }
   async InitialWebsiteInfo() {
+    const websiteInfo = await this.websiteInfoModel.find();
+    if (websiteInfo.length) return websiteInfo;
+
     const data: any = {
       name: faker.name.title(),
       picture: 'picture',
@@ -53,9 +56,6 @@ export class GenerateInitialDataService implements OnModuleInit {
       thumbnail: 'image',
     };
     const category = await this.categoryModel.create(data);
-
-    const websiteInfo = await this.websiteInfoModel.find();
-    if (websiteInfo.length) return websiteInfo;
 
     await this.websiteInfoModel.create({
       name: faker.name.title(),

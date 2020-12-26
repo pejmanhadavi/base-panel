@@ -19,4 +19,9 @@ export default {
   CREATE_PRODUCT: 'create_product',
   UPDATE_PRODUCT: 'update_product',
   DELETE_PRODUCT: 'delete_product',
+  // Brand
+  READ_BRAND: 'read_brand',
+  CREATE_BRAND: 'create_brand',
+  UPDATE_BRAND: 'update_brand',
+  DELETE_BRAND: 'delete_brand',
 };

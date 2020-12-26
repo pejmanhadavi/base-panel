@@ -44,8 +44,8 @@ export class Product {
   @Prop({ type: Number })
   remainingNumber?: number;
 
-  @Prop({ type: String, required: true })
-  review: string;
+  @Prop({ type: String, required: false })
+  review?: string;
 
   @Prop({ type: Number, required: true })
   price: number;

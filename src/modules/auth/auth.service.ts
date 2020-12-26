@@ -310,7 +310,7 @@ export class AuthService {
     forgotPassword.used = true;
     await forgotPassword.save();
 
-    return 'the token verified, please reset your password';
+    return 'ok, now reset your password';
   }
 
   // reset password

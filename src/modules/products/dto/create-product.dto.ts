@@ -30,7 +30,7 @@ export class CreateProductDto {
   @ApiProperty({
     name: 'category',
     description: 'product category',
-    type: String,
+    example: '5fe13e59fd04eb23382fbe90',
     required: true,
   })
   @IsNotEmpty()
@@ -43,7 +43,7 @@ export class CreateProductDto {
     required: false,
     type: String,
   })
-  @IsArray()
+  @IsString()
   @IsOptional()
   thumbnail?: string;
 
@@ -64,8 +64,7 @@ export class CreateProductDto {
     type: String,
   })
   @IsNotEmpty()
-  @IsString()
-  @MaxLength(256)
+  @IsMongoId()
   brand: string;
 
   @ApiProperty({
@@ -78,7 +77,6 @@ export class CreateProductDto {
   })
   @IsOptional()
   @IsNumber()
-  @MaxLength(256)
   @Min(0)
   @Max(5)
   stars?: number;
@@ -113,12 +111,21 @@ export class CreateProductDto {
   colors?: Array<string>;
 
   @ApiProperty({
+    name: '  review',
+    description: 'Product review',
+    type: String,
+  })
+  @IsOptional()
+  @IsString()
+  review?: string;
+
+  @ApiProperty({
     name: 'sizes',
     description: 'Product sizes',
     type: [String],
   })
   @IsOptional()
-  @IsNumber()
+  @IsArray()
   sizes?: Array<string>;
 
   @ApiProperty({

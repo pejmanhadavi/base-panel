@@ -7,7 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
-import { AllExceptionsFilter } from './interceptors/ errors.interceptor';
+// import { AllExceptionsFilter } from './interceptors/ errors.interceptor';
 import { GenerateDataModule } from './generate-data/generate-data.module';
 import { AdminLogsModule } from './modules/admin-logs/admin-logs.module';
 import { WebsiteInformationModule } from './modules/website-information/website-information.module';
@@ -65,17 +65,17 @@ import { ProductsController } from './modules/products/products.controller';
     CommentsModule,
     UploadFileModule,
   ],
-  controllers: [AppController, ProductsController],
+  controllers: [AppController],
   providers: [
     AppService,
     {
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,
     },
-    {
-      provide: APP_FILTER,
-      useClass: AllExceptionsFilter,
-    },
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: AllExceptionsFilter,
+    // },
   ],
 })
 export class AppModule {}

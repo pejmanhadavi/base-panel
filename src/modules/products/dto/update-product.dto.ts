@@ -3,6 +3,7 @@ import {
   IsArray,
   IsBoolean,
   IsDate,
+  IsMongoId,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -26,12 +27,22 @@ export class UpdateProductDto {
   title?: string;
 
   @ApiProperty({
+    name: 'category',
+    description: 'product category',
+    example: '5fe13e59fd04eb23382fbe90',
+    required: false,
+  })
+  @IsOptional()
+  @IsMongoId()
+  category?: string;
+
+  @ApiProperty({
     name: 'thumbnail',
     description: 'product thumbnail',
     required: false,
     type: String,
   })
-  @IsArray()
+  @IsString()
   @IsOptional()
   thumbnail?: string;
 
@@ -51,8 +62,7 @@ export class UpdateProductDto {
     type: String,
   })
   @IsOptional()
-  @IsString()
-  @MaxLength(256)
+  @IsMongoId()
   brand?: string;
 
   @ApiProperty({
@@ -65,7 +75,6 @@ export class UpdateProductDto {
   })
   @IsOptional()
   @IsNumber()
-  @MaxLength(256)
   @Min(0)
   @Max(5)
   stars?: number;
@@ -100,12 +109,21 @@ export class UpdateProductDto {
   colors?: Array<string>;
 
   @ApiProperty({
+    name: '  review',
+    description: 'Product review',
+    type: String,
+  })
+  @IsOptional()
+  @IsString()
+  review?: string;
+
+  @ApiProperty({
     name: 'sizes',
     description: 'Product sizes',
     type: [String],
   })
   @IsOptional()
-  @IsNumber()
+  @IsArray()
   sizes?: Array<string>;
 
   @ApiProperty({
