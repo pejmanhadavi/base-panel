@@ -39,7 +39,6 @@ import { UpdateProductDto } from './dto/update-product.dto';
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
   @Get()
-  @Roles(permissions.READ_PRODUCT)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all products' })
   @ApiOkResponse()
@@ -50,7 +49,6 @@ export class ProductsController {
   }
 
   @Get(':id')
-  @Roles(permissions.READ_PRODUCT)
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
   @ApiOperation({ summary: 'Get a product by id' })

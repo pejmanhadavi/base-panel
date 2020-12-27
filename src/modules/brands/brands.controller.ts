@@ -40,7 +40,6 @@ export class BrandsController {
   constructor(private readonly brandService: BrandsService) {}
 
   @Get()
-  @Roles(permissions.READ_BRAND)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all brands' })
   @ApiOkResponse()
@@ -51,7 +50,6 @@ export class BrandsController {
   }
 
   @Get(':id')
-  @Roles(permissions.READ_BRAND)
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
   @ApiOperation({ summary: 'Get a brand by id' })

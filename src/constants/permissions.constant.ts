@@ -29,4 +29,7 @@ export default {
   CREATE_BANNER: 'create_banner',
   UPDATE_BANNER: 'update_banner',
   DELETE_BANNER: 'delete_banner',
+  // Comment
+  UPDATE_COMMENT: 'update_comment',
+  DELETE_COMMENT: 'delete_comment',
 };

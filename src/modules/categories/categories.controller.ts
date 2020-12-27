@@ -43,7 +43,6 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
-  @Roles(permissions.READ_CATEGORY)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all categories' })
   @ApiOkResponse()
@@ -52,7 +51,6 @@ export class CategoriesController {
   }
 
   @Get(':id')
-  @Roles(permissions.READ_CATEGORY)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a category by id' })
   @ApiOkResponse()

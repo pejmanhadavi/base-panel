@@ -39,7 +39,10 @@ export class ProductsService {
 
     filterQuery.filter().limitFields().paginate().sort();
 
-    const product = await filterQuery.query.populate('category', 'name');
+    const product = await filterQuery.query
+      .populate('category', 'name -_id')
+      .populate('brand', 'name _id');
+
     return product;
   }
   async getById(code: number) {
@@ -79,7 +82,7 @@ export class ProductsService {
   }
   async delete(code: number) {
     const product = await this.adminLogService.delete(
-      this.request,
+      this.request.user,
       this.productModel,
       code,
     );

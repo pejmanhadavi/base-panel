@@ -24,7 +24,7 @@ export class UploadFileService {
   }
 
   async uploadPicture(modelName: string, code: number, field: string, filePath: string) {
-    await this.checkModelAndField(modelName, field);
+    this.checkModelAndField(modelName, field);
 
     const instance = await this.connection.models[modelName].findOne({ code });
     instance[field] = filePath;
@@ -37,7 +37,7 @@ export class UploadFileService {
     field: string,
     filePaths: Array<string>,
   ) {
-    await this.checkModelAndField(modelName, field);
+    this.checkModelAndField(modelName, field);
 
     const instance = await this.connection.models[modelName].findOne({ code });
     instance[field] = filePaths;

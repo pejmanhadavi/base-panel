@@ -33,7 +33,7 @@ export class CategoriesService {
     );
 
     filterQuery.filter().limitFields().paginate().sort();
-    const category = await filterQuery.query.populate('parent', 'name');
+    const category = await filterQuery.query.populate('parent', 'name -_id');
     return category;
   }
 
