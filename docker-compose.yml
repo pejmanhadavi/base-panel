@@ -1,0 +1,23 @@
+version: '3'
+services:
+  node:
+    build:
+      context: .
+      dockerfile: node.Dockerfile
+    command: "npm start"
+    restart: always
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mongo
+    env_file:
+      - .env
+    volumes: 
+    - ./:/home/dev/store-back
+  mongo:
+    image: "mongo:4.2.11-bionic"
+    ports:
+      - "27017:27017"
+    restart: always
+    volumes:
+      - ./data:/data/db

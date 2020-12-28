@@ -7,7 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
-import { AllExceptionsFilter } from './interceptors/ errors.interceptor';
+import { AllExceptionsFilter } from './interceptors/errors.interceptor';
 import { GenerateDataModule } from './generate-data/generate-data.module';
 import { AdminLogsModule } from './modules/admin-logs/admin-logs.module';
 import { WebsiteInformationModule } from './modules/website-information/website-information.module';
