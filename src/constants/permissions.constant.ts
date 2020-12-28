@@ -30,6 +30,12 @@ export default {
   UPDATE_BANNER: 'update_banner',
   DELETE_BANNER: 'delete_banner',
   // Comment
+  READ_COMMENT: 'read_comment',
   UPDATE_COMMENT: 'update_comment',
   DELETE_COMMENT: 'delete_comment',
+  // Article
+  READ_ARTICLE: 'read_article',
+  CREATE_ARTICLE: 'create_article',
+  UPDATE_ARTICLE: 'update_article',
+  DELETE_ARTICLE: 'delete_article',
 };

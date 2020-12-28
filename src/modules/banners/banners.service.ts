@@ -50,6 +50,8 @@ export class BannersService {
     );
   }
   async update(code: number, updateBannerDto: UpdateBannerDto) {
+    await this.getById(code);
+
     const { name, platforms } = updateBannerDto;
 
     if (name) await this.checkBannerExistence(name);

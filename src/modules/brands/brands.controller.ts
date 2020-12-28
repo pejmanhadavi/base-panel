@@ -43,9 +43,7 @@ export class BrandsController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all brands' })
   @ApiOkResponse()
-  async getAllProducts(
-    @Query() filterQueryDto: FilterQueryDto,
-  ): Promise<BrandDocument[]> {
+  async getAll(@Query() filterQueryDto: FilterQueryDto): Promise<BrandDocument[]> {
     return await this.brandService.getAll(filterQueryDto);
   }
 
@@ -54,7 +52,7 @@ export class BrandsController {
   @ApiOkResponse()
   @ApiOperation({ summary: 'Get a brand by id' })
   @ApiParam({ name: 'id', required: true })
-  async getUserById(@Param('id') code: number): Promise<BrandDocument> {
+  async getById(@Param('id') code: number): Promise<BrandDocument> {
     console.log(code);
 
     return await this.brandService.getById(code);
@@ -65,7 +63,7 @@ export class BrandsController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse()
   @ApiOperation({ summary: 'Create brand' })
-  async createUser(@Body() createBrandDto: CreateBrandDto): Promise<BrandDocument> {
+  async create(@Body() createBrandDto: CreateBrandDto): Promise<BrandDocument> {
     return await this.brandService.create(createBrandDto);
   }
 
@@ -75,7 +73,7 @@ export class BrandsController {
   @ApiOperation({ summary: 'Update brand' })
   @ApiOkResponse()
   @ApiParam({ name: 'id', required: true })
-  async updateUser(
+  async update(
     @Param('id') code: number,
     @Body() updateBrandDto: UpdateBrandDto,
   ): Promise<BrandDocument> {
@@ -88,7 +86,7 @@ export class BrandsController {
   @ApiOperation({ summary: 'Delete brand' })
   @ApiNoContentResponse()
   @ApiParam({ name: 'id', required: true })
-  async deleteUser(@Param('id') code: number): Promise<void> {
+  async delete(@Param('id') code: number): Promise<void> {
     return this.brandService.delete(code);
   }
 }

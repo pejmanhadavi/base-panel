@@ -48,15 +48,9 @@ export class CommentsService {
     return comment;
   }
 
-  async create(createCommentDto: CreateCommentDto) {
-    const user: any = this.request.user;
-    const data = { user: user._id, ...createCommentDto };
-
-    await this.checkProduct(createCommentDto.product);
-
-    return await this.adminLogService.create(this.request.user, this.commentModel, data);
-  }
   async update(code: number, updateCommentDto: UpdateCommentDto) {
+    await this.getById(code);
+
     if (updateCommentDto.product) await this.checkProduct(updateCommentDto.product);
 
     return await this.adminLogService.update(

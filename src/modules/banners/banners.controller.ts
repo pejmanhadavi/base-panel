@@ -44,9 +44,7 @@ export class BannersController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all banners' })
   @ApiOkResponse()
-  async getAllProducts(
-    @Query() filterQueryDto: FilterQueryDto,
-  ): Promise<BannerDocument[]> {
+  async getAll(@Query() filterQueryDto: FilterQueryDto): Promise<BannerDocument[]> {
     return await this.bannersService.getAll(filterQueryDto);
   }
 
@@ -56,7 +54,7 @@ export class BannersController {
   @ApiOkResponse()
   @ApiOperation({ summary: 'Get a banner by id' })
   @ApiParam({ name: 'id', required: true })
-  async getUserById(@Param('id') code: number): Promise<BannerDocument> {
+  async getById(@Param('id') code: number): Promise<BannerDocument> {
     console.log(code);
 
     return await this.bannersService.getById(code);
@@ -67,7 +65,7 @@ export class BannersController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse()
   @ApiOperation({ summary: 'Create banner' })
-  async createUser(@Body() createBannerDto: CreateBannerDto): Promise<BannerDocument> {
+  async create(@Body() createBannerDto: CreateBannerDto): Promise<BannerDocument> {
     return await this.bannersService.create(createBannerDto);
   }
 
@@ -77,7 +75,7 @@ export class BannersController {
   @ApiOperation({ summary: 'Update banner' })
   @ApiOkResponse()
   @ApiParam({ name: 'id', required: true })
-  async updateUser(
+  async update(
     @Param('id') code: number,
     @Body() updateBannerDto: UpdateBannerDto,
   ): Promise<BannerDocument> {
@@ -90,7 +88,7 @@ export class BannersController {
   @ApiOperation({ summary: 'Delete banner' })
   @ApiNoContentResponse()
   @ApiParam({ name: 'id', required: true })
-  async deleteUser(@Param('id') code: number): Promise<void> {
+  async delete(@Param('id') code: number): Promise<void> {
     return this.bannersService.delete(code);
   }
 }

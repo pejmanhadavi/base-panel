@@ -65,6 +65,8 @@ export class ProductsService {
     );
   }
   async update(code: number, updateProductDto: UpdateProductDto) {
+    await this.getById(code);
+
     const { title, category, brand } = updateProductDto;
 
     if (title) await this.checkProductExistence(title);

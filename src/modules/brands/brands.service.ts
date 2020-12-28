@@ -49,6 +49,8 @@ export class BrandsService {
     );
   }
   async update(code: number, updateBrandDto: UpdateBrandDto) {
+    await this.getById(code);
+
     if (updateBrandDto.name) await this.checkBrandExistence(updateBrandDto.name);
 
     return await this.adminLogService.update(

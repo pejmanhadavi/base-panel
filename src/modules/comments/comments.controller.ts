@@ -7,14 +7,12 @@ import {
   HttpStatus,
   Param,
   Patch,
-  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
 
 import {
   ApiBearerAuth,
-  ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
@@ -41,28 +39,20 @@ export class CommentsController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all comments' })
+  @Roles(permissions.READ_COMMENT)
   @ApiOkResponse()
-  async getAllProducts(
-    @Query() filterQueryDto: FilterQueryDto,
-  ): Promise<CommentDocument[]> {
+  async getAll(@Query() filterQueryDto: FilterQueryDto): Promise<CommentDocument[]> {
     return await this.commentsService.getAll(filterQueryDto);
   }
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
+  @Roles(permissions.READ_COMMENT)
   @ApiOkResponse()
   @ApiOperation({ summary: 'Get a comment by id' })
   @ApiParam({ name: 'id', required: true })
-  async getUserById(@Param('id') code: number): Promise<CommentDocument> {
+  async getById(@Param('id') code: number): Promise<CommentDocument> {
     return await this.commentsService.getById(code);
-  }
-
-  @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @ApiCreatedResponse()
-  @ApiOperation({ summary: 'Create comment' })
-  async createUser(@Body() createCommentDto: CreateCommentDto): Promise<CommentDocument> {
-    return await this.commentsService.create(createCommentDto);
   }
 
   @Patch(':id')
@@ -71,7 +61,7 @@ export class CommentsController {
   @ApiOkResponse()
   @Roles(permissions.UPDATE_COMMENT)
   @ApiParam({ name: 'id', required: true })
-  async updateUser(
+  async update(
     @Param('id') code: number,
     @Body() updateCommentDto: UpdateCommentDto,
   ): Promise<CommentDocument> {
@@ -84,7 +74,7 @@ export class CommentsController {
   @Roles(permissions.DELETE_COMMENT)
   @ApiNoContentResponse()
   @ApiParam({ name: 'id', required: true })
-  async deleteUser(@Param('id') code: number): Promise<void> {
+  async delete(@Param('id') code: number): Promise<void> {
     return this.commentsService.delete(code);
   }
 }

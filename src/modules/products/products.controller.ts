@@ -40,20 +40,20 @@ export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
   @Get()
   @HttpCode(HttpStatus.OK)
+  @Roles(permissions.READ_PRODUCT)
   @ApiOperation({ summary: 'Get all products' })
   @ApiOkResponse()
-  async getAllProducts(
-    @Query() filterQueryDto: FilterQueryDto,
-  ): Promise<ProductDocument[]> {
+  async getAll(@Query() filterQueryDto: FilterQueryDto): Promise<ProductDocument[]> {
     return await this.productService.getAll(filterQueryDto);
   }
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
+  @Roles(permissions.READ_PRODUCT)
   @ApiOkResponse()
   @ApiOperation({ summary: 'Get a product by id' })
   @ApiParam({ name: 'id', required: true })
-  async getUserById(@Param('id') code: number): Promise<ProductDocument> {
+  async getById(@Param('id') code: number): Promise<ProductDocument> {
     return await this.productService.getById(code);
   }
 
@@ -62,7 +62,7 @@ export class ProductsController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreatedResponse()
   @ApiOperation({ summary: 'Create product' })
-  async createUser(@Body() createProductDto: CreateProductDto): Promise<ProductDocument> {
+  async create(@Body() createProductDto: CreateProductDto): Promise<ProductDocument> {
     return await this.productService.create(createProductDto);
   }
 
@@ -72,7 +72,7 @@ export class ProductsController {
   @ApiOperation({ summary: 'Update product' })
   @ApiOkResponse()
   @ApiParam({ name: 'id', required: true })
-  async updateUser(
+  async update(
     @Param('id') code: number,
     @Body() updateProductDto: UpdateProductDto,
   ): Promise<ProductDocument> {
@@ -85,7 +85,7 @@ export class ProductsController {
   @ApiOperation({ summary: 'Delete product' })
   @ApiNoContentResponse()
   @ApiParam({ name: 'id', required: true })
-  async deleteUser(@Param('id') code: number): Promise<void> {
+  async delete(@Param('id') code: number): Promise<void> {
     return this.productService.delete(code);
   }
 }
