@@ -37,6 +37,8 @@ import mainPermissions from '../../constants/permissions.constant';
 import { el } from 'date-fns/locale';
 import { VerifyForgotPasswordDto } from './dto/verifyForgotPassword.dto';
 import { REQUEST } from '@nestjs/core';
+import { FilterQueries } from 'src/utils/filterQueries.util';
+import { FilterQueryDto } from 'src/common/dto/filterQuery.dto';
 
 @Injectable()
 export class AuthService {
@@ -82,13 +84,16 @@ export class AuthService {
   }
 
   // ROLES CRUD
-  async getAllRoles(): Promise<Role[]> {
-    const roles = await this.roleModel.find({});
-    return roles;
+  async getAllRoles(filterQueryDto: FilterQueryDto): Promise<Role[]> {
+    const filterQuery = new FilterQueries(this.roleModel, filterQueryDto, { _id: 0 });
+
+    filterQuery.filter().limitFields().paginate().sort();
+
+    return await filterQuery.query;
   }
 
   async getRoleById(code: number): Promise<RoleDocument> {
-    const role = await this.roleModel.findOne({ code });
+    const role = await this.roleModel.findOne({ code }).select({ _id: 0 });
 
     if (!role) throw new NotFoundException('the role not found');
 

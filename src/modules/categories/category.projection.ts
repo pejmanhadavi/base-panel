@@ -4,4 +4,5 @@ export const category_projection: Partial<CategoryDocument> = {
   name: 1 as any,
   thumbnail: 1 as any,
   picture: 1 as any,
+  _id: 0 as any,
 };

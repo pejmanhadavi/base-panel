@@ -29,7 +29,7 @@ export class CommentsService {
   ) {}
 
   async getAll(filterQueryDto: FilterQueryDto) {
-    const filterQuery = new FilterQueries(this.commentModel, filterQueryDto);
+    const filterQuery = new FilterQueries(this.commentModel, filterQueryDto, { _id: 0 });
 
     filterQuery.filter().limitFields().paginate().sort();
 
@@ -41,6 +41,7 @@ export class CommentsService {
   async getById(code: number) {
     const comment = await this.commentModel
       .findOne({ code })
+      .select({ _id: 0 })
       .populate('user', 'email phoneNumber -_id')
       .populate('product', 'title -_id');
 

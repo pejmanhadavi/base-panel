@@ -25,14 +25,14 @@ export class BannersService {
   ) {}
 
   async getAll(filterQueryDto: FilterQueryDto) {
-    const filterQuery = new FilterQueries(this.bannerModel, filterQueryDto);
+    const filterQuery = new FilterQueries(this.bannerModel, filterQueryDto, { _id: 0 });
 
     filterQuery.filter().limitFields().paginate().sort();
 
     return await filterQuery.query;
   }
   async getById(code: number) {
-    const banner = await this.bannerModel.findOne({ code });
+    const banner = await this.bannerModel.findOne({ code }).select({ _id: 0 });
     if (!banner) throw new NotFoundException('Banner not found');
 
     return banner;

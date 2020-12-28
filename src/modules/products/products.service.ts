@@ -46,7 +46,11 @@ export class ProductsService {
     return product;
   }
   async getById(code: number) {
-    const product = await this.productModel.findOne({ code });
+    const product = await this.productModel
+      .findOne({ code })
+      .select({ _id: 0 })
+      .populate('category', 'name -_id')
+      .populate('brand', 'name _id');
     if (!product) throw new NotFoundException('Product not found');
     return product;
   }

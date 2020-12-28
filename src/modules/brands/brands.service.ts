@@ -26,14 +26,14 @@ export class BrandsService {
   ) {}
 
   async getAll(filterQueryDto: FilterQueryDto) {
-    const filterQuery = new FilterQueries(this.brandModel, filterQueryDto);
+    const filterQuery = new FilterQueries(this.brandModel, filterQueryDto, { _id: 0 });
 
     filterQuery.filter().limitFields().paginate().sort();
 
     return await filterQuery.query;
   }
   async getById(code: number) {
-    const brand = await this.brandModel.findOne({ code });
+    const brand = await this.brandModel.findOne({ code }).select({ _id: 0 });
     if (!brand) throw new NotFoundException('Brand not found');
 
     return brand;

@@ -53,8 +53,6 @@ export class BrandsController {
   @ApiOperation({ summary: 'Get a brand by id' })
   @ApiParam({ name: 'id', required: true })
   async getById(@Param('id') code: number): Promise<BrandDocument> {
-    console.log(code);
-
     return await this.brandService.getById(code);
   }
 

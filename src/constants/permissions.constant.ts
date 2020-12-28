@@ -38,4 +38,9 @@ export default {
   CREATE_ARTICLE: 'create_article',
   UPDATE_ARTICLE: 'update_article',
   DELETE_ARTICLE: 'delete_article',
+  // Coupon
+  READ_COUPON: 'read_coupon',
+  CREATE_COUPON: 'create_coupon',
+  UPDATE_COUPON: 'update_coupon',
+  DELETE_COUPON: 'delete_coupon',
 };

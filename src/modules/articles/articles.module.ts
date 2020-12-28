@@ -15,13 +15,6 @@ import { User, UserSchema } from '../users/schemas/user.schema';
           return schema;
         },
       },
-      {
-        name: User.name,
-        useFactory: () => {
-          const schema = UserSchema;
-          return schema;
-        },
-      },
     ]),
   ],
   controllers: [ArticlesController],

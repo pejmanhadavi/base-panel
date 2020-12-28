@@ -55,8 +55,6 @@ export class BannersController {
   @ApiOperation({ summary: 'Get a banner by id' })
   @ApiParam({ name: 'id', required: true })
   async getById(@Param('id') code: number): Promise<BannerDocument> {
-    console.log(code);
-
     return await this.bannersService.getById(code);
   }
 

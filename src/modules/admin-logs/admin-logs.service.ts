@@ -12,8 +12,7 @@ export class AdminLogsService {
   constructor(@InjectModel(AdminLog.name) private adminLog: Model<AdminLogDocument>) {}
 
   async getAll(filterQueryDto: FilterQueryDto) {
-    const filterQuery = new FilterQueries(this.adminLog, filterQueryDto);
-    console.log();
+    const filterQuery = new FilterQueries(this.adminLog, filterQueryDto, { _id: 0 });
 
     filterQuery.filter().limitFields().paginate().sort();
 

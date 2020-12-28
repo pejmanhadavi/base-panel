@@ -1,5 +1,6 @@
 import {
   Body,
+  Query,
   Controller,
   Delete,
   Get,
@@ -8,10 +9,8 @@ import {
   Param,
   Patch,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
-import { Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
@@ -41,6 +40,7 @@ import { Role } from './schemas/role.schema';
 import { ChangeMyPasswordDto } from './dto/changeMyPassword.dto';
 import { ChangeMyInfoDto } from './dto/changeMyInfo.dto';
 import { VerifyForgotPasswordDto } from './dto/verifyForgotPassword.dto';
+import { FilterQueryDto } from 'src/common/dto/filterQuery.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -74,8 +74,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all roles' })
   @ApiOkResponse()
-  async getAllRoles(): Promise<Role[]> {
-    return await this.authService.getAllRoles();
+  async getAllRoles(@Query() filterQueryDto: FilterQueryDto): Promise<Role[]> {
+    return await this.authService.getAllRoles(filterQueryDto);
   }
 
   @Get('roles/:id')
@@ -224,66 +224,3 @@ export class AuthController {
     return await this.authService.resetPassword(passwordResetDto);
   }
 }
-
-// verify-email
-// verify-phone-number
-// refresh-access-token
-// forgot-password
-// forgot-password-verify
-// reset-password
-
-// CRUD ROLE ++
-// CRUD USER ++
-
-// -------------------------
-// userSchema =>auth:  objectId('auth')
-//authHistory: objectId('authHistory')
-// phoneNumber
-// email
-// isVerified
-// verificationCode
-// verification expires
-// user => objectId('user')
-// confirmationAttemptsCount
-// blockExpires: Date !!!!
-
-// -------------------------
-// authHistorySchema =>
-// user: objectId('user')
-// action:
-/*
-      VERIFICATION_CODE_REQUEST
-      VERIFICATION_CODE_CONFIRMED
-      VERIFICATION_CODE_REJECTED
-      SIGN_OUT
-      SIGN_IN
-      FORGOT_PASSWORD
-      VERIFY_FORGOT_PASSWORD
-  */
-// date
-// ip
-// agent
-// -------------------------
-// forgot password schema =>
-// user: objectId('user')
-// forgot password token
-// forgot password-uuid => mail
-// forgot password expires
-// ip
-// agent
-// ------------------------
-// refresh token schema =>
-// refresh token: uuid
-// user: objectId ref: 'user'
-
-/*
-signup (username, (email or phonenumber))
-db => optional
-dto => optional
-service => data.phoneNumber, data.email => Error
-*/ // ++
-
-/*
-@IP ip
-user agent https://www.npmjs.com/package/express-useragent
-*/

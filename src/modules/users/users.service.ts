@@ -11,13 +11,12 @@ import { CreateUserDto } from './dto/createUserDto.dto';
 import { UpdateUserDto } from './dto/updateUserDto';
 import { User, UserDocument } from './schemas/user.schema';
 import { FilterQueries } from '../../utils/filterQueries.util';
-import { ObjectIdDto } from '../../common/dto/objectId.dto';
 import { ui_query_projection_fields } from './users.projection';
 import { Role, RoleDocument } from '../auth/schemas/role.schema';
 import { AdminLogsService } from '../admin-logs/admin-logs.service';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { compareDesc } from 'date-fns';
+import * as mongoose from 'mongoose';
 
 @Injectable()
 export class UsersService {
@@ -44,7 +43,8 @@ export class UsersService {
   async getUserById(code: number): Promise<UserDocument> {
     const user = await this.userModel
       .findOne({ code })
-      .populate('roles', 'name permissions');
+      .select({ _id: 0 })
+      .populate('roles', 'name permissions -_id');
     if (!user) throw new NotFoundException('not found user by the given id');
     return user;
   }
@@ -109,6 +109,9 @@ export class UsersService {
 
   private async doesRolesExist(roles) {
     for (const role of roles) {
+      if (!mongoose.isValidObjectId(role))
+        throw new BadRequestException('the entered roles are invalid');
+
       if (!(await this.roleModel.exists({ _id: role })))
         throw new BadRequestException('the entered roles are invalid');
     }

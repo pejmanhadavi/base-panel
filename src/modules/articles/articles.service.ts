@@ -20,7 +20,6 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 export class ArticlesService {
   constructor(
     @InjectModel(Article.name) private readonly articleModel: Model<ArticleDocument>,
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @Inject(REQUEST) private readonly request: Request,
     private readonly adminLogService: AdminLogsService,
   ) {}
@@ -37,6 +36,7 @@ export class ArticlesService {
   async getById(code: number) {
     const article = await this.articleModel
       .findOne({ code })
+      .select({ _id: 0 })
       .populate('author', 'email phoneNumber -_id');
 
     if (!article) throw new NotFoundException('Article not found');
