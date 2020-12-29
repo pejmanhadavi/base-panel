@@ -154,17 +154,24 @@ export class AuthService {
 
   // change my information
   async changeMyInfo(changeMyInfoDto: ChangeMyInfoDto): Promise<string> {
-    const { email, phoneNumber } = changeMyInfoDto;
+    const data: any = changeMyInfoDto;
 
-    if (!email && !phoneNumber)
-      throw new BadRequestException('please enter email or phoneNumber');
+    const fieldsToExclude = [
+      'isSuperAdmin',
+      'isStaff',
+      'roles',
+      'password',
+      'email',
+      'phoneNumber',
+      'isActive',
+      'verified',
+    ];
 
     const user = await this.userModel.findOne(this.request.user);
 
-    user.email = email;
-    user.phoneNumber = phoneNumber;
+    fieldsToExclude.forEach((el) => delete data[el]);
 
-    await user.save();
+    await user.updateOne(data);
 
     return 'your information changed successfully';
   }
