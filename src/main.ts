@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { Logger, ValidationPipe } from '@nestjs/common';
+import * as basicAuth from 'express-basic-auth';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -9,15 +10,26 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
   // Swagger configurations
   const options = new DocumentBuilder()
-    .setTitle('Base store')
-    .setDescription('Base store APIs')
+    .setTitle('Store')
+    .setDescription('Store APIs')
     .setVersion('1.0')
-    .addTag('base-store')
+    .addTag('store')
     .addBearerAuth()
     .build();
-  const document = SwaggerModule.createDocument(app, options, {
-    ignoreGlobalPrefix: false,
-  });
+
+  // Add security for doc path
+  app.use(
+    '/api',
+    basicAuth({
+      challenge: true,
+      users: {
+        admin: process.env.SWAGGER_PASS,
+      },
+    }),
+  );
+
+  const document = SwaggerModule.createDocument(app, options);
+
   SwaggerModule.setup('api', app, document);
 
   // Class Validator configurations
