@@ -45,12 +45,11 @@ export default {
   DELETE_COUPON: 'delete_coupon',
   // Basket
   READ_BASKET: 'read_basket',
-  CREATE_BASKET: 'create_basket',
-  UPDATE_BASKET: 'update_basket',
   DELETE_BASKET: 'delete_basket',
   // Payment
   READ_PAYMENT: 'read_payment',
-  CREATE_PAYMENT: 'create_payment',
-  UPDATE_PAYMENT: 'update_payment',
   DELETE_PAYMENT: 'delete_payment',
+  // Order
+  READ_ORDER: 'read_order',
+  DELETE_ORDER: 'delete_order',
 };
