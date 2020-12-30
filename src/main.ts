@@ -6,6 +6,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.setGlobalPrefix('api/v1');
   // Swagger configurations
   const options = new DocumentBuilder()
     .setTitle('Base store')
@@ -14,7 +15,9 @@ async function bootstrap() {
     .addTag('base-store')
     .addBearerAuth()
     .build();
-  const document = SwaggerModule.createDocument(app, options);
+  const document = SwaggerModule.createDocument(app, options, {
+    ignoreGlobalPrefix: false,
+  });
   SwaggerModule.setup('api', app, document);
 
   // Class Validator configurations
