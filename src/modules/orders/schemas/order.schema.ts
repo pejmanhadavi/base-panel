@@ -12,6 +12,7 @@ export type OrderDocument = Order & Document;
 export class Order {
   @Prop({
     type: [{ type: mongoose.Types.ObjectId, ref: Product.name }],
+    required: true,
   })
   products: Product[];
 

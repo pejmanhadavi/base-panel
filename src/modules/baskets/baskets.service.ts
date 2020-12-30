@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { FilterQueryDto } from 'src/common/dto/filterQuery.dto';
@@ -12,7 +7,6 @@ import { AdminLogsService } from '../admin-logs/admin-logs.service';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { Basket, BasketDocument } from './schemas/basket.schema';
-import * as mongoose from 'mongoose';
 
 @Injectable()
 export class BasketsService {
