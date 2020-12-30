@@ -52,4 +52,7 @@ export default {
   // Order
   READ_ORDER: 'read_order',
   DELETE_ORDER: 'delete_order',
+  // Order
+  READ_TRANSACTION: 'read_transaction',
+  DELETE_TRANSACTION: 'delete_transaction',
 };
