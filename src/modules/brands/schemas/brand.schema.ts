@@ -5,15 +5,15 @@ export type BrandDocument = Brand & Document;
 
 @Schema({ versionKey: false, timestamps: true })
 export class Brand {
-  @Prop({ type: String, maxlength: 256 })
+  @Prop({ type: String, maxlength: 256, required: true })
   name: string;
 
   @Prop({
     type: String,
-    required: true,
+    required: false,
     index: true,
   })
-  thumbnail: string;
+  thumbnail?: string;
 }
 
 export const BrandSchema = SchemaFactory.createForClass(Brand);

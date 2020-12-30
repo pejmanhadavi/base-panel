@@ -23,14 +23,13 @@ import {
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateUserDto } from './dto/createUserDto.dto';
-import { UserDocument, User } from './schemas/user.schema';
+import { UserDocument } from './schemas/user.schema';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/updateUserDto';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import permissions from '../../constants/permissions.constant';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
-import { ObjectIdDto } from '../../common/dto/objectId.dto';
 
 @ApiBearerAuth()
 @ApiTags('users')
@@ -45,7 +44,7 @@ export class UsersController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all users' })
   @ApiOkResponse()
-  async getAllUsers(@Query() filterQueryDto: FilterQueryDto): Promise<User[]> {
+  async getAllUsers(@Query() filterQueryDto: FilterQueryDto): Promise<UserDocument[]> {
     return await this.usersService.getAllUsers(filterQueryDto);
   }
 
@@ -55,8 +54,8 @@ export class UsersController {
   @ApiOkResponse()
   @ApiOperation({ summary: 'Get a user by id' })
   @ApiParam({ name: 'id', required: true })
-  async getUserById(@Param() objectIdDto: ObjectIdDto): Promise<UserDocument> {
-    return await this.usersService.getUserById(objectIdDto);
+  async getUserById(@Param('id') code: number): Promise<UserDocument> {
+    return await this.usersService.getUserById(code);
   }
 
   @Post()
@@ -75,10 +74,10 @@ export class UsersController {
   @ApiOkResponse()
   @ApiParam({ name: 'id', required: true })
   async updateUser(
-    @Param() objectIdDto: ObjectIdDto,
+    @Param('id') code: number,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserDocument> {
-    return await this.usersService.updateUser(objectIdDto, updateUserDto);
+    return await this.usersService.updateUser(code, updateUserDto);
   }
 
   @Delete('/:id')
@@ -87,7 +86,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Delete user' })
   @ApiNoContentResponse()
   @ApiParam({ name: 'id', required: true })
-  async deleteUser(@Param() objectIdDto: ObjectIdDto): Promise<void> {
-    return this.usersService.deleteUser(objectIdDto);
+  async deleteUser(@Param('id') code: number): Promise<void> {
+    return this.usersService.deleteUser(code);
   }
 }

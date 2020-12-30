@@ -23,12 +23,6 @@ export class GenerateFakeDataService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Role.name) private roleModel: Model<RoleDocument>,
-    @InjectModel(RefreshToken.name)
-    private refreshTokenModel: Model<RefreshTokenDocument>,
-    @InjectModel(AuthHistory.name)
-    private authHistoryTokenModel: Model<AuthHistoryDocument>,
-    @InjectModel(ForgotPassword.name)
-    private forgotPasswordModel: Model<ForgotPasswordDocument>,
   ) {}
 
   // create fake user
@@ -75,46 +69,5 @@ export class GenerateFakeDataService {
     const role: RoleDocument = new this.roleModel(data);
     await role.save();
     return role;
-  }
-
-  async createSingleRefreshToken(
-    user,
-    data = {
-      refreshToken: faker.random.word(),
-      ip: faker.internet.ip(),
-      agent: faker.internet.userAgent(),
-    },
-  ): Promise<RefreshTokenDocument> {
-    const refreshToken: RefreshTokenDocument = new this.refreshTokenModel({
-      user_id: user,
-      ...data,
-    });
-    await refreshToken.save();
-    return refreshToken;
-  }
-
-  async createSingleForgotPassword(
-    data = {
-      forgotPasswordToken: faker.random.word(),
-      forgotPasswordExpires: faker.date.soon(1),
-      ip: faker.internet.ip(),
-      agent: faker.internet.userAgent(),
-    },
-  ): Promise<ForgotPasswordDocument> {
-    const forgotPassword: ForgotPasswordDocument = new this.forgotPasswordModel(data);
-    await forgotPassword.save();
-    return forgotPassword;
-  }
-
-  async createSingleAuthHistory(
-    data = {
-      action: faker.random.word(),
-      ip: faker.internet.ip(),
-      agent: faker.internet.userAgent(),
-    },
-  ): Promise<AuthHistoryDocument> {
-    const authHistory: AuthHistoryDocument = new this.authHistoryTokenModel(data);
-    await authHistory.save();
-    return authHistory;
   }
 }

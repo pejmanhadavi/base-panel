@@ -1,5 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Category, CategorySchema } from 'src/modules/categories/schemas/category.schema';
+import {
+  WebsiteInformation,
+  WebsiteInformationSchema,
+} from 'src/modules/website-information/schemas/website-information.schema';
 import {
   AuthHistory,
   AuthHistorySchema,
@@ -28,30 +33,23 @@ import { GenerateInitialDataService } from './generate-initial-data.service';
         },
       },
       {
+        name: WebsiteInformation.name,
+        useFactory: () => {
+          const schema = WebsiteInformationSchema;
+          return schema;
+        },
+      },
+      {
+        name: Category.name,
+        useFactory: () => {
+          const schema = CategorySchema;
+          return schema;
+        },
+      },
+      {
         name: Role.name,
         useFactory: () => {
           const schema = RoleSchema;
-          return schema;
-        },
-      },
-      {
-        name: AuthHistory.name,
-        useFactory: () => {
-          const schema = AuthHistorySchema;
-          return schema;
-        },
-      },
-      {
-        name: ForgotPassword.name,
-        useFactory: () => {
-          const schema = ForgotPasswordSchema;
-          return schema;
-        },
-      },
-      {
-        name: RefreshToken.name,
-        useFactory: () => {
-          const schema = RefreshTokenSchema;
           return schema;
         },
       },

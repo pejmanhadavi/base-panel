@@ -4,6 +4,8 @@ import {
   IsEmail,
   IsMongoId,
   IsNotEmpty,
+  IsNumber,
+  IsObject,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -14,6 +16,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
   @ApiProperty({
+    name: 'email',
     type: String,
     example: 'user@gmail.com',
     description: 'the unique email for each user',
@@ -28,6 +31,7 @@ export class CreateUserDto {
   readonly email?: string;
 
   @ApiProperty({
+    name: 'phoneNumber',
     type: String,
     example: '09123456789',
     description: 'User phone number',
@@ -35,12 +39,27 @@ export class CreateUserDto {
     maxLength: 11,
   })
   @IsOptional()
+  @IsString()
   @IsPhoneNumber('IR', { message: 'the phone number is wrong' })
   @MinLength(11)
   @MaxLength(11)
   readonly phoneNumber?: string;
 
   @ApiProperty({
+    name: 'fullName',
+    type: String,
+    example: 'reza baratvand',
+    minLength: 5,
+    maxLength: 256,
+  })
+  @IsString()
+  @IsOptional()
+  @MinLength(5)
+  @MaxLength(256)
+  readonly fullName?: string;
+
+  @ApiProperty({
+    name: 'password',
     type: String,
     required: true,
     example: 'password!',
@@ -54,7 +73,38 @@ export class CreateUserDto {
   @MaxLength(1024)
   readonly password: string;
 
+  @ApiProperty({ name: 'avatar', type: String })
+  @IsOptional()
+  @IsString()
+  readonly avatar?: string;
+
+  @ApiProperty({ name: 'nationalCode', type: String, maxLength: 32 })
+  @IsString()
+  @IsOptional()
+  @MaxLength(32)
+  readonly nationalCode?: string;
+
   @ApiProperty({
+    name: 'addresses',
+    example: [{ state: 'california', country: 'usa' }],
+    type: [Object],
+  })
+  @IsArray()
+  @IsOptional()
+  readonly addresses?: Array<Object>;
+
+  @ApiProperty({ name: 'wishLists', description: 'user wishLists', type: [String] })
+  @IsArray()
+  @IsOptional()
+  readonly wishLists?: Array<string>;
+
+  @ApiProperty({ name: 'credit', type: Number, required: false })
+  @IsNumber()
+  @IsOptional()
+  readonly credit?: number;
+
+  @ApiProperty({
+    name: 'isStaff',
     type: Boolean,
     default: true,
     description: 'Defining being staff',
@@ -64,6 +114,7 @@ export class CreateUserDto {
   readonly isStaff?: boolean;
 
   @ApiProperty({
+    name: 'roles',
     type: [String],
     description: 'user roles',
   })
@@ -72,6 +123,7 @@ export class CreateUserDto {
   readonly roles?: Array<string>;
 
   @ApiProperty({
+    name: 'verified',
     type: Boolean,
     default: false,
   })

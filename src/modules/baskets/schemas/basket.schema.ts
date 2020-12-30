@@ -12,22 +12,23 @@ export type BasketDocument = Basket & Document;
 export class Basket {
   @Prop({
     type: [{ type: mongoose.Types.ObjectId, ref: Product.name }],
+    required: true,
   })
   products: Product[];
 
   @Prop({ type: mongoose.Types.ObjectId, ref: Coupon.name })
-  coupon: Coupon;
+  coupon?: Coupon;
 
   @Prop({ type: Number })
-  totalPrice?: number;
+  totalPrice: number;
 
   @Prop({ type: Number, default: 0 })
-  discount: number;
+  discount?: number;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name, required: true })
   user: User;
 
-  @Prop({ type: String, enum: Object.values(shippingMethods) })
+  @Prop({ type: String, enum: Object.values(shippingMethods), required: true })
   shippingMethod: string;
 }
 

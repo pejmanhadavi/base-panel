@@ -24,11 +24,11 @@ export class Banner {
     type: Boolean,
     default: false,
   })
-  status: boolean;
+  status?: boolean;
 
   @Prop({
     type: String,
-    default: false,
+    required: true,
     trim: true,
   })
   link: string;

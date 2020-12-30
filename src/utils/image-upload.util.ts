@@ -15,8 +15,3 @@ export const editFileName = (req, file, callback) => {
   const randomName = Date.now().toString();
   callback(null, `${name}${randomName}${fileExtName}`);
 };
-
-// Array(4)
-//     .fill(null)
-//     .map(() => Math.round(Math.random() * 10).toString(10))
-//     .join('')

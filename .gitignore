@@ -38,6 +38,7 @@ lerna-debug.log*
 
 # Uploads
 /uploads
+<<<<<<< HEAD
 
 # Docker data
 /data

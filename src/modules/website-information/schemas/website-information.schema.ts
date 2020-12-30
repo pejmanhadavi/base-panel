@@ -97,7 +97,7 @@ export class WebsiteInformation {
   newsLetterEmails?: Array<string>;
 
   @Prop({ type: Array, validate: [arrayLimit, '{PATH} exceeds the limit of 4'] })
-  Advantages: [];
+  Advantages: Array<string>;
 }
 
 export const WebsiteInformationSchema = SchemaFactory.createForClass(WebsiteInformation);

@@ -8,10 +8,10 @@ export type CouponDocument = Coupon & Document;
 
 @Schema({ versionKey: false, timestamps: true })
 export class Coupon {
-  @Prop({ type: String, maxlength: 256 })
+  @Prop({ type: String, maxlength: 256, required: true })
   name: string;
 
-  @Prop({ type: Number, required: true, default: 0 })
+  @Prop({ type: Number, default: 0 })
   amount: number;
 
   @Prop({ type: Date })
@@ -22,11 +22,13 @@ export class Coupon {
 
   @Prop({
     type: [{ type: mongoose.Types.ObjectId, ref: Product.name }],
+    required: true,
   })
   products: Product[];
 
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: Category.name, index: true }],
+    required: true,
   })
   categories: Category[];
 }

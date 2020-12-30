@@ -27,18 +27,21 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
         return throwError(err);
       }),
       map((data) => {
-        if (typeof data === 'string')
+        if (data) {
+          if (typeof data === 'string')
+            return {
+              success: true,
+              message: data,
+              timestamp: new Date().toISOString(),
+            };
           return {
+            result: data.length,
             success: true,
-            message: data,
             timestamp: new Date().toISOString(),
+            data,
           };
-        return {
-          result: data.length,
-          success: true,
-          timestamp: new Date().toISOString(),
-          data,
-        };
+        }
+        return data;
       }),
     );
   }
