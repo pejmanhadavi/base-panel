@@ -25,19 +25,16 @@ export class ArticlesService {
   ) {}
 
   async getAll(filterQueryDto: FilterQueryDto) {
-    const filterQuery = new FilterQueries(this.articleModel, filterQueryDto, {
-      _id: 0 as any,
-    });
+    const filterQuery = new FilterQueries(this.articleModel, filterQueryDto);
 
     filterQuery.filter().limitFields().paginate().sort();
 
-    return await filterQuery.query.populate('author', 'email phoneNumber -_id');
+    return await filterQuery.query.populate('author', 'email phoneNumber');
   }
   async getById(code: number) {
     const article = await this.articleModel
       .findOne({ code })
-      .select({ _id: 0 })
-      .populate('author', 'email phoneNumber -_id');
+      .populate('author', 'email phoneNumber');
 
     if (!article) throw new NotFoundException('Article not found');
 

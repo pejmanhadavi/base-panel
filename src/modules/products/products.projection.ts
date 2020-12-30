@@ -1,7 +1,6 @@
 import { ProductDocument } from './schemas/product.schema';
 
 export const products_projection: Partial<ProductDocument> = {
-  _id: 0 as any,
   title: 1 as any,
   thumbnail: 1 as any,
   category: 1 as any,

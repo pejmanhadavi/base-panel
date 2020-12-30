@@ -85,7 +85,7 @@ export class AuthService {
 
   // ROLES CRUD
   async getAllRoles(filterQueryDto: FilterQueryDto): Promise<Role[]> {
-    const filterQuery = new FilterQueries(this.roleModel, filterQueryDto, { _id: 0 });
+    const filterQuery = new FilterQueries(this.roleModel, filterQueryDto);
 
     filterQuery.filter().limitFields().paginate().sort();
 
@@ -93,7 +93,7 @@ export class AuthService {
   }
 
   async getRoleById(code: number): Promise<RoleDocument> {
-    const role = await this.roleModel.findOne({ code }).select({ _id: 0 });
+    const role = await this.roleModel.findOne({ code });
 
     if (!role) throw new NotFoundException('the role not found');
 

@@ -29,20 +29,19 @@ export class CouponsService {
   ) {}
 
   async getAll(filterQueryDto: FilterQueryDto) {
-    const filterQuery = new FilterQueries(this.couponModel, filterQueryDto, { _id: 0 });
+    const filterQuery = new FilterQueries(this.couponModel, filterQueryDto);
 
     filterQuery.filter().limitFields().paginate().sort();
 
     return await filterQuery.query
-      .populate('categories', 'name -_id')
-      .populate('products', 'title -_id');
+      .populate('categories', 'name')
+      .populate('products', 'title');
   }
   async getById(code: number) {
     const coupon = await this.couponModel
       .findOne({ code })
-      .select({ _id: 0 })
-      .populate('categories', 'name -_id')
-      .populate('products', 'title -_id');
+      .populate('categories', 'name')
+      .populate('products', 'title');
 
     if (!coupon) throw new NotFoundException('Coupon not found');
 

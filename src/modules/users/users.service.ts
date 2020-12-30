@@ -39,8 +39,8 @@ export class UsersService {
     filterQuery.filter().limitFields().paginate().sort();
 
     const users = await filterQuery.query
-      .populate('roles', 'name permissions -_id')
-      .populate('wishLists', 'title -_id');
+      .populate('roles', 'name permissions')
+      .populate('wishLists', 'title ');
     return users;
   }
 
@@ -48,8 +48,8 @@ export class UsersService {
     const user = await this.userModel
       .findOne({ code })
       .select(ui_query_projection_fields)
-      .populate('roles', 'name permissions -_id')
-      .populate('wishLists', 'title -_id');
+      .populate('roles', 'name permissions')
+      .populate('wishLists', 'title ');
     if (!user) throw new NotFoundException('not found user by the given id');
     return user;
   }

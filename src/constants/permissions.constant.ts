@@ -43,4 +43,9 @@ export default {
   CREATE_COUPON: 'create_coupon',
   UPDATE_COUPON: 'update_coupon',
   DELETE_COUPON: 'delete_coupon',
+  // Basket
+  READ_BASKET: 'read_basket',
+  CREATE_BASKET: 'create_basket',
+  UPDATE_BASKET: 'update_basket',
+  DELETE_BASKET: 'delete_basket',
 };

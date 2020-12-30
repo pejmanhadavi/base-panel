@@ -29,21 +29,20 @@ export class CommentsService {
   ) {}
 
   async getAll(filterQueryDto: FilterQueryDto) {
-    const filterQuery = new FilterQueries(this.commentModel, filterQueryDto, { _id: 0 });
+    const filterQuery = new FilterQueries(this.commentModel, filterQueryDto);
 
     filterQuery.filter().limitFields().paginate().sort();
 
     const comment = await filterQuery.query
-      .populate('user', 'email phoneNumber -_id')
-      .populate('product', 'title -_id');
+      .populate('user', 'email phoneNumber')
+      .populate('product', 'title');
     return comment;
   }
   async getById(code: number) {
     const comment = await this.commentModel
       .findOne({ code })
-      .select({ _id: 0 })
-      .populate('user', 'email phoneNumber -_id')
-      .populate('product', 'title -_id');
+      .populate('user', 'email phoneNumber')
+      .populate('product', 'title');
 
     if (!comment) throw new NotFoundException('Comment not found');
     return comment;

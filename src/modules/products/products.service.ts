@@ -40,17 +40,16 @@ export class ProductsService {
     filterQuery.filter().limitFields().paginate().sort();
 
     const product = await filterQuery.query
-      .populate('category', 'name -_id')
-      .populate('brand', 'name _id');
+      .populate('category', 'name')
+      .populate('brand', 'name');
 
     return product;
   }
   async getById(code: number) {
     const product = await this.productModel
       .findOne({ code })
-      .select({ _id: 0 })
-      .populate('category', 'name -_id')
-      .populate('brand', 'name _id');
+      .populate('category', 'name')
+      .populate('brand', 'name');
     if (!product) throw new NotFoundException('Product not found');
     return product;
   }
