@@ -25,15 +25,10 @@ export class User {
   })
   phoneNumber?: string;
 
-  @Prop({
-    type: String,
-  })
+  @Prop({ type: String })
   avatar?: string;
 
-  @Prop({
-    type: String,
-    maxlength: 256,
-  })
+  @Prop({ type: String, maxlength: 256 })
   fullName?: string;
 
   @Prop({
@@ -83,10 +78,10 @@ export class User {
   @Prop({
     type: [{ type: mongoose.Types.ObjectId, ref: Product.name }],
   })
-  wishLists: Product[];
+  wishLists?: Product[];
 
   @Prop({ type: Number, default: 0 })
-  credit: number;
+  credit?: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

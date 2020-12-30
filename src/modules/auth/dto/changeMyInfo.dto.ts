@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsEmail,
-  IsNotEmpty,
+  IsArray,
+  IsNumber,
   IsOptional,
-  IsPhoneNumber,
   IsString,
   MaxLength,
   MinLength,
@@ -11,29 +10,35 @@ import {
 
 export class ChangeMyInfoDto {
   @ApiProperty({
+    name: 'fullName',
     type: String,
-    example: 'user@gmail.com',
-    description: 'the unique email for each user',
-    uniqueItems: true,
+    example: 'reza baratvand',
     minLength: 5,
     maxLength: 256,
   })
+  @IsString()
   @IsOptional()
   @MinLength(5)
   @MaxLength(256)
-  @IsEmail()
-  readonly email?: string;
+  readonly fullName?: string;
+
+  @ApiProperty({ name: 'nationalCode', type: String, maxLength: 32 })
+  @IsString()
+  @IsOptional()
+  @MaxLength(32)
+  readonly nationalCode?: string;
 
   @ApiProperty({
-    type: String,
-    example: '09123456789',
-    description: 'User phone number',
-    minLength: 11,
-    maxLength: 11,
+    name: 'addresses',
+    example: [{ state: 'california', country: 'usa' }],
+    type: [Object],
   })
+  @IsArray()
   @IsOptional()
-  @IsPhoneNumber('IR', { message: 'the phone number is wrong' })
-  @MinLength(11)
-  @MaxLength(11)
-  readonly phoneNumber?: string;
+  readonly addresses?: Array<Object>;
+
+  @ApiProperty({ name: 'credit', type: Number, required: false })
+  @IsNumber()
+  @IsOptional()
+  readonly credit?: number;
 }

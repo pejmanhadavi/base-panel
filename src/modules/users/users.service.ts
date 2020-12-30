@@ -11,19 +11,20 @@ import { CreateUserDto } from './dto/createUserDto.dto';
 import { UpdateUserDto } from './dto/updateUserDto';
 import { User, UserDocument } from './schemas/user.schema';
 import { FilterQueries } from '../../utils/filterQueries.util';
-import { ObjectIdDto } from '../../common/dto/objectId.dto';
 import { ui_query_projection_fields } from './users.projection';
 import { Role, RoleDocument } from '../auth/schemas/role.schema';
 import { AdminLogsService } from '../admin-logs/admin-logs.service';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
-import { compareDesc } from 'date-fns';
+import * as mongoose from 'mongoose';
+import { Product, ProductDocument } from '../products/schemas/product.schema';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     @InjectModel(Role.name) private readonly roleModel: Model<RoleDocument>,
+    @InjectModel(Product.name) private readonly productModel: Model<ProductDocument>,
     private readonly adminLogService: AdminLogsService,
     @Inject(REQUEST) private readonly request: Request,
   ) {}
@@ -37,26 +38,33 @@ export class UsersService {
 
     filterQuery.filter().limitFields().paginate().sort();
 
-    const users = await filterQuery.query.populate('roles', 'name permissions -_id');
+    const users = await filterQuery.query
+      .populate('roles', 'name permissions')
+      .populate('wishLists', 'title ');
     return users;
   }
 
   async getUserById(code: number): Promise<UserDocument> {
     const user = await this.userModel
       .findOne({ code })
-      .populate('roles', 'name permissions');
+      .select(ui_query_projection_fields)
+      .populate('roles', 'name permissions')
+      .populate('wishLists', 'title ');
     if (!user) throw new NotFoundException('not found user by the given id');
     return user;
   }
 
   async createUser(createUserDto: CreateUserDto) {
-    const { email, phoneNumber, roles } = createUserDto;
+    const { email, phoneNumber, roles, wishLists } = createUserDto;
     if (!email && !phoneNumber)
       throw new BadRequestException('please enter phone number or email');
 
     await this.checkUserExistence(email, phoneNumber);
 
-    if (roles && roles.length) await this.doesRolesExist(createUserDto.roles);
+    if (roles && roles.length) await this.doesInstanceModelExists(roles, this.roleModel);
+
+    if (wishLists && wishLists.length)
+      await this.doesInstanceModelExists(wishLists, this.productModel);
 
     this.checkSuperAdmin(this.request.user, createUserDto);
 
@@ -68,13 +76,16 @@ export class UsersService {
   }
 
   async updateUser(code: number, updateUserDto: UpdateUserDto): Promise<UserDocument> {
-    const { roles } = updateUserDto;
+    const { email, phoneNumber, roles, wishLists } = updateUserDto;
 
     await this.getUserById(code);
 
-    await this.checkUserExistence(updateUserDto.email, updateUserDto.phoneNumber);
+    await this.checkUserExistence(email, phoneNumber);
 
-    if (roles && roles.length) await this.doesRolesExist(updateUserDto.roles);
+    if (roles && roles.length) await this.doesInstanceModelExists(roles, this.roleModel);
+
+    if (wishLists && wishLists.length)
+      await this.doesInstanceModelExists(wishLists, this.productModel);
 
     this.checkSuperAdmin(this.request.user, updateUserDto);
 
@@ -107,10 +118,17 @@ export class UsersService {
     if (user) throw new BadRequestException('the user has already exists');
   }
 
-  private async doesRolesExist(roles) {
-    for (const role of roles) {
-      if (!(await this.roleModel.exists({ _id: role })))
-        throw new BadRequestException('the entered roles are invalid');
+  private async doesInstanceModelExists(instances: Array<string>, model) {
+    for (const id of instances) {
+      if (!mongoose.isValidObjectId(id))
+        throw new BadRequestException(
+          `the entered ${model.modelName.toLowerCase()}s id are invalid`,
+        );
+
+      if (!(await model.exists({ _id: id })))
+        throw new BadRequestException(
+          `the entered ${model.modelName.toLowerCase()}s id are invalid`,
+        );
     }
   }
 

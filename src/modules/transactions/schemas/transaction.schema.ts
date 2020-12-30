@@ -13,7 +13,7 @@ export class Transaction {
   order: Order;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Payment.name, required: true })
-  Payment: Payment;
+  payment: Payment;
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,

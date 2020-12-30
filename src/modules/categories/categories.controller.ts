@@ -44,6 +44,7 @@ export class CategoriesController {
 
   @Get()
   @HttpCode(HttpStatus.OK)
+  @Roles(permissions.READ_CATEGORY)
   @ApiOperation({ summary: 'Get all categories' })
   @ApiOkResponse()
   async getAll(@Query() filterQueryDto: FilterQueryDto): Promise<CategoryDocument[]> {
@@ -52,6 +53,7 @@ export class CategoriesController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
+  @Roles(permissions.READ_CATEGORY)
   @ApiOperation({ summary: 'Get a category by id' })
   @ApiOkResponse()
   async getById(@Param('id') code: number): Promise<CategoryDocument> {

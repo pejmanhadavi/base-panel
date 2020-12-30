@@ -16,17 +16,17 @@ export class Article {
 
   @Prop({
     type: String,
-    maxlength: 2048,
+    maxlength: 1024,
     required: true,
   })
   description: string;
 
   @Prop({
     type: String,
-    required: true,
+    required: false,
     index: true,
   })
-  thumbnail: string;
+  thumbnail?: string;
 
   @Prop({
     type: String,
@@ -38,17 +38,18 @@ export class Article {
     type: Number,
     default: 0,
   })
-  visits: number;
+  visits?: number;
 
   @Prop({
     type: Boolean,
     default: false,
   })
-  published: boolean;
+  published?: boolean;
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: User.name,
+    required: true,
   })
   author: User;
 }

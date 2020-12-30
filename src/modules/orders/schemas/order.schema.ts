@@ -12,6 +12,7 @@ export type OrderDocument = Order & Document;
 export class Order {
   @Prop({
     type: [{ type: mongoose.Types.ObjectId, ref: Product.name }],
+    required: true,
   })
   products: Product[];
 
@@ -22,7 +23,7 @@ export class Order {
   status: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Payment.name, required: true })
-  Payment: Payment;
+  payment: Payment;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

@@ -34,29 +34,23 @@ export class CommentsService {
     filterQuery.filter().limitFields().paginate().sort();
 
     const comment = await filterQuery.query
-      .populate('user', 'email phoneNumber -_id')
-      .populate('product', 'title -_id');
+      .populate('user', 'email phoneNumber')
+      .populate('product', 'title');
     return comment;
   }
   async getById(code: number) {
     const comment = await this.commentModel
       .findOne({ code })
-      .populate('user', 'email phoneNumber -_id')
-      .populate('product', 'title -_id');
+      .populate('user', 'email phoneNumber')
+      .populate('product', 'title');
 
     if (!comment) throw new NotFoundException('Comment not found');
     return comment;
   }
 
-  async create(createCommentDto: CreateCommentDto) {
-    const user: any = this.request.user;
-    const data = { user: user._id, ...createCommentDto };
-
-    await this.checkProduct(createCommentDto.product);
-
-    return await this.adminLogService.create(this.request.user, this.commentModel, data);
-  }
   async update(code: number, updateCommentDto: UpdateCommentDto) {
+    await this.getById(code);
+
     if (updateCommentDto.product) await this.checkProduct(updateCommentDto.product);
 
     return await this.adminLogService.update(
