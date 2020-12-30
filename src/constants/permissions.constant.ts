@@ -55,4 +55,13 @@ export default {
   // Order
   READ_TRANSACTION: 'read_transaction',
   DELETE_TRANSACTION: 'delete_transaction',
+  // Question
+  READ_Question: 'read_question',
+  UPDATE_Question: 'update_question',
+  DELETE_Question: 'delete_question',
+  // Answer
+  READ_ANSWER: 'read_answer',
+  CREATE_ANSWER: 'create_answer',
+  UPDATE_ANSWER: 'update_answer',
+  DELETE_ANSWER: 'delete_answer',
 };
