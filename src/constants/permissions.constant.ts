@@ -64,4 +64,6 @@ export default {
   CREATE_ANSWER: 'create_answer',
   UPDATE_ANSWER: 'update_answer',
   DELETE_ANSWER: 'delete_answer',
+  // Upload File
+  UPLOAD_FILE: 'upload_file',
 };

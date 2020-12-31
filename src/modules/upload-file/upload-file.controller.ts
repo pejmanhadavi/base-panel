@@ -5,15 +5,22 @@ import {
   Post,
   UploadedFile,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
 import { ApiFile } from 'src/common/decorators/api-file.decorator';
 import { ApiMultiFile } from 'src/common/decorators/api-multi-file.decorator';
 import uploadImage from 'src/configs/upload-image.config';
 import uploadMultiImage from 'src/configs/upload-multi-image.config';
+import permissions from 'src/constants/permissions.constant';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { UploadFileService } from './upload-file.service';
 
+@UseGuards(AuthGuard('jwt'))
+@UseGuards(RolesGuard)
 @ApiTags('upload-file')
 @Controller('upload-file')
 export class UploadFileController {
@@ -25,6 +32,7 @@ export class UploadFileController {
   }
 
   @Post('thumbnail/:modelName/:code/:field')
+  @Roles(permissions.UPLOAD_FILE)
   @ApiConsumes('multipart/form-data')
   @ApiFile('thumbnail')
   @ApiParam({
@@ -51,6 +59,7 @@ export class UploadFileController {
   }
 
   @Post('picture/:modelName/:code/:field')
+  @Roles(permissions.UPLOAD_FILE)
   @ApiConsumes('multipart/form-data')
   @ApiFile('picture')
   @ApiParam({
@@ -72,6 +81,7 @@ export class UploadFileController {
   }
 
   @Post('pictures/:modelName/:code/:field')
+  @Roles(permissions.UPLOAD_FILE)
   @ApiConsumes('multipart/form-data')
   @ApiMultiFile()
   @UseInterceptors(uploadMultiImage('picture'))
