@@ -20,6 +20,7 @@ export class UploadFileService {
 
     const instance = await this.connection.models[modelName].findOne({ code });
     instance[field] = filePath;
+    await instance.save();
     return { instance, filePath };
   }
 
@@ -28,6 +29,7 @@ export class UploadFileService {
 
     const instance = await this.connection.models[modelName].findOne({ code });
     instance[field] = filePath;
+    await instance.save();
     return { instance, filePath };
   }
 
@@ -42,7 +44,6 @@ export class UploadFileService {
     const instance = await this.connection.models[modelName].findOne({ code });
     instance[field] = filePaths;
     await instance.save();
-
     return { instance, filePaths };
   }
 

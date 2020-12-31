@@ -19,7 +19,7 @@ async function bootstrap() {
 
   // Add security for doc path
   app.use(
-    '/api',
+    '/api/docs',
     basicAuth({
       challenge: true,
       users: {
@@ -30,7 +30,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, options);
 
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api/docs', app, document);
 
   // Class Validator configurations
   app.useGlobalPipes(

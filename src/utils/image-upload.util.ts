@@ -1,5 +1,6 @@
 import { extname } from 'path';
 import { BadRequestException } from '@nestjs/common';
+import * as slugify from 'slugify';
 
 // Allow only images
 export const imageFileFilter = (req, file, callback) => {
@@ -10,7 +11,7 @@ export const imageFileFilter = (req, file, callback) => {
 };
 
 export const editFileName = (req, file, callback) => {
-  const name = file.originalname.split('.')[0];
+  const name = slugify.default(file.originalname.split('.')[0]);
   const fileExtName = extname(file.originalname);
   const randomName = Date.now().toString();
   callback(null, `${name}${randomName}${fileExtName}`);
