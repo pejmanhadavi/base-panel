@@ -10,13 +10,13 @@ import { GenerateDataModule } from '../src/generate-data/generate-data.module';
 import { CreateRoleDto } from '../src/modules/auth/dto/createRole.dto';
 import permissions from '../src/constants/permissions.constant';
 import { AdminLogsModule } from '../src/modules/admin-logs/admin-logs.module';
-import { CreateUserDto } from 'src/modules/users/dto/createUserDto.dto';
+import { CreateUserDto } from '../src/modules/users/dto/createUserDto.dto';
 import sequencePlugin from '../src/common/plugins/sequence.plugin';
-import { UpdateUserDto } from 'src/modules/users/dto/updateUserDto';
+import { UpdateUserDto } from '../src/modules/users/dto/updateUserDto';
 
 describe('UsersService', () => {
   let app: INestApplication;
-
+  jest.setTimeout(30000);
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
@@ -93,20 +93,20 @@ describe('UsersService', () => {
     describe('getUserById', () => {
       it('should throw an exception if the user is not super admin', async () => {
         await request(app.getHttpServer())
-          .get(`/users/${user.body._id}`)
+          .get(`/users/${user.body.code}`)
           .expect(HttpStatus.UNAUTHORIZED);
       });
 
       it('should throw NotFoundException if not found any user with the given id', async () => {
         const res = await request(app.getHttpServer())
-          .get(`/users/${invalidMongoId}`)
+          .get(`/users/${0}`)
           .set('Authorization', `Bearer ${superAdmin.body.accessToken}`)
           .expect(HttpStatus.NOT_FOUND);
       });
 
       it('should return the user by the entered id', async () => {
         const res = await request(app.getHttpServer())
-          .get(`/users/${user.body._id}`)
+          .get(`/users/${user.body.code}`)
           .set('Authorization', `Bearer ${superAdmin.body.accessToken}`)
           .expect(HttpStatus.OK);
 
@@ -161,14 +161,14 @@ describe('UsersService', () => {
     describe('updateUser', () => {
       it('should throw an exception if the user is not super admin', async () => {
         await request(app.getHttpServer())
-          .patch(`/users/${user.body._id}`)
+          .patch(`/users/${user.body.code}`)
           .send(updateUserDto)
           .expect(HttpStatus.UNAUTHORIZED);
       });
 
       it('should throw an exception if the user not found with the given id', async () => {
         await request(app.getHttpServer())
-          .patch(`/users/${invalidMongoId}`)
+          .patch(`/users/${0}`)
           .send(updateUserDto)
           .set('Authorization', `Bearer ${superAdmin.body.accessToken}`)
           .expect(HttpStatus.NOT_FOUND);
@@ -176,7 +176,7 @@ describe('UsersService', () => {
 
       it('should throw an exception if the entered role id is not a mongodb id', async () => {
         await request(app.getHttpServer())
-          .patch(`/users/${user.body._id}`)
+          .patch(`/users/${user.body.code}`)
           .send({ roles: ['1234'], ...updateUserDto })
           .set('Authorization', `Bearer ${superAdmin.body.accessToken}`)
           .expect(HttpStatus.BAD_REQUEST);
@@ -184,7 +184,7 @@ describe('UsersService', () => {
 
       it('should throw an exception if the entered roles are invalid', async () => {
         await request(app.getHttpServer())
-          .patch(`/users/${user.body._id}`)
+          .patch(`/users/${user.body.code}`)
           .send({ roles: [invalidMongoId], ...updateUserDto })
           .set('Authorization', `Bearer ${superAdmin.body.accessToken}`)
           .expect(HttpStatus.BAD_REQUEST);
@@ -192,7 +192,7 @@ describe('UsersService', () => {
 
       it('should throw an exception if the entered email has already exists', async () => {
         await request(app.getHttpServer())
-          .patch(`/users/${user.body._id}`)
+          .patch(`/users/${user.body.code}`)
           .send({ roles: [invalidMongoId], email: createUserDto.email })
           .set('Authorization', `Bearer ${superAdmin.body.accessToken}`)
           .expect(HttpStatus.BAD_REQUEST);
@@ -200,7 +200,7 @@ describe('UsersService', () => {
 
       it('should update the user and return new changes information', async () => {
         const res = await request(app.getHttpServer())
-          .patch(`/users/${user.body._id}`)
+          .patch(`/users/${user.body.code}`)
           .send({ roles: [role.body._id], ...updateUserDto })
           .set('Authorization', `Bearer ${superAdmin.body.accessToken}`)
           .expect(HttpStatus.CREATED);
@@ -211,20 +211,20 @@ describe('UsersService', () => {
     describe('deleteUser', () => {
       it('should throw an exception if the user is not super admin', async () => {
         await request(app.getHttpServer())
-          .delete(`/users/${user.body._id}`)
+          .delete(`/users/${user.body.code}`)
           .expect(HttpStatus.UNAUTHORIZED);
       });
 
       it('should throw notFound exception if not found user by the given id', async () => {
         await request(app.getHttpServer())
-          .delete(`/users/${invalidMongoId}`)
+          .delete(`/users/${0}`)
           .set('Authorization', `Bearer ${superAdmin.body.accessToken}`)
           .expect(HttpStatus.NOT_FOUND);
       });
 
       it('should delete the user', async () => {
         await request(app.getHttpServer())
-          .delete(`/users/${user.body._id}`)
+          .delete(`/users/${user.body.code}`)
           .set('Authorization', `Bearer ${superAdmin.body.accessToken}`)
           .expect(HttpStatus.NO_CONTENT);
       });

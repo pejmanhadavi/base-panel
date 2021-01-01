@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
-import { Category } from 'src/modules/categories/schemas/category.schema';
+import { Category } from '../../categories/schemas/category.schema';
 
 export type WebsiteInformationDocument = WebsiteInformation & Document;
 

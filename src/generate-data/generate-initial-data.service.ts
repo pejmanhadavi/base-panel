@@ -4,13 +4,13 @@ import { Model } from 'mongoose';
 import {
   WebsiteInformation,
   WebsiteInformationDocument,
-} from 'src/modules/website-information/schemas/website-information.schema';
+} from '../modules/website-information/schemas/website-information.schema';
 import { User, UserDocument } from '../modules/users/schemas/user.schema';
 import * as faker from 'faker';
 import {
   Category,
   CategoryDocument,
-} from 'src/modules/categories/schemas/category.schema';
+} from '../modules/categories/schemas/category.schema';
 
 @Injectable()
 export class GenerateInitialDataService implements OnModuleInit {

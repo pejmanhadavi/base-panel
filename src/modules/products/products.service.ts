@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { FilterQueryDto } from 'src/common/dto/filterQuery.dto';
-import { FilterQueries } from 'src/utils/filterQueries.util';
+import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
+import { FilterQueries } from '../../utils/filterQueries.util';
 import { Category, CategoryDocument } from '../categories/schemas/category.schema';
 import { Product, ProductDocument } from './schemas/product.schema';
 import { products_projection } from './products.projection';

@@ -10,11 +10,11 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
-import { ApiFile } from 'src/common/decorators/api-file.decorator';
-import { ApiMultiFile } from 'src/common/decorators/api-multi-file.decorator';
-import uploadImage from 'src/configs/upload-image.config';
-import uploadMultiImage from 'src/configs/upload-multi-image.config';
-import permissions from 'src/constants/permissions.constant';
+import { ApiFile } from '../../common/decorators/api-file.decorator';
+import { ApiMultiFile } from '../../common/decorators/api-multi-file.decorator';
+import uploadImage from '../../configs/upload-image.config';
+import uploadMultiImage from '../../configs/upload-multi-image.config';
+import permissions from '../../constants/permissions.constant';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { UploadFileService } from './upload-file.service';

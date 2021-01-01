@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
-import { User } from 'src/modules/users/schemas/user.schema';
-import paymentStatuses from 'src/constants/payment-statuses.constant';
-import paymentMethods from 'src/constants/payment-methods.constant';
+import { User } from '../../users/schemas/user.schema';
+import paymentStatuses from '../../../constants/payment-statuses.constant';
+import paymentMethods from '../../../constants/payment-methods.constant';
 
 export type PaymentDocument = Payment & Document;
 

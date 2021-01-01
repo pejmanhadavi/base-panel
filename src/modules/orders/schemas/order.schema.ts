@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
-import { Product } from 'src/modules/products/schemas/product.schema';
-import { User } from 'src/modules/users/schemas/user.schema';
-import orderStatues from 'src/constants/order-statues.constant';
-import { Payment } from 'src/modules/payments/schemas/payment.schema';
+import { Product } from '../../products/schemas/product.schema';
+import { User } from '../../users/schemas/user.schema';
+import orderStatues from '../../../constants/order-statues.constant';
+import { Payment } from '../../payments/schemas/payment.schema';
 
 export type OrderDocument = Order & Document;
 

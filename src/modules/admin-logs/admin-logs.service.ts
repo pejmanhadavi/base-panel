@@ -3,9 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AdminLog, AdminLogDocument } from './schemas/adminLog.schema';
 import adminLogs from '../../constants/admin-logs.constant';
-import { ObjectIdDto } from '../../../src/common/dto/objectId.dto';
-import { FilterQueryDto } from 'src/common/dto/filterQuery.dto';
-import { FilterQueries } from 'src/utils/filterQueries.util';
+import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
+import { FilterQueries } from '../../utils/filterQueries.util';
 
 @Injectable()
 export class AdminLogsService {

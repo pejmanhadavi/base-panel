@@ -5,19 +5,6 @@ import { User, UserDocument } from '../modules/users/schemas/user.schema';
 import * as faker from 'faker';
 import { Role, RoleDocument } from '../modules/auth/schemas/role.schema';
 import permissions from '../constants/permissions.constant';
-import {
-  RefreshToken,
-  RefreshTokenDocument,
-} from '../modules/auth/schemas/refreshToken.schema';
-import {
-  AuthHistory,
-  AuthHistoryDocument,
-} from '../modules/auth/schemas/authHistory.schema';
-import {
-  ForgotPassword,
-  ForgotPasswordDocument,
-} from '../modules/auth/schemas/forgotPassword.schema';
-
 @Injectable()
 export class GenerateFakeDataService {
   constructor(

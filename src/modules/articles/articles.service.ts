@@ -6,13 +6,12 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { FilterQueryDto } from 'src/common/dto/filterQuery.dto';
-import { FilterQueries } from 'src/utils/filterQueries.util';
+import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
+import { FilterQueries } from '../../utils/filterQueries.util';
 import { AdminLogsService } from '../admin-logs/admin-logs.service';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { Article, ArticleDocument } from './schema/article.schema';
-import { User, UserDocument } from '../users/schemas/user.schema';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 

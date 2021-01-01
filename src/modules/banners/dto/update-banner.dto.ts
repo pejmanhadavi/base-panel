@@ -7,7 +7,7 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator';
-import platforms from 'src/constants/platforms.constant';
+import platforms from '../../../constants/platforms.constant';
 
 export class UpdateBannerDto {
   @ApiProperty({

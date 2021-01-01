@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
-import { Product } from 'src/modules/products/schemas/product.schema';
-import { Coupon } from 'src/modules/coupons/schemas/coupon.schema';
-import { User } from 'src/modules/users/schemas/user.schema';
-import shippingMethods from 'src/constants/shipping-methods.constant';
+import { Product } from '../../products/schemas/product.schema';
+import { Coupon } from '../../coupons/schemas/coupon.schema';
+import { User } from '../../users/schemas/user.schema';
+import shippingMethods from '../../../constants/shipping-methods.constant';
 
 export type BasketDocument = Basket & Document;
 

@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { Order } from 'src/modules/orders/schemas/order.schema';
+import { Order } from '../../orders/schemas/order.schema';
 import * as mongoose from 'mongoose';
-import { Payment } from 'src/modules/payments/schemas/payment.schema';
-import transactionStatuses from 'src/constants/transaction-statuses.constant';
+import { Payment } from '../../payments/schemas/payment.schema';
+import transactionStatuses from '../../../constants/transaction-statuses.constant';
 
 export type TransactionDocument = Transaction & Document;
 

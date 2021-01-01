@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as mongoose from 'mongoose';
-import { User } from 'src/modules/users/schemas/user.schema';
+import { User } from '../../users/schemas/user.schema';
 import { Question } from './question.schema';
 
 export type AnswerDocument = Answer & Document;

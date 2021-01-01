@@ -17,7 +17,6 @@ import { CreateRoleDto } from './dto/createRole.dto';
 import { UpdateRoleDto } from './dto/updateRole.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { getClientIp } from 'request-ip';
-import { VerifyUuidDto } from './dto/verifyUuid.dto';
 import global from '../../constants/globals.constant';
 import { RefreshToken, RefreshTokenDocument } from './schemas/refreshToken.schema';
 import { RefreshAccessTokenDto } from './dto/refreshAccessToken.dto';
@@ -29,16 +28,14 @@ import { AuthHistory, AuthHistoryDocument } from './schemas/authHistory.schema';
 import authActions from '../../constants/auth-actions.constant';
 import { VerifyEmailDto } from './dto/verifyEmail.dto';
 import { VerifyPhoneNumberDto } from './dto/verifyPhoneNumber.dto';
-import { ObjectIdDto } from '../../common/dto/objectId.dto';
 import { addHours, addMinutes } from 'date-fns';
 import { ChangeMyPasswordDto } from './dto/changeMyPassword.dto';
 import { ChangeMyInfoDto } from './dto/changeMyInfo.dto';
 import mainPermissions from '../../constants/permissions.constant';
-import { el } from 'date-fns/locale';
 import { VerifyForgotPasswordDto } from './dto/verifyForgotPassword.dto';
 import { REQUEST } from '@nestjs/core';
-import { FilterQueries } from 'src/utils/filterQueries.util';
-import { FilterQueryDto } from 'src/common/dto/filterQuery.dto';
+import { FilterQueries } from '../../utils/filterQueries.util';
+import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
 
 @Injectable()
 export class AuthService {
@@ -117,7 +114,7 @@ export class AuthService {
 
     if (updateRoleDto.permissions) this.checkPermissions(updateRoleDto.permissions);
 
-    return await this.roleModel.findByIdAndUpdate(code, updateRoleDto, {
+    return await this.roleModel.findOneAndUpdate({ code }, updateRoleDto, {
       new: true,
     });
   }

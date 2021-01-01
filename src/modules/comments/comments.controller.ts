@@ -23,7 +23,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
 import { CommentsService } from './comments.service';
 import { CommentDocument } from './schemas/comment.schema';
-import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';

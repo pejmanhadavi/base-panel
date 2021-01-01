@@ -1,22 +1,11 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Category, CategorySchema } from 'src/modules/categories/schemas/category.schema';
+import { Category, CategorySchema } from '../modules/categories/schemas/category.schema';
 import {
   WebsiteInformation,
   WebsiteInformationSchema,
-} from 'src/modules/website-information/schemas/website-information.schema';
-import {
-  AuthHistory,
-  AuthHistorySchema,
-} from '../modules/auth/schemas/authHistory.schema';
-import {
-  ForgotPassword,
-  ForgotPasswordSchema,
-} from '../modules/auth/schemas/forgotPassword.schema';
-import {
-  RefreshToken,
-  RefreshTokenSchema,
-} from '../modules/auth/schemas/refreshToken.schema';
+} from '../modules/website-information/schemas/website-information.schema';
+
 import { Role, RoleSchema } from '../modules/auth/schemas/role.schema';
 import { User, UserSchema } from '../modules/users/schemas/user.schema';
 import { GenerateFakeDataService } from './generate-fake-data.service';

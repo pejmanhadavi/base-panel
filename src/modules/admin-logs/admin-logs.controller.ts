@@ -1,7 +1,7 @@
 import { Controller, Get, HttpCode, HttpStatus, Query, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { FilterQueryDto } from 'src/common/dto/filterQuery.dto';
+import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AdminLogsService } from './admin-logs.service';

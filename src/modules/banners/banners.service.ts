@@ -6,15 +6,15 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { FilterQueryDto } from 'src/common/dto/filterQuery.dto';
-import { FilterQueries } from 'src/utils/filterQueries.util';
+import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
+import { FilterQueries } from '../../utils/filterQueries.util';
 import { AdminLogsService } from '../admin-logs/admin-logs.service';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { Banner, BannerDocument } from './schemas/banner.schema';
 import { CreateBannerDto } from './dto/create-banner.dto';
 import { UpdateBannerDto } from './dto/update-banner.dto';
-import platformsConstant from 'src/constants/platforms.constant';
+import platformsConstant from '../../constants/platforms.constant';
 
 @Injectable()
 export class BannersService {

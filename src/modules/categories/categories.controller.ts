@@ -31,8 +31,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { CategoryDocument } from './schemas/category.schema';
 import permissions from '../../constants/permissions.constant';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { ApiFile } from 'src/common/decorators/api-file.decorator';
-import { FilterQueryDto } from 'src/common/dto/filterQuery.dto';
+import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
 
 @ApiTags('categories')
 @ApiBearerAuth()

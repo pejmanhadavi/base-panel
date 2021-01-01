@@ -29,18 +29,16 @@ import { RolesGuard } from './guards/roles.guard';
 import { RoleDocument } from './schemas/role.schema';
 import { CreateRoleDto } from './dto/createRole.dto';
 import { UpdateRoleDto } from './dto/updateRole.dto';
-import { VerifyUuidDto } from './dto/verifyUuid.dto';
 import { RefreshAccessTokenDto } from './dto/refreshAccessToken.dto';
 import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { PasswordResetDto } from './dto/passwordReset.dto';
 import { VerifyPhoneNumberDto } from './dto/verifyPhoneNumber.dto';
 import { VerifyEmailDto } from './dto/verifyEmail.dto';
-import { ObjectIdDto } from '../../common/dto/objectId.dto';
 import { Role } from './schemas/role.schema';
 import { ChangeMyPasswordDto } from './dto/changeMyPassword.dto';
 import { ChangeMyInfoDto } from './dto/changeMyInfo.dto';
 import { VerifyForgotPasswordDto } from './dto/verifyForgotPassword.dto';
-import { FilterQueryDto } from 'src/common/dto/filterQuery.dto';
+import { FilterQueryDto } from '../../common/dto/filterQuery.dto';
 
 @ApiTags('auth')
 @Controller('auth')
