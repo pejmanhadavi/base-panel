@@ -42,4 +42,4 @@ async function bootstrap() {
   await app.listen(3000);
   Logger.log(`connected to ${process.env.MONGO_URI}`);
 }
-bootstrap();
+bootstrap(); 
