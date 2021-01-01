@@ -9,7 +9,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiParam, ApiTags } from '@nestjs/swagger';
 import { ApiFile } from 'src/common/decorators/api-file.decorator';
 import { ApiMultiFile } from 'src/common/decorators/api-multi-file.decorator';
 import uploadImage from 'src/configs/upload-image.config';
@@ -19,9 +19,10 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { UploadFileService } from './upload-file.service';
 
+@ApiBearerAuth()
+@ApiTags('upload-file')
 @UseGuards(AuthGuard('jwt'))
 @UseGuards(RolesGuard)
-@ApiTags('upload-file')
 @Controller('upload-file')
 export class UploadFileController {
   constructor(private readonly uploadFileService: UploadFileService) {}

@@ -24,9 +24,7 @@ export class RolesGuard extends AuthGuard('jwt') {
     if (!user.roles.length) throw new ForbiddenException();
 
     const routePermission = roles[0];
-    const hasRole = user.roles.some((role) =>
-      role.permissions.includes(routePermission),
-    );
+    const hasRole = user.roles.some((role) => role.permissions.includes(routePermission));
 
     if (!hasRole) throw new ForbiddenException();
 

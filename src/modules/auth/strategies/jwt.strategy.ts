@@ -5,14 +5,10 @@ import { Model } from 'mongoose';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { User, UserDocument } from '../../users/schemas/user.schema';
 import { JwtPayload } from '../interfaces/jwt-payload.interface';
-import { Role, RoleDocument } from '../schemas/role.schema';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(
-    @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
-    @InjectModel(Role.name) private readonly roleModel: Model<RoleDocument>,
-  ) {
+  constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: process.env.JWT_SECRET || 'testSecret',
