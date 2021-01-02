@@ -1,0 +1,67 @@
+services:
+  - docker:dind
+
+stages:
+  - test
+  - deploy
+
+variables:
+    MONGO_URI: mongodb://mongo:27017/base-store
+    MONGO_URI_TEST: mongodb://mongo:27017/base-store
+    JWT_SECRET: VERYSECRET
+    JWT_EXPIRES: 3600
+    SWAGGER_PASS: 9hX_G$3z!UHPMV@3
+unit_test:
+  stage: test
+  script:
+    - npm run test
+  cache:
+    paths:
+      - node_modules/
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+      - unknown_failure
+  when: manual
+  script:
+    - sudo apt-get install -y python-pip
+    - sudo pip install docker-compose
+    - sudo docker image prune -f
+    - sudo docker-compose -f docker-compose.yml build --no-cache
+    - sudo docker-compose -f sudo docker-compose run --rm node npm test
+    - sudo docker-compose -f sudo docker-compose down
+e2e_test:
+  stage: test
+  script:
+    - npm run test:e2e
+    - npm test
+  cache:
+    paths:
+      - node_modules/
+  retry:
+    max: 2
+    when:
+      - runner_system_failure
+      - stuck_or_timeout_failure
+      - unknown_failure
+  when: manual
+  script:
+    - sudo apt-get install -y python-pip
+    - sudo pip install docker-compose
+    - sudo docker image prune -f
+    - sudo docker-compose -f docker-compose.yml build --no-cache
+    - sudo docker-compose -f sudo docker-compose run --rm node npm test:e2e
+    - sudo docker-compose -f sudo docker-compose down
+deployment:
+  stage: deploy
+  only:
+    - master
+  script:
+    - sudo apt-get install -y python-pip
+    - sudo pip install docker-compose
+    - sudo docker image prune -f
+    - sudo docker-compose -f docker-compose.yml build --no-cache
+    - sudo docker-compose -f docker-compose.yml up -d
+  when: manual
