@@ -14,8 +14,6 @@ variables:
     SWAGGER_PASS: 9hX_G$3z!UHPMV@3
 unit_test:
   stage: test
-  script:
-    - npm run test
   cache:
     paths:
       - node_modules/
@@ -34,9 +32,6 @@ unit_test:
     - sudo docker-compose -f sudo docker-compose down
 e2e_test:
   stage: test
-  script:
-    - npm run test:e2e
-    - npm test
   cache:
     paths:
       - node_modules/
