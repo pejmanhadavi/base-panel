@@ -1,4 +1,4 @@
-image: docker:stable
+image: docker:stable-dind
 services:
   - docker:dind
 
@@ -27,8 +27,6 @@ unit_test:
       - unknown_failure
   when: manual
   script:
-    - apt-get update && \ apt-get -y install sudo
-    - sudo apt-get install -y python-pip
     - sudo pip install docker-compose
     - sudo docker image prune -f
     - sudo docker-compose -f docker-compose.yml build --no-cache
