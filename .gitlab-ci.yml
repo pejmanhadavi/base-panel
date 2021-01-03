@@ -26,14 +26,12 @@ unit_test:
       - unknown_failure
   when: manual
   script:
-    - chmod og= $ID_RSA
-    - apk update && apk add openssh-client
-    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sudo apt-get install -y python-pip"
-    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sudo pip install docker-compose"
-    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sudo docker image prune -f"
-    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sudo docker-compose -f docker-compose.yml build --no-cache"
-    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sudo docker-compose -f sudo docker-compose run --rm node npm test"
-    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "sudo docker-compose -f sudo docker-compose down"
+    - apt-get install -y python-pip
+    - pip install docker-compose
+    - docker image prune -f
+    - docker-compose -f docker-compose.yml build --no-cache
+    - docker-compose -f sudo docker-compose run --rm node npm test
+    - docker-compose -f sudo docker-compose down
 e2e_test:
   stage: test
   script:
