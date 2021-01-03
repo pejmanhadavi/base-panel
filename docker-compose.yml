@@ -10,8 +10,12 @@ services:
       - '4000:3000'
     depends_on:
       - mongo
-    env_file:
-      - .env
+    environment: 
+      - MONGO_URI=mongodb://mongo:27017/base-store
+      - MONGO_URI_TEST=mongodb://localhost:27017/base-store
+      - JWT_SECRET=VERYSECRET
+      - JWT_EXPIRES=3600
+      - SWAGGER_PASS=9hX_G3z!UHPMV@3
     volumes: 
     - ./:/home/dev/store-back
   mongo:

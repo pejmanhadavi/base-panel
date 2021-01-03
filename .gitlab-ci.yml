@@ -6,12 +6,6 @@ stages:
   - test
   - deploy
 
-variables:
-    MONGO_URI: mongodb://mongo:27017/base-store
-    MONGO_URI_TEST: mongodb://mongo:27017/base-store
-    JWT_SECRET: VERYSECRET
-    JWT_EXPIRES: 3600
-    SWAGGER_PASS: 9hX_G$3z!UHPMV@3
 unit_test:
   stage: test
   cache:
