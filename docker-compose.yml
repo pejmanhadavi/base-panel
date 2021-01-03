@@ -24,4 +24,4 @@ services:
       - "27017:27017"
     restart: always
     volumes:
-      - ./data:/data/db
+      - /home/data:/data/db
