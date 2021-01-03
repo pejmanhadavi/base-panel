@@ -1,3 +1,4 @@
+image: docker:latest
 services:
   - docker:dind
 
@@ -26,12 +27,12 @@ unit_test:
       - unknown_failure
   when: manual
   script:
-    - apt-get install -y python-pip
-    - pip install docker-compose
-    - docker image prune -f
-    - docker-compose -f docker-compose.yml build --no-cache
-    - docker-compose -f sudo docker-compose run --rm node npm test
-    - docker-compose -f sudo docker-compose down
+    - sudo apt-get install -y python-pip
+    - sudo pip install docker-compose
+    - sudo docker image prune -f
+    - sudo docker-compose -f docker-compose.yml build --no-cache
+    - sudo docker-compose -f sudo docker-compose run --rm node npm test
+    - sudo docker-compose -f sudo docker-compose down
 e2e_test:
   stage: test
   script:
