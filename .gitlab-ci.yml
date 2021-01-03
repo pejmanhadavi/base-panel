@@ -21,8 +21,9 @@ unit_test:
   script:
     - sudo apt-get install -y docker-compose
     - sudo docker image prune -f
-    - sudo docker-compose -f docker-compose.yml build
-    - sudo docker-compose -f docker-compose.yml run --rm node npm test
+    # - sudo docker-compose -f docker-compose.yml build
+    # - sudo docker-compose -f docker-compose.yml run --rm node npm test
+    - sudo docker-compose -f docker-compose.yml run --rm node npm test --build
     - sudo docker-compose -f docker-compose.yml down
 e2e_test:
   stage: test
