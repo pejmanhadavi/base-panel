@@ -27,7 +27,7 @@ unit_test:
       - unknown_failure
   when: manual
   script:
-    - RUN apt-get update && \ apt-get -y install sudo
+    - apt-get update && \ apt-get -y install sudo
     - sudo apt-get install -y python-pip
     - sudo pip install docker-compose
     - sudo docker image prune -f
