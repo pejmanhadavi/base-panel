@@ -8,9 +8,6 @@ stages:
 
 unit_test:
   stage: test
-  cache:
-    paths:
-      - node_modules/
   retry:
     max: 2
     when:
@@ -22,7 +19,6 @@ unit_test:
     - sudo apt-get install -y docker-compose
     - sudo docker image prune -f
     - sudo docker-compose -f docker-compose.yml build
-    - sudo docker-compose -f docker-compose.yml up -d
     - sudo docker-compose -f docker-compose.yml run --rm node npm test
     - sudo docker-compose -f docker-compose.yml down
 e2e_test:
