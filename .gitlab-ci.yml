@@ -23,9 +23,6 @@ unit_test:
     - sudo docker-compose -f docker-compose.yml down
 e2e_test:
   stage: test
-  cache:
-    paths:
-      - node_modules/
   retry:
     max: 2
     when:
@@ -34,20 +31,18 @@ e2e_test:
       - unknown_failure
   when: manual
   script:
-    - sudo apt-get install -y python-pip
-    - sudo pip install docker-compose
+    - sudo apt-get install -y docker-compose
     - sudo docker image prune -f
-    - sudo docker-compose -f docker-compose.yml build --no-cache
-    - sudo docker-compose -f sudo docker-compose run --rm node npm test:e2e
-    - sudo docker-compose -f sudo docker-compose down
+    - sudo docker-compose -f docker-compose.yml build
+    - sudo docker-compose -f docker-compose.yml run --rm node npm test:e2e
+    - sudo docker-compose -f docker-compose.yml down
 deployment:
   stage: deploy
   only:
     - master
   script:
-    - sudo apt-get install -y python-pip
-    - sudo pip install docker-compose
+    - sudo apt-get install -y docker-compose
     - sudo docker image prune -f
-    - sudo docker-compose -f docker-compose.yml build --no-cache
+    - sudo docker-compose -f docker-compose.yml build
     - sudo docker-compose -f docker-compose.yml up -d
   when: manual
