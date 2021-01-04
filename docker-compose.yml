@@ -16,8 +16,6 @@ services:
       - JWT_SECRET=VERYSECRET
       - JWT_EXPIRES=3600
       - SWAGGER_PASS=9hX_G3z!UHPMV@3
-    volumes: 
-    - ./:/home/dev/store-back
   mongo:
     image: "mongo:4.2.11-bionic"
     ports:
