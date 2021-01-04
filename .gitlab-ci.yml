@@ -34,7 +34,7 @@ e2e_test:
     - sudo apt-get install -y docker-compose
     - sudo docker image prune -f
     - sudo docker-compose -f docker-compose.yml build
-    - sudo docker-compose -f docker-compose.yml run --rm node npm test:e2e
+    - sudo docker-compose -f docker-compose.yml run --rm node npm run test:e2e
     - sudo docker-compose -f docker-compose.yml down
 deployment:
   stage: deploy
