@@ -5,7 +5,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import * as basicAuth from 'express-basic-auth';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
 
   app.setGlobalPrefix('api/v1');
   // Swagger configurations
