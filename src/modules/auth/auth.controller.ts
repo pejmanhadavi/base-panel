@@ -219,4 +219,15 @@ export class AuthController {
   ): Promise<{ accessToken: string; refreshToken: string }> {
     return await this.authService.resetPassword(passwordResetDto);
   }
+
+  // verify phone number
+  @Post('does-token-expires')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOkResponse()
+  @ApiOperation({ summary: 'verify access token' })
+  async doesTokenExpires(): Promise<boolean> {
+    return true;
+  }
 }
