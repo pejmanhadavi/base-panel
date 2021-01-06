@@ -14,7 +14,7 @@ services:
       - MONGO_URI=mongodb://mongo:27017/base-store
       - MONGO_URI_TEST=mongodb://mongo:27017/test-base-store
       - JWT_SECRET=VERYSECRET
-      - JWT_EXPIRES=3600
+      - JWT_EXPIRES=60
       - SWAGGER_PASS=9hX_G3z!UHPMV@3
   mongo:
     image: "mongo:4.2.11-bionic"
