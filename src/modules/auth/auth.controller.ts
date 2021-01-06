@@ -178,8 +178,6 @@ export class AuthController {
 
   // refresh access token
   @Post('refresh-token')
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse()
   @ApiOperation({ summary: 'Refresh Access Token with refresh token' })
